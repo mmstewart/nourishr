@@ -30,9 +30,9 @@ class PasswordUpdateTest extends TestCase
             ->actingAs($user)
             ->from(route('user-password.edit'))
             ->put(route('user-password.update'), [
-                'current_password' => 'password',
-                'password' => 'new-password',
-                'password_confirmation' => 'new-password',
+                'current_password' => 'Password123!',
+                'new_password' => 'Testing1234!',
+                'new_password_confirmation' => 'Testing1234!',
             ]);
 
         $response
@@ -50,9 +50,9 @@ class PasswordUpdateTest extends TestCase
             ->actingAs($user)
             ->from(route('user-password.edit'))
             ->put(route('user-password.update'), [
-                'current_password' => 'wrong-password',
-                'password' => 'new-password',
-                'password_confirmation' => 'new-password',
+                'current_password' => 'password',
+                'new_password' => 'Testing1234!',
+                'new_password_confirmation' => 'Testing1234!',
             ]);
 
         $response

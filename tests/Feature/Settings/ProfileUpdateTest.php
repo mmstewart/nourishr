@@ -68,7 +68,7 @@ class ProfileUpdateTest extends TestCase
         $response = $this
             ->actingAs($user)
             ->delete(route('profile.destroy'), [
-                'password' => 'password',
+                'password' => 'Password123!',
             ]);
 
         $response
@@ -87,7 +87,7 @@ class ProfileUpdateTest extends TestCase
             ->actingAs($user)
             ->from(route('profile.edit'))
             ->delete(route('profile.destroy'), [
-                'password' => 'wrong-password',
+                'password' => 'password',
             ]);
 
         $response

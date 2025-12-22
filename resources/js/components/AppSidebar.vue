@@ -14,20 +14,20 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { LifeBuoy, Send, LayoutGrid } from 'lucide-vue-next';
+import { LifeBuoy, Send, CalendarClock, House } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
-        icon: LayoutGrid,
+        icon: House,
     },
-    // todo
+    // todo: href
     {
         title: 'History',
         href: dashboard(),
-        icon: LayoutGrid,
+        icon: CalendarClock,
     },
 
 ];

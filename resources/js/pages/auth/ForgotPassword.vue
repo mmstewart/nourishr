@@ -66,6 +66,8 @@ function submit() {
 <template>
     <div class="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
         <div class="w-full max-w-sm">
+
+            <Head title="Forgot password" />
             <div :class="cn('flex flex-col gap-6', props.class)">
                 <form action="/login" method="post" @submit.prevent="submit">
                     <FieldGroup>
