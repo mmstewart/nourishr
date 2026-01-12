@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from "vue"
-import { ref, computed } from 'vue'
+import { ref, computed, type HTMLAttributes } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 
+import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -115,7 +115,12 @@ function submit() {
         <form action="/register" method="post" @submit.prevent="submit">
             <FieldGroup>
                 <div class="flex flex-col items-center gap-2 text-center">
-                    <span class="sr-only">Signup for Nourishr</span>
+                    <a href="/" class="flex flex-col items-center gap-2 font-medium">
+                        <div class="flex size-8 items-center justify-center rounded-md">
+                            <AppLogoIcon class="size-6" />
+                        </div>
+                        <span class="sr-only">Nourishr</span>
+                    </a>
                     <h1 class="text-xl font-bold">
                         Welcome to Nourishr
                     </h1>

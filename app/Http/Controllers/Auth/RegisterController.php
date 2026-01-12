@@ -33,6 +33,6 @@ class RegisterController extends Controller
 
         Auth::login($user);
 
-        return Inertia::location(route('dashboard'));
+        return to_route('setup');
     }
 }

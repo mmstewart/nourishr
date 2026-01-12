@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from "vue"
-import { ref, computed } from 'vue'
+import { ref, computed, type HTMLAttributes } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 
 import { cn } from '@/lib/utils'

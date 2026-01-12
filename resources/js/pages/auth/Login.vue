@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import LoginForm from '@/components/LoginForm.vue';
 import { Head } from '@inertiajs/vue3';
+import LoginForm from '@/components/LoginForm.vue';
 </script>
 
 <template>

@@ -23,7 +23,7 @@ class LoginController extends Controller
         if (Auth::attempt($validated)) {
             request()->session()->regenerate();
 
-            return Inertia::location(route('dashboard'));
+            return redirect()->intended(route('dashboard'));
         }
 
         return back()->withErrors(['email' => 'The provided credentials do not match our records.'])->onlyInput('email');
