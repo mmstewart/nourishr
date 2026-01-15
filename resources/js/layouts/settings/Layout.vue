@@ -27,6 +27,10 @@ const sidebarNavItems: NavItem[] = [
         title: 'Appearance',
         href: editAppearance(),
     },
+    {
+        title: 'Weight Goals',
+        href: '/settings/weight-goal',
+    },
 ];
 
 const currentPath = typeof window !== undefined ? window.location.pathname : '';

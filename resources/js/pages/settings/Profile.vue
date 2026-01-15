@@ -85,7 +85,7 @@ function submit() {
         return
     }
 
-    form.post('/settings/profile')
+    form.put('/settings/profile')
 }
 </script>
 
@@ -96,7 +96,7 @@ function submit() {
 
         <SettingsLayout>
             <div class="space-y-6">
-                <form action="/settings/profile" method="patch" @submit.prevent="submit">
+                <form action="/settings/profile" method="put" @submit.prevent="submit">
                     <FieldGroup>
                         <div class="flex flex-col items-start text-left">
                             <span class="sr-only">Profile information</span>

@@ -29,7 +29,7 @@ class SetupController extends Controller
         $validated['start_date'] = now();
         $validated['user_id'] = Auth::id();
 
-        Auth::user()->weightGoals()->create($validated);
+        Auth::user()->weightGoal()->create($validated);
 
         return Inertia::location(route('dashboard'));
     }

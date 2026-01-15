@@ -12,13 +12,13 @@ class GoogleAuthCallbackController extends Controller
 {
     public function __invoke()
     {
-        $google_user = Socialite::driver('google')->user();
+        $googleUser = Socialite::driver('google')->user();
 
         $user = User::updateOrCreate([
-            'id' => $google_user->getId(),
+            'id' => $googleUser->getId(),
         ], [
-            'name' => $google_user->getName(),
-            'email' => $google_user->getEmail(),
+            'name' => $googleUser->getName(),
+            'email' => $googleUser->getEmail(),
             'email_verified_at' => now(),
         ]);
 

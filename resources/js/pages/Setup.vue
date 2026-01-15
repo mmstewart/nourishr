@@ -169,7 +169,7 @@ function submit() {
                                 </FieldLabel>
                                 <Select v-model="form.weekly_goal_id" @blur="markTouched('weekly_goal_id')">
                                     <SelectTrigger id="weekly_goal_id" name="weekly_goal_id" :class="cn(
-                                        'w-full',
+                                        'w-full dark:bg-input/30',
                                         (weeklyGoalError || form.errors.weekly_goal_id) && 'border-red-500 ring-red-500'
                                     )">
                                         <SelectValue placeholder="Select a weekly goal" />

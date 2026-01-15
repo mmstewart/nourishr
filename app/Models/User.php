@@ -33,7 +33,7 @@ class User extends Authenticatable
         ];
     }
 
-    public function weightGoals()
+    public function weightGoal()
     {
         return $this->hasOne(WeightGoal::class);
     }
