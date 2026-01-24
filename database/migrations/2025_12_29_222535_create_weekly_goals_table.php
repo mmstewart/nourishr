@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('weekly_goals', function (Blueprint $table) {
             $table->id();
-            $table->string('weekly_goal');
+            $table->string('name');
         });
     }
 

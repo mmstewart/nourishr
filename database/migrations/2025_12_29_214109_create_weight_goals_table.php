@@ -19,6 +19,7 @@ return new class extends Migration
             $table->float('current_weight');
             $table->float('goal_weight');
             $table->unsignedBigInteger('weekly_goal_id');
+            $table->unsignedBigInteger('activity_level_id');
             $table->timestamps();
         });
     }

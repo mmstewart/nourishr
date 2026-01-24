@@ -25,7 +25,7 @@ import {
 
 const setupRef = useTemplateRef('setupRef')
 const step = ref(1)
-const totalSteps = 3
+const totalSteps = 4
 
 const steps = [
     {
@@ -35,11 +35,16 @@ const steps = [
     },
     {
         step: 2,
+        title: 'Activity',
+        description: 'Select your activity level',
+    },
+    {
+        step: 3,
         title: 'Current',
         description: 'Add your current weight',
     },
     {
-        step: 3,
+        step: 4,
         title: 'Target',
         description: 'Add your target weight',
     },
@@ -48,22 +53,26 @@ const steps = [
 const props = defineProps<{
     class?: HTMLAttributes["class"],
     weeklyGoals: Array<{ id: number, name: string }>,
+    activityLevels: Array<{ id: number, name: string }>,
 }>()
 
 const form = useForm({
     weekly_goal_id: '',
+    activity_level_id: '',
     current_weight: '',
     goal_weight: '',
 })
 
 // Touch tracking so we don't show errors before the user interacts
 const touchedWeeklyGoalId = ref(false)
+const touchedActivityLevelId = ref(false)
 const touchedCurrentWeight = ref(false)
 const touchedGoalWeight = ref(false)
 const attemptedSubmit = ref(false)
 
 function markTouched(field: string) {
     if (field === 'weekly_goal_id') touchedWeeklyGoalId.value = true
+    if (field === 'activity_level_id') touchedActivityLevelId.value = true
     if (field === 'current_weight') touchedCurrentWeight.value = true
     if (field === 'goal_weight') touchedGoalWeight.value = true
 }
@@ -77,30 +86,50 @@ const weeklyGoalError = computed(() => {
     return ''
 })
 
-const currentWeightError = computed(() => {
-    if (!form.current_weight && !hasNumber(form.current_weight) && (touchedCurrentWeight.value || attemptedSubmit.value)) return 'Current weight is required.'
+const activityLevelError = computed(() => {
+    if (!form.activity_level_id && (touchedActivityLevelId.value || attemptedSubmit.value)) return 'Please select an activity level.'
     return ''
 })
 
-const goalWeightError = computed(() => {
-    if (!form.goal_weight && !hasNumber(form.goal_weight) && (touchedGoalWeight.value || attemptedSubmit.value)) return 'Goal weight is required.'
-    return ''
-})
+const validateWeight = (value: string | number | null, isTouched: boolean, label: string) => {
+    if (!(isTouched || attemptedSubmit.value)) return '';
+
+    if (value === null || value === '') {
+        return `${label} weight is required.`;
+    }
+
+    const num = Number(value);
+
+    if (num < 30 || num > 999) {
+        return `${label} weight must be between 30 and 999 lbs.`;
+    }
+
+    return '';
+};
+
+const currentWeightError = computed(() =>
+    validateWeight(form.current_weight, touchedCurrentWeight.value, 'Current')
+);
+
+const goalWeightError = computed(() =>
+    validateWeight(form.goal_weight, touchedGoalWeight.value, 'Goal')
+);
 
 const prevStep = () => {
     if (step.value > 1) step.value--;
 };
 
 const hasClientErrors = computed(() => {
-    return !!(weeklyGoalError.value || currentWeightError.value || goalWeightError.value)
+    return !!(weeklyGoalError.value || activityLevelError.value || currentWeightError.value || goalWeightError.value)
 })
 
 const handleContinue = () => {
     attemptedSubmit.value = true;
 
     if (step.value === 1 && weeklyGoalError.value) return;
-    if (step.value === 2 && currentWeightError.value) return;
-    if (step.value === 3 && goalWeightError.value) return;
+    if (step.value === 2 && activityLevelError.value) return;
+    if (step.value === 3 && currentWeightError.value) return;
+    if (step.value === 4 && goalWeightError.value) return;
 
     if (step.value < totalSteps) {
         step.value++;
@@ -116,7 +145,7 @@ const handleContinue = () => {
 };
 
 function submit() {
-    if (hasClientErrors.value) return;
+    if (hasClientErrors.value) return
 
     form.post('/setup', {
         preserveState: true,
@@ -126,7 +155,7 @@ function submit() {
 
 <template>
     <div class="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
-        <Stepper v-model="step" class="flex w-1/3 items-start gap-2">
+        <Stepper v-model="step" class="flex w-1/2 items-start gap-2">
             <StepperItem v-for="stepItem in steps" :key="stepItem.step" v-slot="{ state }"
                 class="relative flex w-full flex-col items-center justify-center" :step="stepItem.step">
                 <StepperSeparator v-if="stepItem.step !== steps[steps.length - 1]?.step"
@@ -191,13 +220,41 @@ function submit() {
                         </template>
                         <template v-if="step === 2">
                             <Field>
+                                <FieldLabel for="activity_level_id">
+                                    What is your activity level?
+                                </FieldLabel>
+                                <Select v-model="form.activity_level_id" @blur="markTouched('activity_level_id')">
+                                    <SelectTrigger id="activity_level_id" name="activity_level_id" :class="cn(
+                                        'w-full dark:bg-input/30',
+                                        (activityLevelError || form.errors.activity_level_id) && 'border-red-500 ring-red-500'
+                                    )">
+                                        <SelectValue placeholder="Select an activity level" />
+                                    </SelectTrigger>
+                                    <SelectContent class="w-[385px]">
+                                        <SelectGroup>
+                                            <SelectLabel>Activity levels</SelectLabel>
+                                            <SelectItem v-for="activityLevel in activityLevels" :key="activityLevel.id"
+                                                :value="activityLevel.id">
+                                                {{ activityLevel.name }}
+                                            </SelectItem>
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                                <div v-if="activityLevelError || form.errors.activity_level_id"
+                                    class="text-red-500 text-sm">
+                                    {{ activityLevelError || form.errors.activity_level_id }}
+                                </div>
+                            </Field>
+                        </template>
+                        <template v-if="step === 3">
+                            <Field>
                                 <FieldLabel for="current_weight">
                                     What is your current weight?
                                 </FieldLabel>
                                 <InputGroup
                                     :class="{ 'border-red-500': currentWeightError || form.errors.current_weight }">
                                     <InputGroupInput v-model="form.current_weight" @blur="markTouched('current_weight')"
-                                        step="0.1" min="0" inputmode="decimal" id="current_weight" name="current_weight"
+                                        step="0.1" inputmode="decimal" id="current_weight" name="current_weight"
                                         type="number" v-focus />
                                     <InputGroupAddon align="inline-end">
                                         <InputGroupText>lbs</InputGroupText>
@@ -209,15 +266,15 @@ function submit() {
                                 </div>
                             </Field>
                         </template>
-                        <template v-if="step === 3">
+                        <template v-if="step === 4">
                             <Field>
                                 <FieldLabel for="goal_weight">
                                     What is your goal weight?
                                 </FieldLabel>
                                 <InputGroup :class="{ 'border-red-500': goalWeightError || form.errors.goal_weight }">
                                     <InputGroupInput v-model="form.goal_weight" @blur="markTouched('goal_weight')"
-                                        step="0.1" min="0" inputmode="decimal" id="goal_weight" name="goal_weight"
-                                        type="number" v-focus />
+                                        step="0.1" inputmode="decimal" id="goal_weight" name="goal_weight" type="number"
+                                        v-focus />
                                     <InputGroupAddon align="inline-end">
                                         <InputGroupText>lbs</InputGroupText>
                                     </InputGroupAddon>

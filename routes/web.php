@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SetupController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -11,7 +12,7 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('dashboard', fn() => Inertia::render('Dashboard'))
+Route::get('dashboard', DashboardController::class)
     ->middleware(['auth', 'hasGoal', 'verified'])
     ->name('dashboard');
 

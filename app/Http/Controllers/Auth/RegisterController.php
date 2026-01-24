@@ -20,7 +20,10 @@ class RegisterController extends Controller
     {
         $validated = request()->validate([
             'name' => ['required', 'max:255', 'blasp_check'],
+            'age' => ['required', 'integer', 'min:13', 'max:120'],
+            'height_inches' => ['required', 'integer'],
             'email' => ['required', 'email', 'max:255', 'unique:users'],
+            'gender' => ['required'],
             'password' => ['required', 'confirmed', Password::min(10)->numbers()->symbols()],
             'password_confirmation' => ['required'],
         ]);
@@ -28,11 +31,14 @@ class RegisterController extends Controller
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'age' => $validated['age'],
+            'height_inches' => $validated['height_inches'],
+            'gender' => $validated['gender'],
             'password' => Hash::make($validated['password']),
         ]);
 
         Auth::login($user);
 
-        return to_route('setup');
+        return Inertia::location(route('dashboard'));
     }
 }

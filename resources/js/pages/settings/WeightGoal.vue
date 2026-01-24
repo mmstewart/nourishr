@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, type HTMLAttributes } from 'vue'
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import { cn } from "@/lib/utils"
 
 import { Button } from '@/components/ui/button'
@@ -22,7 +22,6 @@ import {
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group'
 import { Spinner } from '@/components/ui/spinner';
 
-import DeleteUser from '@/components/DeleteUser.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { type BreadcrumbItem } from '@/types';
@@ -39,6 +38,7 @@ interface WeightGoal {
     start_date: string;
     start_weight: number;
     weekly_goal_id: number;
+    activity_level_id: number;
     current_weight: number;
     goal_weight: number;
 }
@@ -46,6 +46,7 @@ interface WeightGoal {
 const props = defineProps<{
     class?: HTMLAttributes["class"],
     weeklyGoals: Array<{ id: number, name: string }>,
+    activityLevels: Array<{ id: number, name: string }>,
     weightGoal: WeightGoal,
 }>()
 
@@ -53,24 +54,23 @@ const form = useForm({
     start_date: props.weightGoal.start_date ?? '',
     start_weight: props.weightGoal.start_weight ?? '',
     weekly_goal_id: props.weightGoal.weekly_goal_id ?? '',
+    activity_level_id: props.weightGoal.activity_level_id ?? '',
     current_weight: props.weightGoal.current_weight ?? '',
     goal_weight: props.weightGoal.goal_weight ?? '',
 })
 
 // Touch tracking so we don't show errors before the user interacts
 const touchedWeeklyGoalId = ref(false)
+const touchedActivityLevelId = ref(false)
 const touchedCurrentWeight = ref(false)
 const touchedGoalWeight = ref(false)
 const attemptedSubmit = ref(false)
 
 function markTouched(field: string) {
     if (field === 'weekly_goal_id') touchedWeeklyGoalId.value = true
+    if (field === 'activity_level_id') touchedActivityLevelId.value = true
     if (field === 'current_weight') touchedCurrentWeight.value = true
     if (field === 'goal_weight') touchedGoalWeight.value = true
-}
-
-function hasNumber(value: string): boolean {
-    return /\d/.test(value)
 }
 
 const weeklyGoalError = computed(() => {
@@ -78,33 +78,51 @@ const weeklyGoalError = computed(() => {
     return ''
 })
 
-const currentWeightError = computed(() => {
-    if (!form.current_weight && !hasNumber(String(form.current_weight)) && (touchedCurrentWeight.value || attemptedSubmit.value)) return 'Current weight is required.'
+const activityLevelError = computed(() => {
+    if (!form.activity_level_id && (touchedActivityLevelId.value || attemptedSubmit.value)) return 'Please select an activity level.'
     return ''
 })
 
-const goalWeightError = computed(() => {
-    if (!form.goal_weight && !hasNumber(String(form.goal_weight)) && (touchedGoalWeight.value || attemptedSubmit.value)) return 'Goal weight is required.'
-    return ''
-})
+const validateWeight = (value: string | number | null, isTouched: boolean, label: string) => {
+    if (!(isTouched || attemptedSubmit.value)) return '';
+
+    if (value === null || value === '') {
+        return `${label} weight is required.`;
+    }
+
+    const num = Number(value);
+
+    if (num < 30 || num > 999) {
+        return `${label} weight must be between 30 and 999 lbs.`;
+    }
+
+    return '';
+};
+
+const currentWeightError = computed(() =>
+    validateWeight(form.current_weight, touchedCurrentWeight.value, 'Current')
+);
+
+const goalWeightError = computed(() =>
+    validateWeight(form.goal_weight, touchedGoalWeight.value, 'Goal')
+);
 
 const hasClientErrors = computed(() => {
-    return !!(weeklyGoalError.value || currentWeightError.value || goalWeightError.value)
+    return !!(weeklyGoalError.value || activityLevelError.value || currentWeightError.value || goalWeightError.value)
 })
 
 const allFieldsFilled = computed(() => {
-    return !!(form.weekly_goal_id && form.current_weight && form.goal_weight)
+    return !!(form.weekly_goal_id && form.activity_level_id && form.current_weight && form.goal_weight)
 })
 
 function submit() {
     attemptedSubmit.value = true
     touchedWeeklyGoalId.value = true
+    touchedActivityLevelId.value = true
     touchedCurrentWeight.value = true
     touchedGoalWeight.value = true
 
-    if (hasClientErrors.value) {
-        return
-    }
+    if (hasClientErrors.value) return
 
     form.put('/settings/weight-goal')
 }
@@ -154,12 +172,38 @@ function submit() {
                             </div>
                         </Field>
                         <Field>
+                            <FieldLabel for="activity_level_id">
+                                What is your activity level?
+                            </FieldLabel>
+                            <Select v-model="form.activity_level_id" @blur="markTouched('activity_level_id')">
+                                <SelectTrigger id="activity_level_id" name="activity_level_id" :class="cn(
+                                    'w-full dark:bg-input/30',
+                                    (activityLevelError || form.errors.activity_level_id) && 'border-red-500 ring-red-500'
+                                )">
+                                    <SelectValue placeholder="Select an activity level" />
+                                </SelectTrigger>
+                                <SelectContent class="w-[385px]">
+                                    <SelectGroup>
+                                        <SelectLabel>Activity levels</SelectLabel>
+                                        <SelectItem v-for="activityLevel in activityLevels" :key="activityLevel.id"
+                                            :value="activityLevel.id">
+                                            {{ activityLevel.name }}
+                                        </SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                            <div v-if="activityLevelError || form.errors.activity_level_id"
+                                class="text-red-500 text-sm">
+                                {{ activityLevelError || form.errors.activity_level_id }}
+                            </div>
+                        </Field>
+                        <Field>
                             <FieldLabel for="current_weight">
                                 What is your current weight?
                             </FieldLabel>
                             <InputGroup :class="{ 'border-red-500': currentWeightError || form.errors.current_weight }">
                                 <InputGroupInput v-model="form.current_weight" @blur="markTouched('current_weight')"
-                                    step="0.1" min="0" inputmode="decimal" id="current_weight" name="current_weight"
+                                    step="0.1" inputmode="decimal" id="current_weight" name="current_weight"
                                     type="number" v-focus />
                                 <InputGroupAddon align="inline-end">
                                     <InputGroupText>lbs</InputGroupText>
@@ -175,8 +219,8 @@ function submit() {
                             </FieldLabel>
                             <InputGroup :class="{ 'border-red-500': goalWeightError || form.errors.goal_weight }">
                                 <InputGroupInput v-model="form.goal_weight" @blur="markTouched('goal_weight')"
-                                    step="0.1" min="0" inputmode="decimal" id="goal_weight" name="goal_weight"
-                                    type="number" v-focus />
+                                    step="0.1" inputmode="decimal" id="goal_weight" name="goal_weight" type="number"
+                                    v-focus />
                                 <InputGroupAddon align="inline-end">
                                     <InputGroupText>lbs</InputGroupText>
                                 </InputGroupAddon>
@@ -186,7 +230,7 @@ function submit() {
                             </div>
                         </Field>
                         <Field class="flex items-center gap-4">
-                            <Button :disabled="form.processing || !allFieldsFilled" type="submit"
+                            <Button :disabled="form.processing || !allFieldsFilled || hasClientErrors" type="submit"
                                 class="inline-flex items-start w-auto! self-start">
                                 <Spinner v-if="form.processing" class="mr-2" />
                                 Save

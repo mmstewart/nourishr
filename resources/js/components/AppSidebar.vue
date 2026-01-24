@@ -25,8 +25,8 @@ const mainNavItems: NavItem[] = [
     },
     // todo: href
     {
-        title: 'History',
-        href: dashboard(),
+        title: 'Trends',
+        href: '/trends',
         icon: CalendarClock,
     },
 

@@ -13,8 +13,11 @@ class User extends Authenticatable
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
     protected $fillable = [
-        'name',
+        'age',
         'email',
+        'gender',
+        'height_inches',
+        'name',
         'password',
     ];
 

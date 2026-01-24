@@ -10,6 +10,7 @@ class WeightGoal extends Model
     use HasFactory;
 
     public $fillable = [
+        'activity_level_id',
         'current_weight',
         'goal_weight',
         'start_weight',

@@ -79,13 +79,23 @@ const newPasswordConfirmationError = computed(() => {
     return ''
 })
 
+const newPasswordRulesPassed = computed(() => {
+    return (
+        newPasswordHasMinLength.value &&
+        newPasswordHasNumber.value &&
+        newPasswordHasSpecialChar.value &&
+        newPasswordsMatch.value
+    )
+})
+
 const hasClientErrors = computed(() => {
-    return !!(currentPasswordError.value || newPasswordError.value || newPasswordConfirmationError.value)
+    return !!(currentPasswordError.value || newPasswordError.value || newPasswordConfirmationError.value || !newPasswordRulesPassed.value)
 })
 
 const allFieldsFilled = computed(() => {
     return !!(form.current_password && form.new_password && form.new_password_confirmation)
 })
+
 
 function submit() {
     attemptedSubmit.value = true
@@ -93,9 +103,7 @@ function submit() {
     touchedNewPassword.value = true
     touchedNewPasswordConfirmation.value = true
 
-    if (hasClientErrors.value) {
-        return
-    }
+    if (hasClientErrors.value || !newPasswordRulesPassed.value) return
 
     form.put('/settings/password', {
         preserveScroll: true,
@@ -186,11 +194,18 @@ function submit() {
                             </div>
                         </Field>
                         <Field class="flex items-center gap-4">
-                            <Button :disabled="form.processing || !allFieldsFilled" type="submit"
-                                class="inline-flex items-start w-auto! self-start">
+                            <Button
+                                :disabled="form.processing || !allFieldsFilled || hasClientErrors || !newPasswordRulesPassed"
+                                type="submit" class="inline-flex items-start w-auto! self-start">
                                 <Spinner v-if="form.processing" class="mr-2" />
                                 Save password
                             </Button>
+                            <Transition enter-active-class="transition ease-in-out" enter-from-class="opacity-0"
+                                leave-active-class="transition ease-in-out" leave-to-class="opacity-0">
+                                <p v-show="form.recentlySuccessful" class="text-sm text-neutral-600">
+                                    Saved.
+                                </p>
+                            </Transition>
                         </Field>
                     </FieldGroup>
                 </form>

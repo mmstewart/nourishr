@@ -67,9 +67,7 @@ function submit() {
     touchedEmail.value = true
     touchedPassword.value = true
 
-    if (hasClientErrors.value) {
-        return
-    }
+    if (hasClientErrors.value) return
 
     form.post('/login', {
         preserveState: true,
@@ -124,7 +122,7 @@ function submit() {
                     </div>
                 </Field>
                 <Field>
-                    <Button :disabled="form.processing || !allFieldsFilled" type="submit">
+                    <Button :disabled="form.processing || !allFieldsFilled || hasClientErrors" type="submit">
                         <Spinner v-if="form.processing" class="mr-2" />
                         Login
                     </Button>
