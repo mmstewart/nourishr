@@ -77,10 +77,6 @@ function markTouched(field: string) {
     if (field === 'goal_weight') touchedGoalWeight.value = true
 }
 
-function hasNumber(value: string): boolean {
-    return /\d/.test(value)
-}
-
 const weeklyGoalError = computed(() => {
     if (!form.weekly_goal_id && (touchedWeeklyGoalId.value || attemptedSubmit.value)) return 'Please select a weekly goal.'
     return ''
@@ -197,13 +193,13 @@ function submit() {
                                     What is your weekly goal?
                                 </FieldLabel>
                                 <Select v-model="form.weekly_goal_id" @blur="markTouched('weekly_goal_id')">
-                                    <SelectTrigger id="weekly_goal_id" name="weekly_goal_id" :class="cn(
+                                    <SelectTrigger v-focus id="weekly_goal_id" name="weekly_goal_id" :class="cn(
                                         'w-full dark:bg-input/30',
                                         (weeklyGoalError || form.errors.weekly_goal_id) && 'border-red-500 ring-red-500'
                                     )">
                                         <SelectValue placeholder="Select a weekly goal" />
                                     </SelectTrigger>
-                                    <SelectContent class="w-[385px]">
+                                    <SelectContent class="w-96.25">
                                         <SelectGroup>
                                             <SelectLabel>Weekly goals</SelectLabel>
                                             <SelectItem v-for="weeklyGoal in weeklyGoals" :key="weeklyGoal.id"
@@ -224,13 +220,13 @@ function submit() {
                                     What is your activity level?
                                 </FieldLabel>
                                 <Select v-model="form.activity_level_id" @blur="markTouched('activity_level_id')">
-                                    <SelectTrigger id="activity_level_id" name="activity_level_id" :class="cn(
+                                    <SelectTrigger v-focus id="activity_level_id" name="activity_level_id" :class="cn(
                                         'w-full dark:bg-input/30',
                                         (activityLevelError || form.errors.activity_level_id) && 'border-red-500 ring-red-500'
                                     )">
                                         <SelectValue placeholder="Select an activity level" />
                                     </SelectTrigger>
-                                    <SelectContent class="w-[385px]">
+                                    <SelectContent class="w-96.25">
                                         <SelectGroup>
                                             <SelectLabel>Activity levels</SelectLabel>
                                             <SelectItem v-for="activityLevel in activityLevels" :key="activityLevel.id"

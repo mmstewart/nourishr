@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\SetupController;
+use App\Http\Controllers\SetupWeightGoalController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -16,8 +16,8 @@ Route::get('dashboard', DashboardController::class)
     ->middleware(['auth', 'hasGoal', 'verified'])
     ->name('dashboard');
 
-Route::get('setup', [SetupController::class, 'create'])->middleware('auth')->name('setup');
-Route::post('setup', [SetupController::class, 'store'])->middleware('auth')->name('setup.store');
+Route::get('setup-weight-goal', [SetupWeightGoalController::class, 'create'])->middleware('auth')->name('setup-weight-goal');
+Route::post('setup-weight-goal', [SetupWeightGoalController::class, 'store'])->middleware('auth')->name('setup-weight-goal.store');
 
 require __DIR__.'/settings.php';
 require __DIR__ . '/auth.php';

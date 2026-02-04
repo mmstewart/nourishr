@@ -15,12 +15,12 @@ class WeightGoalController extends Controller
 
         $activityLevels = ActivityLevel::all();
 
-        $weightGoal = auth()->user()->load('weightGoal')->weightGoal;
+        $user = auth()->user()->load('weightGoal');
 
         return Inertia::render('settings/WeightGoal', [
             'weeklyGoals' => $weeklyGoals,
-            'weightGoal' => $weightGoal,
             'activityLevels' => $activityLevels,
+            'user' => $user,
         ]);
     }
 

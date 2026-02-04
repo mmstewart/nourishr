@@ -3,9 +3,8 @@ import { computed, ref } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import PlaceholderPattern from '../components/PlaceholderPattern.vue';
-import { Badge } from "@/components/ui/badge"
 import {
     Card,
     CardAction,
@@ -16,7 +15,8 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Progress } from '@/components/ui/progress';
-import { Weight, TrendingDown } from 'lucide-vue-next';
+import { Weight, TrendingDown, TrendingUp, BicepsFlexed, Target, Flame } from 'lucide-vue-next';
+import ChartArea from '../components/ChartArea.vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -25,39 +25,91 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-interface WeightGoal {
-    id: number;
-    start_date: string;
-    start_weight: number;
-    weekly_goal_id: number;
-    current_weight: number;
-    goal_weight: number;
-}
+const page = usePage();
+const user = page.props.auth.user;
 
-const props = defineProps<{
-    weightGoal: WeightGoal,
-}>()
+const weightStats = computed(() => {
+    const { start_weight: start, current_weight: current, goal_weight: goal } = user.weight_goal;
 
-const progress = computed(() => {
-    const start = props.weightGoal?.start_weight ?? 0;
-    const current = props.weightGoal?.current_weight ?? 0;
-    const goal = props.weightGoal?.goal_weight ?? 0;
+    const goalId = user.weight_goal.weekly_goal_id;
 
-    const totalToLose = start - goal;
+    const isLosing = [1, 2, 3, 4].includes(goalId);
+    const isGaining = [6, 7].includes(goalId);
+    const isMaintaining = goalId === 5;
 
-    if (totalToLose <= 0) return 0;
+    // Weight difference between start and goal
+    const weightDifference = Math.abs(start - goal);
 
-    const lostSoFar = start - current;
+    // Weight covered so far
+    const weightCovered = Math.abs(start - current);
 
-    const percentage = (lostSoFar / totalToLose) * 100;
+    // Progress percentage
+    const progressValue = isMaintaining || weightDifference === 0
+        ? 100
+        : Math.min(Math.max((weightCovered / weightDifference) * 100, 0), 100);
 
-    return Math.min(Math.max(percentage, 0), 100);
+    const lbsToGoal = Math.abs(current - goal).toFixed(1);
+
+    let statusLabel = '';
+
+    if (isMaintaining) {
+        statusLabel = 'Staying on track';
+    } else {
+        statusLabel = current > goal ? 'left to lose' : 'left to gain';
+    }
+
+    return {
+        progress: progressValue,
+        lbsToGoal,
+        isLosing,
+        isGaining,
+        isMaintaining,
+        statusLabel
+    };
 });
 
-// Calculate remaining lbs for the label
-const lbsToGoal = computed(() => {
-    const diff = (props.weightGoal?.current_weight ?? 0) - (props.weightGoal?.goal_weight ?? 0);
-    return diff > 0 ? diff.toFixed(1) : 0;
+const totalEatenCalories = computed(() => {
+    return user.nutrition_entries.reduce((total, entry) => total + entry.calories, 0);
+});
+
+const calorieProgress = computed(() => {
+    const target = user.weight_goal.target_calories;
+
+    return Math.min((totalEatenCalories.value / target) * 100, 100);
+});
+
+const kcalRemaining = computed(() => {
+    return Math.max(user.weight_goal.target_calories - totalEatenCalories.value, 0);
+});
+
+const totalProtein = computed(() => {
+    return user.nutrition_entries.reduce((total, entry) => total + entry.protein, 0);
+});
+
+const proteinProgress = computed(() => {
+    const target = user.weight_goal.protein_grams;
+
+    return Math.min((totalProtein.value / target) * 100, 100);
+});
+
+const totalCarbohydrates = computed(() => {
+    return user.nutrition_entries.reduce((total, entry) => total + entry.carbohydrates, 0);
+});
+
+const carbohydratesProgress = computed(() => {
+    const target = user.weight_goal.carb_grams;
+
+    return Math.min((totalCarbohydrates.value / target) * 100, 100);
+});
+
+const totalFats = computed(() => {
+    return user.nutrition_entries.reduce((total, entry) => total + entry.fats, 0);
+});
+
+const fatsProgress = computed(() => {
+    const target = user.weight_goal.fat_grams;
+
+    return Math.min((totalFats.value / target) * 100, 100);
 });
 </script>
 
@@ -71,74 +123,95 @@ const lbsToGoal = computed(() => {
                 class="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid auto-rows-min gap-4 md:grid-cols-3 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs">
                 <Card class="@container/card">
                     <CardHeader>
-                        <CardDescription>New Customers</CardDescription>
+                        <CardDescription>Daily Calories</CardDescription>
                         <CardTitle class="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                            1,234
+                            {{ totalEatenCalories }} kcal
                         </CardTitle>
                         <CardAction>
-                            <Badge variant="outline">
-                                <IconTrendingDown />
-                                -20%
-                            </Badge>
+                            <Flame class="mr-1 size-4.5" />
                         </CardAction>
                     </CardHeader>
-                    <CardFooter class="flex-col items-start gap-1.5 text-sm">
-                        <div class="line-clamp-1 flex gap-2 font-medium">
-                            Down 20% this period
-                            <IconTrendingDown class="size-4" />
-                        </div>
-                        <div class="text-muted-foreground">
-                            Acquisition needs attention
+                    <CardContent>
+                        <div class="text-sm font-medium tabular-nums text-end">{{ user.weight_goal.target_calories
+                        }}
+                            kcal</div>
+                        <Progress :model-value="calorieProgress" class="w-full mt-2" />
+                    </CardContent>
+                    <CardFooter class="text-sm">
+                        <div class="flex items-center gap-2 font-medium">
+                            <TrendingUp class="size-4.5 text-green-500" />
+                            {{ kcalRemaining }} kcal remaining
                         </div>
                     </CardFooter>
                 </Card>
                 <Card class="@container/card">
                     <CardHeader>
                         <CardDescription>Nutrition Goals</CardDescription>
-                        <CardTitle class="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                            45,678
-                        </CardTitle>
+                        <CardAction>
+                            <Target class="mr-1 size-4.5" />
+                        </CardAction>
                     </CardHeader>
-                    <CardFooter class="flex-col items-start gap-1.5 text-sm">
-                        <div class="line-clamp-1 flex gap-2 font-medium">
-                            Strong user retention
-                            <IconTrendingUp class="size-4" />
+                    <CardContent>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-sm text-muted-foreground">Protein</span>
+                                    <span class="text-sm font-medium tabular-nums">{{ totalProtein }} / {{
+                                        user.weight_goal.protein_grams }}
+                                        g</span>
+                                </div>
+                                <Progress :model-value="proteinProgress" class="w-full" />
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-sm text-muted-foreground">Carbs</span>
+                                    <span class="text-sm font-medium tabular-nums">{{ totalCarbohydrates }} / {{
+                                        user.weight_goal.carb_grams }}
+                                        g</span>
+                                </div>
+                                <Progress :model-value="carbohydratesProgress" class="w-full" />
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-sm text-muted-foreground">Fats</span>
+                                    <span class="text-sm font-medium tabular-nums">{{ totalFats }} / {{
+                                        user.weight_goal.fat_grams }}
+                                        g</span>
+                                </div>
+                                <Progress :model-value="fatsProgress" class="w-full" />
+                            </div>
                         </div>
-                        <div class="text-muted-foreground">
-                            Engagement exceed targets
-                        </div>
-                    </CardFooter>
+                    </CardContent>
                 </Card>
                 <Card class="@container/card relative overflow-hidden">
                     <CardHeader>
                         <CardDescription>Current Weight</CardDescription>
                         <CardTitle class="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                            {{ props.weightGoal.current_weight }} lbs
+                            {{ user.weight_goal.current_weight }} lbs
                         </CardTitle>
                         <CardAction>
                             <Weight class="mr-1 size-4.5" />
                         </CardAction>
                     </CardHeader>
                     <CardContent>
-                        <div class="flex justify-between mb-2">
-                            <span class="text-sm text-muted-foreground">{{ props.weightGoal.current_weight }}
-                                lbs</span>
-                            <span class="text-sm font-medium tabular-nums">{{ props.weightGoal.goal_weight }}
-                                lbs</span>
-                        </div>
-                        <Progress v-model="progress" class="w-full" />
+                        <div class="text-sm font-medium tabular-nums text-end">Goal: {{ user.weight_goal.goal_weight }}
+                            lbs</div>
+                        <Progress :model-value="weightStats.progress" class="w-full mt-2" />
                     </CardContent>
                     <CardFooter class="text-sm">
                         <div class="flex items-center gap-2 font-medium">
-                            <TrendingDown class="size-4.5" />
-                            {{ lbsToGoal }} lbs to goal
+                            <TrendingDown v-if="weightStats.isLosing" class="size-4.5 text-blue-500" />
+                            <TrendingUp v-else-if="weightStats.isGaining" class="size-4.5 text-green-500" />
+                            <BicepsFlexed v-else class="size-4.5 text-purple-500" />
+
+                            <span>{{ weightStats.lbsToGoal }} lbs {{ weightStats.statusLabel }}</span>
                         </div>
                     </CardFooter>
                 </Card>
             </div>
             <div
                 class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
-                <PlaceholderPattern />
+                <ChartArea :user="user" />
             </div>
         </div>
     </AppLayout>

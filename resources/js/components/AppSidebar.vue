@@ -14,7 +14,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { LifeBuoy, Send, CalendarClock, House } from 'lucide-vue-next';
+import { LifeBuoy, Send, ChartArea, House } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -23,11 +23,10 @@ const mainNavItems: NavItem[] = [
         href: dashboard(),
         icon: House,
     },
-    // todo: href
     {
-        title: 'Trends',
-        href: '/trends',
-        icon: CalendarClock,
+        title: 'Analytics',
+        href: '/analytics',
+        icon: ChartArea,
     },
 
 ];

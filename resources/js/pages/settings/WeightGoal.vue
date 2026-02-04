@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, type HTMLAttributes } from 'vue'
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { cn } from "@/lib/utils"
 
 import { Button } from '@/components/ui/button'
@@ -33,30 +33,21 @@ const breadcrumbItems: BreadcrumbItem[] = [
     },
 ];
 
-interface WeightGoal {
-    id: number;
-    start_date: string;
-    start_weight: number;
-    weekly_goal_id: number;
-    activity_level_id: number;
-    current_weight: number;
-    goal_weight: number;
-}
+const page = usePage();
+const user = page.props.auth.user;
 
 const props = defineProps<{
     class?: HTMLAttributes["class"],
     weeklyGoals: Array<{ id: number, name: string }>,
     activityLevels: Array<{ id: number, name: string }>,
-    weightGoal: WeightGoal,
 }>()
 
 const form = useForm({
-    start_date: props.weightGoal.start_date ?? '',
-    start_weight: props.weightGoal.start_weight ?? '',
-    weekly_goal_id: props.weightGoal.weekly_goal_id ?? '',
-    activity_level_id: props.weightGoal.activity_level_id ?? '',
-    current_weight: props.weightGoal.current_weight ?? '',
-    goal_weight: props.weightGoal.goal_weight ?? '',
+    start_weight: user.weight_goal.start_weight,
+    weekly_goal_id: user.weight_goal.weekly_goal_id,
+    activity_level_id: user.weight_goal.activity_level_id,
+    current_weight: user.weight_goal.current_weight,
+    goal_weight: user.weight_goal.goal_weight,
 })
 
 // Touch tracking so we don't show errors before the user interacts

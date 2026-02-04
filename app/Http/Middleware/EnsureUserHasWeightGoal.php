@@ -16,7 +16,7 @@ class EnsureUserHasWeightGoal
     public function handle(Request $request, Closure $next): Response
     {
         if (!$request->user()->weightGoal()->exists()) {
-            return redirect()->route('setup');
+            return redirect()->route('setup-weight-goal');
         }
 
         return $next($request);

@@ -17,6 +17,8 @@ return new class extends Migration
             $table->unsignedInteger('age');
             $table->unsignedInteger('height_inches');
             $table->string('gender');
+            $table->string('country_code', 2);
+            $table->string('timezone');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

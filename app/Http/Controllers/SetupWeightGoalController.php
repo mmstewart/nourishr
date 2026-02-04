@@ -8,7 +8,7 @@ use App\Models\WeeklyGoal;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
-class SetupController extends Controller
+class SetupWeightGoalController extends Controller
 {
     public function create()
     {
@@ -16,7 +16,7 @@ class SetupController extends Controller
 
         $activityLevels = ActivityLevel::all();
 
-        return Inertia::render('Setup', [
+        return Inertia::render('SetupWeight', [
             'weeklyGoals' => $weeklyGoals,
             'activityLevels' => $activityLevels,
         ]);

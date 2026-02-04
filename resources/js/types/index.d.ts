@@ -34,6 +34,39 @@ export interface User {
     height_inches: number;
     email: string;
     email_verified_at: string | null;
+    weight_goal: WeightGoal;
+    nutrition_entries: NutritionEntry[];
+    created_at: string;
+    updated_at: string;
+}
+
+export interface WeightGoal {
+    id: number;
+    user_id: number;
+    start_date: string;
+    start_weight: number;
+    current_weight: number;
+    goal_weight: number;
+    weekly_goal_id: number;
+    activity_level_id: number;
+    bmr: number;
+    maintenance_calories: number;
+    target_calories: number;
+    protein_grams: number;
+    fat_grams: number;
+    carb_grams: number;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface NutritionEntry {
+    id: number;
+    date: string;
+    calories: number;
+    food_item: string;
+    protein: number;
+    carbohydrates: number;
+    fats: number;
     created_at: string;
     updated_at: string;
 }
