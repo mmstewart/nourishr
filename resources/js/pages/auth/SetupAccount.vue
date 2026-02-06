@@ -113,6 +113,7 @@ const handleContinue = () => {
 
     if (step.value === totalSteps) {
         form.post('/setup-account', {
+            preserveState: true,
             onBefore: () => { isValidating.value = true },
             onFinish: () => { isValidating.value = false },
         });
@@ -370,7 +371,7 @@ const handleContinue = () => {
                                 </div>
                             </Field>
                         </template>
-                        <Field orientation="horizontal" class="pt-4">
+                        <Field orientation="horizontal">
                             <Button v-if="step > 1" variant="outline" type="button" @click="prevStep">Back</Button>
                             <Button type="submit" :disabled="form.processing || isValidating">
                                 <Spinner v-if="form.processing || isValidating" class="mr-2" />

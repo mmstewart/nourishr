@@ -30,8 +30,10 @@ export interface User {
     id: number;
     name: string;
     age: number;
-    gender: string;
     height_inches: number;
+    gender: string;
+    country_code: string;
+    timezone: string;
     email: string;
     email_verified_at: string | null;
     weight_goal: WeightGoal;
@@ -67,6 +69,15 @@ export interface NutritionEntry {
     protein: number;
     carbohydrates: number;
     fats: number;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface WeightEntry {
+    id: number;
+    user_id: number;
+    date: string;
+    weight: number;
     created_at: string;
     updated_at: string;
 }

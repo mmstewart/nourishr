@@ -148,7 +148,7 @@ function submit() {
                                 )">
                                     <SelectValue placeholder="Select a weekly goal" />
                                 </SelectTrigger>
-                                <SelectContent class="w-[575px]">
+                                <SelectContent class="w-143.75">
                                     <SelectGroup>
                                         <SelectLabel>Weekly goals</SelectLabel>
                                         <SelectItem v-for="weeklyGoal in weeklyGoals" :key="weeklyGoal.id"
@@ -173,7 +173,7 @@ function submit() {
                                 )">
                                     <SelectValue placeholder="Select an activity level" />
                                 </SelectTrigger>
-                                <SelectContent class="w-[385px]">
+                                <SelectContent class="w-143.75">
                                     <SelectGroup>
                                         <SelectLabel>Activity levels</SelectLabel>
                                         <SelectItem v-for="activityLevel in activityLevels" :key="activityLevel.id"

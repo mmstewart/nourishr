@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreAccountRequest;
+use App\Http\Requests\Auth\StoreAccountRequest;
 use App\Models\User;
 use App\Support\CountryList;
 use Illuminate\Support\Facades\Auth;

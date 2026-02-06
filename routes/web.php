@@ -13,11 +13,11 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('dashboard', DashboardController::class)
-    ->middleware(['auth', 'hasGoal', 'verified'])
+    ->middleware(['auth', 'hasWeightGoal', 'verified'])
     ->name('dashboard');
 
 Route::get('setup-weight-goal', [SetupWeightGoalController::class, 'create'])->middleware('auth')->name('setup-weight-goal');
-Route::post('setup-weight-goal', [SetupWeightGoalController::class, 'store'])->middleware('auth')->name('setup-weight-goal.store');
+Route::post('setup-weight-goal', [SetupWeightGoalController::class, 'store'])->middleware(['auth', 'handlePrecognition'])->name('setup-weight-goal.store');
 
-require __DIR__.'/settings.php';
+require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

@@ -6,7 +6,6 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\SetupAccountController;
 use App\Services\LocationService;
-use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests;
 use Illuminate\Support\Facades\Route;
 
 Route::get('api/countries/{country}/timezones', function ($country) {
@@ -23,4 +22,4 @@ Route::get('register', [RegisterController::class, 'create'])->name('register');
 Route::post('register', [RegisterController::class, 'store'])->name('register.store');
 
 Route::get('setup-account', [SetupAccountController::class, 'create'])->name('setup-account');
-Route::post('setup-account', [SetupAccountController::class, 'store'])->middleware([HandlePrecognitiveRequests::class])->name('setup-account.store');
+Route::post('setup-account', [SetupAccountController::class, 'store'])->middleware('handlePrecognition')->name('setup-account.store');

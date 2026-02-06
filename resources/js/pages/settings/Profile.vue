@@ -2,7 +2,8 @@
 import { edit } from '@/routes/profile';
 import { send } from '@/routes/verification';
 import { Head, Link, usePage, useForm } from '@inertiajs/vue3';
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+import axios from 'axios';
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -24,18 +25,31 @@ import {
 import { Input } from '@/components/ui/input'
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group'
 import { Spinner } from '@/components/ui/spinner';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover'
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList
+} from '@/components/ui/command'
+import { ChevronsUpDown, Check } from 'lucide-vue-next';
 
 import DeleteUser from '@/components/DeleteUser.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { type BreadcrumbItem } from '@/types';
 
-interface Props {
+const props = defineProps<{
     mustVerifyEmail: boolean;
     status?: string;
-}
-
-defineProps<Props>();
+    countries: Record<string, string>;
+}>();
 
 const breadcrumbItems: BreadcrumbItem[] = [
     {
@@ -57,6 +71,8 @@ const form = useForm({
     feet: feet,
     inches: inches,
     email: user.email,
+    country_code: user.country_code,
+    timezone: user.timezone,
 })
 
 // Touch tracking so we don't show errors before the user interacts
@@ -66,7 +82,14 @@ const touchedGender = ref(false)
 const touchedFeet = ref(false)
 const touchedInches = ref(false)
 const touchedEmail = ref(false)
+const touchedCountryCode = ref(false)
+const touchedTimezone = ref(false)
 const attemptedSubmit = ref(false)
+
+const timezoneOpen = ref(false)
+const countryOpen = ref(false)
+const timezones = ref([]);
+const loadingTimezones = ref(false);
 
 function markTouched(field: string) {
     if (field === 'name') touchedName.value = true
@@ -75,6 +98,8 @@ function markTouched(field: string) {
     if (field === 'feet') touchedFeet.value = true
     if (field === 'inches') touchedInches.value = true
     if (field === 'email') touchedEmail.value = true
+    if (field === 'country_code') touchedCountryCode.value = true
+    if (field === 'timezone') touchedTimezone.value = true
 }
 
 function validateEmail(value: string): boolean {
@@ -134,12 +159,49 @@ const emailError = computed(() => {
     return ''
 })
 
+const countryCodeError = computed(() => {
+    if (!form.country_code && (touchedCountryCode.value || attemptedSubmit.value)) return 'Country is required.'
+    return ''
+})
+
+const timezoneError = computed(() => {
+    if (!form.timezone && (touchedTimezone.value || attemptedSubmit.value)) return 'Timezone is required.'
+    return ''
+})
+
 const hasClientErrors = computed(() => {
-    return !!(nameError.value || ageError.value || genderError.value || inchesError.value || feetError.value || emailError.value)
+    return !!(nameError.value || ageError.value || genderError.value || inchesError.value || feetError.value || emailError.value || countryCodeError.value || timezoneError.value)
 })
 
 const allFieldsFilled = computed(() => {
-    return !!(form.name && form.age && form.gender && form.inches && form.feet && form.email)
+    return !!(form.name && form.age && form.gender && form.inches && form.feet && form.email && form.country_code && form.timezone)
+})
+
+watch(() => form.country_code, async (countryCode) => {
+    if (!countryCode) {
+        timezones.value = [];
+        return;
+    }
+
+    loadingTimezones.value = true;
+
+    try {
+        const response = await axios.get(`/api/countries/${countryCode}/timezones`);
+
+        timezones.value = response.data;
+    } catch (error) {
+        console.error("Failed to load timezones", error);
+    } finally {
+        loadingTimezones.value = false;
+    }
+}, { immediate: true });
+
+const selectedCountryLabel = computed(() => {
+    return props.countries[form.country_code] || 'Select a country'
+})
+
+const selectedTimezoneLabel = computed(() => {
+    return form.timezone ? form.timezone : 'Select a timezone'
 })
 
 function submit() {
@@ -150,6 +212,8 @@ function submit() {
     touchedInches.value = true
     touchedFeet.value = true
     touchedEmail.value = true
+    touchedCountryCode.value = true
+    touchedTimezone.value = true
 
     if (hasClientErrors.value) return
 
@@ -227,7 +291,7 @@ function submit() {
                                         )">
                                             <SelectValue placeholder="Select your gender" />
                                         </SelectTrigger>
-                                        <SelectContent class="w-[185px]">
+                                        <SelectContent class="w-46.25">
                                             <SelectGroup>
                                                 <SelectLabel>Gender</SelectLabel>
                                                 <SelectItem value="male">Male</SelectItem>
@@ -288,6 +352,85 @@ function submit() {
                                     </div>
                                 </Field>
                             </Field>
+                        </Field>
+                        <Field>
+                            <FieldLabel for="country_code">Country</FieldLabel>
+                            <Popover v-model:open="countryOpen">
+                                <PopoverTrigger as-child>
+                                    <Button id="country_code" name="country_code" variant="outline" role="combobox"
+                                        :aria-expanded="countryOpen" :class="[
+                                            'w-full justify-between',
+                                            { 'border-red-500!': countryCodeError || form.errors.country_code }
+                                        ]">
+                                        {{ selectedCountryLabel }}
+                                        <ChevronsUpDown class="opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent class="w-96.25 p-0">
+                                    <Command>
+                                        <CommandInput class="h-9" placeholder="Search country" />
+                                        <CommandList>
+                                            <CommandEmpty>No country found.</CommandEmpty>
+                                            <CommandGroup>
+                                                <CommandItem v-for="(name, code) in countries" :key="code" :value="name"
+                                                    @select="() => {
+                                                        form.country_code = code as string
+                                                        countryOpen = false
+                                                        markTouched('country_code')
+                                                    }">
+                                                    <Check :class="cn(
+                                                        'mr-2 h-4 w-4',
+                                                        form.country_code === code ? 'opacity-100' : 'opacity-0'
+                                                    )" />
+                                                    {{ name }}
+                                                </CommandItem>
+                                            </CommandGroup>
+                                        </CommandList>
+                                    </Command>
+                                </PopoverContent>
+                            </Popover>
+                            <div v-if="countryCodeError || form.errors.country_code" class="text-red-500 text-sm">{{
+                                countryCodeError || form.errors.country_code }}
+                            </div>
+                        </Field>
+                        <Field>
+                            <FieldLabel for="timezone">Timezone</FieldLabel>
+                            <Popover v-model:open="timezoneOpen">
+                                <PopoverTrigger as-child>
+                                    <Button id="timezone" name="timezone" variant="outline" role="combobox"
+                                        :aria-expanded="timezoneOpen" :class="[
+                                            'w-full justify-between',
+                                            { 'border-red-500!': timezoneError || form.errors.timezone }
+                                        ]">
+                                        {{ selectedTimezoneLabel }}
+                                        <ChevronsUpDown class="opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent class="w-96.25 p-0">
+                                    <Command>
+                                        <CommandInput class="h-9" placeholder="Search timezone" />
+                                        <CommandList>
+                                            <CommandEmpty>No timezone found.</CommandEmpty>
+                                            <CommandGroup>
+                                                <CommandItem v-for="tz in timezones" :key="tz" :value="tz" @select="() => {
+                                                    form.timezone = tz
+                                                    timezoneOpen = false
+                                                    markTouched('timezone')
+                                                }">
+                                                    <Check :class="cn(
+                                                        'mr-2 h-4 w-4',
+                                                        form.timezone === tz ? 'opacity-100' : 'opacity-0'
+                                                    )" />
+                                                    {{ tz }}
+                                                </CommandItem>
+                                            </CommandGroup>
+                                        </CommandList>
+                                    </Command>
+                                </PopoverContent>
+                            </Popover>
+                            <div v-if="timezoneError || form.errors.timezone" class="text-red-500 text-sm">{{
+                                timezoneError || form.errors.timezone }}
+                            </div>
                         </Field>
                         <Field class="flex items-center gap-4">
                             <Button :disabled="form.processing || !allFieldsFilled || hasClientErrors" type="submit"

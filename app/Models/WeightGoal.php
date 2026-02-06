@@ -24,8 +24,8 @@ class WeightGoal extends Model
         'goal_weight',
         'start_weight',
         'start_date',
-        'weekly_goal_id',
         'user_id',
+        'weekly_goal_id',
     ];
 
     public function activityLevel()
