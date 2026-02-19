@@ -38,7 +38,7 @@ const props = defineProps<{
                         </FieldDescription>
                     </div>
                     <Field>
-                        <Button type="submit">
+                        <Button as-child>
                             <a href="/setup-account">
                                 Create Account
                             </a>

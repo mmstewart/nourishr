@@ -14,7 +14,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { LifeBuoy, Send, ChartArea, House } from 'lucide-vue-next';
+import { LifeBuoy, Send, Weight, House, Apple } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -24,11 +24,15 @@ const mainNavItems: NavItem[] = [
         icon: House,
     },
     {
-        title: 'Analytics',
-        href: '/analytics',
-        icon: ChartArea,
+        title: 'Weight Entries',
+        href: '/weight-entries',
+        icon: Weight,
     },
-
+    {
+        title: 'Nutrition Entries',
+        href: '/nutrition-entries',
+        icon: Apple,
+    },
 ];
 
 const footerNavItems: NavItem[] = [

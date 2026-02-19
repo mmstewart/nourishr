@@ -38,6 +38,7 @@ export interface User {
     email_verified_at: string | null;
     weight_goal: WeightGoal;
     nutrition_entries: NutritionEntry[];
+    weight_entries: WeightEntry[];
     created_at: string;
     updated_at: string;
 }
@@ -77,6 +78,8 @@ export interface WeightEntry {
     id: number;
     user_id: number;
     date: string;
+    formatted_date: string;
+    chart_date: string;
     weight: number;
     created_at: string;
     updated_at: string;

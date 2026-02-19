@@ -2,51 +2,47 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\NutritionEntry;
+use App\Http\Controllers\Controller;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
     public function __invoke()
     {
-        $user = auth()->user()->load(['weightGoal', 'nutritionEntries' => function ($query) {
-            $query->where('date', now()->inUserTimezone()->format('Y-m-d'));
-        }]);
+        $tz = now()->inUserTimezone();
+        $startDate = $tz->copy()->subDays(6)->startOfDay();
 
-        // $weeklyEntries = NutritionEntry::where('user_id', $user->id)
-        //     ->where('date', '>=', now()->inUserTimezone()->subDays(6)->format('Y-m-d'))
-        //     ->get()
-        //     ->groupBy('date');
+        $user = auth()->user()->load([
+            'weightGoal',
+            'weightEntries' => fn($q) => $q->where('date', '>=', $startDate->format('Y-m-d'))->orderBy('date'),
+        ]);
 
-        // $period = now()->inUserTimezone()->subDays(6)->daysUntil(now()->inUserTimezone());
+        $allWeights = $user->weightEntries()->orderBy('date')->get();
 
-        // $goal = $user->weightGoal;
-        // $maintenance = $goal->maintenance_calories;
+        $latestWeight = $allWeights->last()?->weight ?? $user->weightGoal->start_weight;
 
-        // $chartData = collect($period->toArray())->map(function ($date) use ($weeklyEntries, $user, $maintenance) {
-        //     $dateKey = $date->format('Y-m-d');
-        //     $formattedDate = $date->format('M d, Y');
+        $chartWeightTracker = $allWeights->where('date', '<', $startDate->format('Y-m-d'))->last()?->weight ?? $user->weightGoal->start_weight;
 
-        //     $daySum = $weeklyEntries->has($dateKey)
-        //         ? $weeklyEntries->get($dateKey)->sum('calories')
-        //         : 0;
+        $nutritionEntries = $user->nutritionEntries->groupBy('date');
 
-        //     $netChange = $daySum > 0 ? ($daySum - $maintenance) / 3500 : 0;
+        $weightEntries = $allWeights->keyBy('date');
 
-        //     return [
-        //         'day'      => $date->format('D'),
-        //         'date'     => $formattedDate,
-        //         'weight'   => round((float) $user->weightGoal->current_weight + $netChange, 2),
-        //         'calories' => $daySum,
-        //         'netChange' => $netChange,
-        //     ];
-        // });
+        $chartData = collect($startDate->daysUntil($tz))->map(function ($date) use ($nutritionEntries, $weightEntries, &$chartWeightTracker) {
+            $dateKey = $date->format('Y-m-d');
 
-        // dd($chartData->toArray());
+            $chartWeightTracker = $weightEntries->get($dateKey)->weight ?? $chartWeightTracker;
+
+            return [
+                'date'     => $date->format('M d'),
+                'calories' => (int) ($nutritionEntries->get($dateKey)?->sum('calories')),
+                'weight'   => (float) $chartWeightTracker,
+            ];
+        });
 
         return Inertia::render('Dashboard', [
             'user' => $user,
             'chartData' => $chartData,
+            'latestWeight' => $latestWeight,
         ]);
     }
 }
