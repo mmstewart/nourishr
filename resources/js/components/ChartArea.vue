@@ -19,18 +19,17 @@ const getY = (d: any) => Number(d[props.dataKey]);
 
 const chartColor = props.config[props.dataKey]?.color;
 
-const xtickValues = computed(() => {
+const xTickValues = computed(() => {
     const total = props.data.length;
-    if (total === 0) return [];
+    if (total <= 1) return [0];
 
-    const targetTicks = 8;
+    const targetTicks = 7; // Exactly what you asked for
 
-    const interval = Math.max(1, Math.floor(total / targetTicks));
+    // Calculate the gap between indices to get exactly 7 points
+    // For 17 points, this would be 16 / 6 = ~2.66
+    const step = (total - 1) / (targetTicks - 1);
 
-    return props.data
-        .map((_, i) => i)
-        .filter(i => i % interval === 0 || i === total - 1)
-        .slice(0, 10);
+    return Array.from({ length: targetTicks }, (_, i) => Math.round(i * step));
 });
 
 const yTickValues = computed(() => {
@@ -42,6 +41,12 @@ const yTickValues = computed(() => {
     }
 
     return ticks;
+});
+
+const xDomain = computed(() => {
+    if (props.data.length === 0) return [0, 0];
+
+    return [0, props.data.length - 1];
 });
 
 const yDomain = computed(() => {
@@ -80,10 +85,10 @@ const yDomain = computed(() => {
         </CardHeader>
         <CardContent class="relative flex-1 min-h-0 p-0">
             <ChartContainer :config="config" class="absolute inset-0 h-full w-full aspect-auto">
-                <VisXYContainer :data="data" :y-domain="yDomain" :margin="{ left: 20, right: 20 }">
+                <VisXYContainer :data="data" :x-domain="xDomain" :y-domain="yDomain" :margin="{ left: 20, right: 20 }">
                     <VisLine :x="getX" :y="getY" :color="chartColor" :line-width="3" :curve-type="CurveType.Linear" />
                     <VisAxis type="x" :duration="0" :x="getX" :tick-line="false" :domain-line="false" :grid-line="false"
-                        :tick-values="xtickValues" :tick-format="(d: number, i: number) => data[i]?.date" />
+                        :tick-values="xTickValues" :tick-format="(d: number) => data[d]?.date" />
                     <VisAxis type="y" :duration="0" :tick-values="yTickValues" :tick-line="false" :domain-line="false"
                         :tick-format="(v: number) => (v % 20 === 0 ? v.toLocaleString() : '')" />
                     <ChartTooltip />

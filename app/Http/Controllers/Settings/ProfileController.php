@@ -3,28 +3,31 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Http\Requests\Settings\UpdateProfileRequest;
 use App\Support\CountryList;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class ProfileController extends Controller
 {
-    public function edit()
+    public function edit(Request $request)
     {
         $countries = CountryList::all();
 
+        $mustVerifyEmail = $request->user() instanceof MustVerifyEmail;
+
+        $status = $request->session()->get('status');
+
         return Inertia::render('settings/Profile', [
             'countries' => $countries,
-            'mustVerifyEmail' => request()->user() instanceof MustVerifyEmail,
-            'status' => request()->session()->get('status'),
+            'mustVerifyEmail' => $mustVerifyEmail,
+            'status' => $status,
         ]);
     }
 
-    public function update(ProfileUpdateRequest $request)
+    public function update(UpdateProfileRequest $request)
     {
         $request->user()->fill($request->validated());
 
@@ -34,13 +37,10 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        return to_route('profile.edit');
+        return back();
     }
 
-    /**
-     * Delete the user's profile.
-     */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request)
     {
         $request->validate([
             'password' => ['required', 'current_password'],
@@ -55,6 +55,6 @@ class ProfileController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return to_route('home');
     }
 }

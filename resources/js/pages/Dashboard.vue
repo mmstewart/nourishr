@@ -259,8 +259,7 @@ const calorieConfig = {
                     </CardFooter>
                 </Card>
             </div>
-            <div
-                class="relative grid min-h-0 flex-1 auto-rows-min gap-4 rounded-xl *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs md:grid-cols-2 md:grid-rows-[1fr] dark:*:data-[slot=card]:bg-card">
+            <div class="relative grid min-h-0 flex-1 auto-rows-min gap-4 rounded-xl md:grid-cols-2 md:grid-rows-[1fr]">
                 <ChartArea title="Calories" description="Calories consumed over the last 7 days" :data="chartData"
                     :config="calorieConfig" dataKey="calories" chartType="line" />
                 <ChartArea title="Weight" description="Scale weigh-ins over the last 7 days" :data="chartData"

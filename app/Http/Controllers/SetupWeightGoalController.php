@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreWeightRequest;
+use App\Http\Requests\StoreWeightGoalRequest;
 use App\Models\ActivityLevel;
 use App\Models\WeeklyGoal;
 use Inertia\Inertia;
@@ -22,21 +22,23 @@ class SetupWeightGoalController extends Controller
         ]);
     }
 
-    public function store(StoreWeightRequest $request)
+    public function store(StoreWeightGoalRequest $request)
     {
         $validated = $request->validated();
 
-        $validated['start_weight'] = $validated['current_weight'];
-        $validated['start_date'] = now()->inUserTimezone();
-        $validated['user_id'] = auth()->id();
+        $date = now()->inUserTimezone();
 
-        auth()->user()->weightGoal()->create($validated);
-
-        auth()->user()->weightEntries()->create([
-            'date' => now()->inUserTimezone(),
-            'weight' => $validated['start_weight'],
+        $request->user()->weightGoal()->create([
+            ...$validated,
+            'start_date' => $date,
+            'start_weight' => $validated['current_weight'],
         ]);
 
-        return Inertia::location(route('dashboard'));
+        $request->user()->weightEntries()->create([
+            'date' => $date,
+            'weight' => $validated['current_weight'],
+        ]);
+
+        return to_route('dashboard');
     }
 }

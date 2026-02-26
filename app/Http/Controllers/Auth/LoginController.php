@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\StoreLoginRequest;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -13,19 +14,14 @@ class LoginController extends Controller
         return Inertia::render('auth/Login');
     }
 
-    public function store()
+    public function store(StoreLoginRequest $request)
     {
-        $validated = request()->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
-
-        if (Auth::attempt($validated)) {
-            request()->session()->regenerate();
+        if (Auth::attempt($request->validated())) {
+            $request->session()->regenerate();
 
             return redirect()->intended(route('dashboard'));
         }
 
-        return back()->withErrors(['email' => 'The provided credentials do not match our records.'])->onlyInput('email');
+        return back()->withErrors(['email' => __('auth.failed'),])->onlyInput('email');
     }
 }

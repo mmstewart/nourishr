@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\WeightEntryRequest;
 use App\Models\WeightEntry;
 use App\Models\WeightGoal;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class WeightEntryController extends Controller
@@ -13,88 +13,107 @@ class WeightEntryController extends Controller
     public function index()
     {
         $range = request()->query('range', '7');
-        $userNow = now()->inUserTimezone();
+        $userNow = now()->inUserTimezone()->startOfDay();
 
-        // 1. Get Goal - Use local timezone for the start_date to prevent shifting to the previous day
-        $goal = WeightGoal::where('user_id', auth()->id())->first();
+        $weightGoal = WeightGoal::where('user_id', auth()->id())->firstOrFail();
 
-        $initialWeightDate = $goal->start_date;
-        $initialWeight = $goal->start_weight;
+        $journeyStart = now()->parse($weightGoal->start_date, $userNow->timezone)->startOfDay();
 
-        // 2. Parse strictly to the User's Timezone
-        $journeyStart = now()->parse($initialWeightDate, $userNow->timezone)->startOfDay();
-
-        // 3. Determine requested start and CLAMP
-        $requestedStart = ($range === 'all')
+        // 1. Determine Chart Bounds
+        $requestedStart = $range === 'all'
             ? $journeyStart->copy()
-            : $userNow->copy()->subDays((int)$range - 1)->startOfDay();
+            : $userNow->copy()->subDays((int)$range - 1);
 
-        // Clamp: Don't go before the journey started
-        $start = $requestedStart->lt($journeyStart) ? $journeyStart->copy() : $requestedStart;
+        $chartStart = $requestedStart->lt($journeyStart) ? $journeyStart->copy() : $requestedStart;
 
-        $entries = WeightEntry::where('user_id', auth()->id())
-            ->where('date', '>=', $start->format('Y-m-d'))
+        // 2. Fetch data
+        $chartEntries = WeightEntry::where('user_id', auth()->id())
+            ->where('date', '>=', $chartStart->format('Y-m-d'))
             ->get()
             ->keyBy('date');
 
-        // 5. Correct Carry-over Weight
-        // Check DB for entries before $start; if none, use the Goal's start_weight
-        $dbLastWeight = WeightEntry::where('user_id', auth()->id())
-            ->where('date', '<', $start->format('Y-m-d'))
+        $lastWeight = WeightEntry::where('user_id', auth()->id())
+            ->where('date', '<', $chartStart->format('Y-m-d'))
             ->latest('date')
-            ->value('weight');
+            ->value('weight') ?? $weightGoal->start_weight;
 
-        $lastWeight = $dbLastWeight ? (float) $dbLastWeight : $initialWeight;
-
+        // 3. Generate Chart Points
         $chartData = [];
+        $totalDays = $chartStart->diffInDays($userNow);
+        $step = ($totalDays > 30) ? (int) ceil($totalDays / 50) : 1;
 
-        $totalDays = $start->diffInDays($userNow);
-        $step = ($totalDays > 30) ? ceil($totalDays / 50) : 1;
+        $pointer = $chartStart->copy();
 
-        while ($start->lte($userNow)) {
-            $day = $start->format('Y-m-d');
+        // Loop until we reach the day BEFORE today
+        while ($pointer->lt($userNow)) {
+            $day = $pointer->format('Y-m-d');
 
-            if ($entries->has($day)) {
-                $lastWeight = (float) $entries[$day]->weight;
+            if ($chartEntries->has($day)) {
+                $lastWeight = (float) $chartEntries[$day]->weight;
             }
 
             $chartData[] = [
-                'date'   => $start->format('M d'),
+                'date'   => $pointer->format('M d'),
                 'weight' => $lastWeight,
             ];
 
-            $start->addDays($step);
+            $pointer->addDays($step);
         }
 
+        if ($chartEntries->has($userNow->format('Y-m-d'))) {
+            $lastWeight = (float) $chartEntries[$userNow->format('Y-m-d')]->weight;
+        }
+
+        $chartData[] = [
+            'date'   => $userNow->format('M d'),
+            'weight' => $lastWeight,
+        ];
+
+        // 5. Cleanup variables for return
+        $weightEntries = WeightEntry::where('user_id', auth()->id())
+            ->latest('date')
+            ->take(50)
+            ->get()
+            ->map(fn($entry) => [
+                'id' => $entry->id,
+                'date' => now()->parse($entry->date)->format('F jS, Y'),
+                'weight' => $entry->weight,
+            ]);
+
         return Inertia::render('weight-entries/Index', [
-            'chartData'     => $chartData,
-            'weightEntries' => $entries->reverse()->values()->take(50),
-            'filters'       => ['range' => $range]
+            'chartData' => $chartData,
+            'weightEntries' => $weightEntries,
+            'filters' => ['range' => $range],
         ]);
     }
 
     public function create()
     {
-        //
+        return Inertia::render('weight-entries/Create');
     }
 
-    public function store(Request $request)
+    public function store(WeightEntryRequest $request)
     {
-        //
-    }
+        $validated = $request->validated();
 
-    public function show(WeightEntry $weightEntry)
-    {
-        //
+        $request->user()->weightEntries()->create($validated);
+
+        return to_route('weight-entries.index');
     }
 
     public function edit(WeightEntry $weightEntry)
     {
-        //
+        return Inertia::render('weight-entries/Edit', [
+            'weightEntry' => $weightEntry,
+        ]);
     }
 
-    public function update(Request $request, WeightEntry $weightEntry)
+    public function update(WeightEntryRequest $request, WeightEntry $weightEntry)
     {
-        //
+        $validated = $request->validated();
+
+        $weightEntry->update($validated);
+
+        return to_route('weight-entries.index');
     }
 }

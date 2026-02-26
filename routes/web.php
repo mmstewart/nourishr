@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NutritionEntryController;
 use App\Http\Controllers\SetupWeightGoalController;
+use App\Http\Controllers\WeightEntryController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -16,12 +18,12 @@ Route::get('dashboard', DashboardController::class)
     ->middleware(['auth', 'hasWeightGoal', 'verified'])
     ->name('dashboard');
 
-Route::resource('nutrition-entries', \App\Http\Controllers\NutritionEntryController::class)->middleware(['auth']);
+Route::resource('nutrition-entries', NutritionEntryController::class)->middleware(['auth']);
 
 Route::get('setup-weight-goal', [SetupWeightGoalController::class, 'create'])->middleware('auth')->name('setup-weight-goal');
 Route::post('setup-weight-goal', [SetupWeightGoalController::class, 'store'])->middleware(['auth', 'handlePrecognition'])->name('setup-weight-goal.store');
 
-Route::resource('weight-entries', \App\Http\Controllers\WeightEntryController::class)->middleware(['auth'])->except('destroy');
+Route::resource('weight-entries', WeightEntryController::class)->middleware(['auth'])->except('show', 'destroy');
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

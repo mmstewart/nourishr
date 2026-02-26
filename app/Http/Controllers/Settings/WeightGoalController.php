@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Settings\UpdateWeightGoalRequest;
 use App\Models\ActivityLevel;
 use App\Models\WeeklyGoal;
 use Inertia\Inertia;
@@ -24,16 +25,11 @@ class WeightGoalController extends Controller
         ]);
     }
 
-    public function update()
+    public function update(UpdateWeightGoalRequest $request)
     {
-        $validated = request()->validate([
-            'weekly_goal_id' => ['required', 'integer'],
-            'activity_level_id' => ['required', 'integer'],
-            'current_weight' => ['required', 'decimal:0,1', 'min:30', 'max:999'],
-            'goal_weight' => ['required', 'decimal:0,1', 'min:30', 'max:999'],
-        ]);
+        $validated = $request->validated();
 
-        request()->user()->weightGoal()->update($validated);
+        $request->user()->weightGoal()->update($validated);
 
         return back();
     }

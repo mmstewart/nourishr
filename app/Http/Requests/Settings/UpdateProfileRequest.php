@@ -1,19 +1,13 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\Settings;
 
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Rule;
 
-class StoreAccountRequest extends FormRequest
+class UpdateProfileRequest extends FormRequest
 {
-    public function authorize()
-    {
-        return true;
-    }
-
     public function rules()
     {
         return [
@@ -33,8 +27,6 @@ class StoreAccountRequest extends FormRequest
             'gender' => ['required'],
             'country_code' => ['required', 'string'],
             'timezone' => ['required', 'string'],
-            'password' => ['required', Password::min(10)->numbers()->symbols()],
-            'password_confirmation' => ['required', 'same:password'],
         ];
     }
 }

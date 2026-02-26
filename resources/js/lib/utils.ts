@@ -11,7 +11,12 @@ export function urlIsActive(
   urlToCheck: NonNullable<InertiaLinkProps['href']>,
   currentUrl: string,
 ) {
-  return toUrl(urlToCheck) === currentUrl;
+  if (toUrl(urlToCheck) === currentUrl) return true;
+
+  // Remove query strings from both paths for comparison
+  const cleanPath = (url: string) => url.split('?')[0];
+
+  return cleanPath(toUrl(urlToCheck)) === cleanPath(currentUrl);
 }
 
 export function toUrl(href: NonNullable<InertiaLinkProps['href']>) {

@@ -36,7 +36,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
 const page = usePage();
 const user = page.props.auth.user;
 
-const props = defineProps<{
+defineProps<{
     class?: HTMLAttributes["class"],
     weeklyGoals: Array<{ id: number, name: string }>,
     activityLevels: Array<{ id: number, name: string }>,
@@ -195,7 +195,7 @@ function submit() {
                             <InputGroup :class="{ 'border-red-500': currentWeightError || form.errors.current_weight }">
                                 <InputGroupInput v-model="form.current_weight" @blur="markTouched('current_weight')"
                                     step="0.1" inputmode="decimal" id="current_weight" name="current_weight"
-                                    type="number" v-focus />
+                                    type="number" />
                                 <InputGroupAddon align="inline-end">
                                     <InputGroupText>lbs</InputGroupText>
                                 </InputGroupAddon>
@@ -210,8 +210,7 @@ function submit() {
                             </FieldLabel>
                             <InputGroup :class="{ 'border-red-500': goalWeightError || form.errors.goal_weight }">
                                 <InputGroupInput v-model="form.goal_weight" @blur="markTouched('goal_weight')"
-                                    step="0.1" inputmode="decimal" id="goal_weight" name="goal_weight" type="number"
-                                    v-focus />
+                                    step="0.1" inputmode="decimal" id="goal_weight" name="goal_weight" type="number" />
                                 <InputGroupAddon align="inline-end">
                                     <InputGroupText>lbs</InputGroupText>
                                 </InputGroupAddon>
@@ -229,7 +228,7 @@ function submit() {
                             <Transition enter-active-class="transition ease-in-out" enter-from-class="opacity-0"
                                 leave-active-class="transition ease-in-out" leave-to-class="opacity-0">
                                 <p v-show="form.recentlySuccessful" class="text-sm text-neutral-600">
-                                    Saved.
+                                    Weight goals updated.
                                 </p>
                             </Transition>
                         </Field>
