@@ -5,7 +5,6 @@ import { useForm } from '@inertiajs/vue3'
 
 import { Button } from '@/components/ui/button';
 import {
-    FieldDescription,
     FieldLabel,
 } from '@/components/ui/field'
 import {
@@ -20,7 +19,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 
-const props = defineProps<{
+defineProps<{
     class?: HTMLAttributes["class"]
 }>()
 
@@ -60,9 +59,6 @@ function submit() {
         preserveScroll: true,
         onSuccess: () => {
             form.reset('password');
-        },
-        onError: () => {
-            document.getElementById('password')?.focus();
         }
     })
 }
@@ -70,20 +66,12 @@ function submit() {
 
 <template>
     <div class="space-y-6">
-        <div class="flex flex-col items-start text-left">
-            <span class="sr-only">Delete account</span>
-            <h3 class="text-base font-medium mb-0.5">
-                Delete account
-            </h3>
-            <FieldDescription>
-                Delete your account and all of its resources
-            </FieldDescription>
-        </div>
-        <div class="space-y-4 rounded-lg border border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10">
+        <div class="space-y-4 rounded-lg border p-4 bg-linear-to-tl from-red-500/5 to-default">
             <div class="relative space-y-0.5 text-red-600 dark:text-red-100">
-                <p class="font-medium">Warning</p>
+                <p class="font-medium">Account</p>
                 <p class="text-sm">
-                    Please proceed with caution, this cannot be undone.
+                    No longer want to use our service? You can delete your account here. This action is not reversible.
+                    All information related to this account will be deleted permanently.
                 </p>
             </div>
             <Dialog>
@@ -104,7 +92,7 @@ function submit() {
                             </DialogDescription>
                         </DialogHeader>
                         <div class="grid gap-2">
-                            <FieldLabel for="password" class="sr-only">
+                            <FieldLabel for="password">
                                 Password
                             </FieldLabel>
                             <Input v-model="form.password" @blur="markTouched('password')" id="password" name="password"

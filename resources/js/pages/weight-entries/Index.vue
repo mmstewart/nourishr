@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select"
 import { Button } from '@/components/ui/button';
 import ChartArea from '../../components/ChartArea.vue';
-import { Plus, Pencil } from 'lucide-vue-next';
+import { Plus, ChevronRight } from 'lucide-vue-next';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -80,7 +80,7 @@ watch(timeRange, (newRange) => {
 
 <template>
 
-    <Head title="Dashboard" />
+    <Head title="Weight Entries" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-4 p-4">
@@ -127,26 +127,18 @@ watch(timeRange, (newRange) => {
                             </a>
                         </Button>
                     </CardHeader>
-                    <CardContent>
-                        <ul role="list" class="divide-y divide-white/5">
-                            <li v-for="weightEntry in weightEntries" :key="weightEntry.id"
-                                class="flex justify-between items-center gap-x-6 py-5 px-6">
-                                <div class="flex min-w-0 gap-x-4">
-                                    <div class="min-w-0 flex-auto">
-                                        <p class="text-sm/6 font-semibold text-white">{{ weightEntry.weight }} lbs
-                                        </p>
-                                        <p class="mt-1 truncate text-xs/5 text-gray-400">{{ weightEntry.date
-                                            }}</p>
-                                    </div>
+                    <ul role="list" class="divide-y divide-white/5">
+                        <li v-for="entry in weightEntries" :key="entry.id">
+                            <a :href="`/weight-entries/${entry.id}/edit`"
+                                class="flex items-center justify-between gap-x-6 px-6 py-5 hover:bg-white/5 transition-colors">
+                                <div class="min-w-0">
+                                    <p class="text-sm/6 font-semibold text-white">{{ entry.weight }} lbs</p>
+                                    <p class="mt-1 text-xs/5 text-gray-400 truncate">{{ entry.date }}</p>
                                 </div>
-                                <Button variant="outline" size="sm" as-child>
-                                    <a :href="`/weight-entries/${weightEntry.id}/edit`">
-                                        <Pencil class="size-4.5" />
-                                    </a>
-                                </Button>
-                            </li>
-                        </ul>
-                    </CardContent>
+                                <ChevronRight class="size-5 text-gray-500 shrink-0" />
+                            </a>
+                        </li>
+                    </ul>
                 </Card>
             </div>
         </div>

@@ -28,7 +28,7 @@ import { type BreadcrumbItem } from '@/types';
 
 const breadcrumbItems: BreadcrumbItem[] = [
     {
-        title: 'Weight Goal settings',
+        title: 'Weight goal settings',
         href: '/settings/weight-goal',
     },
 ];
@@ -122,7 +122,7 @@ function submit() {
 <template>
     <AppLayout :breadcrumbs="breadcrumbItems">
 
-        <Head title="Weight Goal settings" />
+        <Head title="Weight goal settings" />
 
         <SettingsLayout>
             <div class="space-y-6">

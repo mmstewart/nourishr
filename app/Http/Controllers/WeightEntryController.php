@@ -103,6 +103,8 @@ class WeightEntryController extends Controller
 
     public function edit(WeightEntry $weightEntry)
     {
+        $this->authorize('update', $weightEntry);
+
         return Inertia::render('weight-entries/Edit', [
             'weightEntry' => $weightEntry,
         ]);
@@ -110,6 +112,8 @@ class WeightEntryController extends Controller
 
     public function update(WeightEntryRequest $request, WeightEntry $weightEntry)
     {
+        $this->authorize('update', $weightEntry);
+
         $validated = $request->validated();
 
         $weightEntry->update($validated);

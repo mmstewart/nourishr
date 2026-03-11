@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\InteractsWithTwoFactorState;
 
-class TwoFactorAuthenticationRequest extends FormRequest
+class SecurityRequest extends FormRequest
 {
     use InteractsWithTwoFactorState;
 

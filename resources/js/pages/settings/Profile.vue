@@ -40,7 +40,6 @@ import {
 } from '@/components/ui/command'
 import { ChevronsUpDown, Check } from 'lucide-vue-next';
 
-import DeleteUser from '@/components/DeleteUser.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { type BreadcrumbItem } from '@/types';
@@ -448,7 +447,6 @@ function submit() {
                     </FieldGroup>
                 </form>
             </div>
-            <DeleteUser />
         </SettingsLayout>
     </AppLayout>
 </template>

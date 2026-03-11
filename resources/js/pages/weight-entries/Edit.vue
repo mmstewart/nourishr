@@ -64,13 +64,13 @@ const validateWeight = (value: string | number | null, isTouched: boolean, label
     if (!(isTouched || attemptedSubmit.value)) return '';
 
     if (value === null || value === '') {
-        return `${label} weight is required.`;
+        return `${label} is required.`;
     }
 
     const num = Number(value);
 
     if (num < 30 || num > 999) {
-        return `${label} weight must be between 30 and 999 lbs.`;
+        return `${label} must be between 30 and 999 lbs.`;
     }
 
     return '';

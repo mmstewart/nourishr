@@ -27,10 +27,11 @@ class TwoFactorAuthenticationTest extends TestCase
 
         $this->actingAs($user)
             ->withSession(['auth.password_confirmed_at' => time()])
-            ->get(route('two-factor.show'))
-            ->assertInertia(fn (Assert $page) => $page
-                ->component('settings/TwoFactor')
-                ->where('twoFactorEnabled', false)
+            ->get(route('security.show'))
+            ->assertInertia(
+                fn(Assert $page) => $page
+                    ->component('settings/Security')
+                    ->where('twoFactorEnabled', false)
             );
     }
 
@@ -67,10 +68,11 @@ class TwoFactorAuthenticationTest extends TestCase
         ]);
 
         $this->actingAs($user)
-            ->get(route('two-factor.show'))
+            ->get(route('security.show'))
             ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page
-                ->component('settings/TwoFactor')
+            ->assertInertia(
+                fn(Assert $page) => $page
+                    ->component('settings/Security')
             );
     }
 

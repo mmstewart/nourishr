@@ -19,15 +19,13 @@ class StoreSetupAccountRequest extends FormRequest
             'height_inches' => ['required', 'integer'],
             'email' => [
                 'required',
-                'string',
-                'lowercase',
                 'email',
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
             'gender' => ['required'],
-            'country_code' => ['required', 'string'],
-            'timezone' => ['required', 'string'],
+            'country_code' => ['required'],
+            'timezone' => ['required'],
             'password' => ['required', Password::min(10)->numbers()->symbols()],
             'password_confirmation' => ['required', 'same:password'],
         ];

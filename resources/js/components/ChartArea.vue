@@ -34,9 +34,15 @@ const xTickValues = computed(() => {
 
 const yTickValues = computed(() => {
     const [start, end] = yDomain.value;
-    const ticks = [];
+    const range = end - start;
 
-    for (let i = start; i <= end; i += 10) {
+    const rawStep = range / 6;
+
+    const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
+    const step = Math.ceil(rawStep / magnitude) * magnitude;
+
+    const ticks = [];
+    for (let i = start; i <= end; i += step) {
         ticks.push(i);
     }
 
@@ -90,7 +96,7 @@ const yDomain = computed(() => {
                     <VisAxis type="x" :duration="0" :x="getX" :tick-line="false" :domain-line="false" :grid-line="false"
                         :tick-values="xTickValues" :tick-format="(d: number) => data[d]?.date" />
                     <VisAxis type="y" :duration="0" :tick-values="yTickValues" :tick-line="false" :domain-line="false"
-                        :tick-format="(v: number) => (v % 20 === 0 ? v.toLocaleString() : '')" />
+                        :tick-format="(v: number) => v.toLocaleString()" />
                     <ChartTooltip />
                     <ChartCrosshair color="#fff" :template="componentToString(config, ChartTooltipContent, {
                         labelFormatter: (d: number | Date) => {

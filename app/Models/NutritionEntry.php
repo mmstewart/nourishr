@@ -9,6 +9,17 @@ class NutritionEntry extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'calories',
+        'carbohydrates',
+        'date',
+        'fats',
+        'food_item',
+        'protein',
+        'serving_size',
+        'user_id',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

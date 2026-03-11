@@ -24,6 +24,7 @@ export type AppPageProps<
     quote: { message: string; author: string };
     auth: Auth;
     sidebarOpen: boolean;
+    flash: { success: string, error: string };
 };
 
 export interface User {
@@ -65,6 +66,7 @@ export interface WeightGoal {
 export interface NutritionEntry {
     id: number;
     date: string;
+    date_raw: string;
     calories: number;
     food_item: string;
     protein: number;

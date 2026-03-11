@@ -8,6 +8,11 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import {
+    Alert,
+    AlertDescription,
+    AlertTitle,
+} from '@/components/ui/alert'
 import { Progress } from '@/components/ui/progress';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
@@ -20,9 +25,9 @@ import {
     TrendingDown,
     TrendingUp,
     Weight,
+    CircleCheck
 } from 'lucide-vue-next';
-import { computed } from 'vue';
-import ChartArea from '../components/ChartArea.vue';
+import { computed, ref, watch } from 'vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -31,13 +36,15 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const props = defineProps(['chartData', 'latestWeight']);
+const props = defineProps(['latestWeight']);
 
 const page = usePage();
 const user = page.props.auth.user;
 
 // Match the YYYY-MM-DD format
+// Todo: This ensures consistent date comparison regardless of timezone issues
 const todayDate = new Date().toLocaleDateString('en-CA');
+const showSuccessMessage = ref(false)
 
 const weightStats = computed(() => {
     const {
@@ -120,6 +127,7 @@ const totalProtein = computed(() =>
         0,
     ),
 );
+
 const proteinProgress = computed(() =>
     Math.min((totalProtein.value / user.weight_goal.protein_grams) * 100, 100),
 );
@@ -130,6 +138,7 @@ const totalCarbohydrates = computed(() =>
         0,
     ),
 );
+
 const carbohydratesProgress = computed(() =>
     Math.min(
         (totalCarbohydrates.value / user.weight_goal.carb_grams) * 100,
@@ -140,17 +149,20 @@ const carbohydratesProgress = computed(() =>
 const totalFats = computed(() =>
     todayEntries.value.reduce((total, entry) => total + (entry.fats || 0), 0),
 );
+
 const fatsProgress = computed(() =>
     Math.min((totalFats.value / user.weight_goal.fat_grams) * 100, 100),
 );
 
-const weightConfig = {
-    weight: { label: 'Weight', color: '#fff', valueFormatter: (val: any) => `${val}` },
-};
+watch(() => page.props.flash.success, (newMessage) => {
+    if (newMessage) {
+        showSuccessMessage.value = true
 
-const calorieConfig = {
-    calories: { label: 'Calories', color: '#fff', valueFormatter: (val: any) => `${val}` },
-};
+        setTimeout(() => {
+            showSuccessMessage.value = false
+        }, 5000)
+    }
+}, { immediate: true })
 </script>
 
 <template>
@@ -158,10 +170,21 @@ const calorieConfig = {
     <Head title="Dashboard" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+        <div v-if="showSuccessMessage" class="p-4">
+            <Alert class="max-w-lg">
+                <CircleCheck />
+                <AlertTitle>
+                    Thank you for reaching out!
+                </AlertTitle>
+                <AlertDescription>
+                    {{ page.props.flash.success }}
+                </AlertDescription>
+            </Alert>
+        </div>
+        <div class="flex h-full flex-1 flex-col justify-center gap-4 overflow-x-auto rounded-xl p-4">
             <div
-                class="grid auto-rows-min gap-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs md:grid-cols-3 dark:*:data-[slot=card]:bg-card">
-                <Card class="@container/card">
+                class="grid auto-rows-min gap-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:grid-cols-3 dark:*:data-[slot=card]:bg-card">
+                <Card class="@container/card justify-between">
                     <CardHeader>
                         <CardDescription>Calories</CardDescription>
                         <CardTitle class="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
@@ -172,11 +195,16 @@ const calorieConfig = {
                         </CardAction>
                     </CardHeader>
                     <CardContent>
-                        <div class="text-end text-sm font-medium tabular-nums">
+                        <div class="invisible" aria-hidden="true">
+                            <div class="mb-2 flex justify-between"><span class="text-sm">Spacer</span></div>
+                            <div class="h-2"></div>
+                        </div>
+                        <div class="text-end text-sm font-medium tabular-nums mb-2">
                             {{ user.weight_goal.target_calories }} calories
                         </div>
-                        <Progress :model-value="calorieProgress" class="mt-2 w-full"
+                        <Progress :model-value="calorieProgress" class="w-full"
                             :class="{ '[&>div]:hidden': calorieProgress <= 0 }" />
+                        <div class="invisible" aria-hidden="true"></div>
                     </CardContent>
                     <CardFooter class="text-sm">
                         <div class="flex items-center gap-2 font-medium">
@@ -207,7 +235,7 @@ const calorieConfig = {
                             </div>
                             <div>
                                 <div class="mb-2 flex justify-between">
-                                    <span class="text-sm text-muted-foreground">Carbs</span>
+                                    <span class="text-sm text-muted-foreground">Carbohydrates</span>
                                     <span class="text-sm font-medium tabular-nums">{{ totalCarbohydrates }} /
                                         {{ user.weight_goal.carb_grams }}
                                         g</span>
@@ -219,7 +247,7 @@ const calorieConfig = {
                             </div>
                             <div>
                                 <div class="mb-2 flex justify-between">
-                                    <span class="text-sm text-muted-foreground">Fats</span>
+                                    <span class="text-sm text-muted-foreground">Fat</span>
                                     <span class="text-sm font-medium tabular-nums">{{ totalFats }} /
                                         {{ user.weight_goal.fat_grams }} g</span>
                                 </div>
@@ -230,7 +258,7 @@ const calorieConfig = {
                         </div>
                     </CardContent>
                 </Card>
-                <Card class="@container/card relative overflow-hidden">
+                <Card class="@container/card justify-between">
                     <CardHeader>
                         <CardDescription>Weight</CardDescription>
                         <CardTitle class="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
@@ -241,12 +269,17 @@ const calorieConfig = {
                         </CardAction>
                     </CardHeader>
                     <CardContent>
-                        <div class="text-end text-sm font-medium tabular-nums">
+                        <div class="invisible" aria-hidden="true">
+                            <div class="mb-2 flex justify-between"><span class="text-sm">Spacer</span></div>
+                            <div class="h-2"></div>
+                        </div>
+                        <div class="text-end text-sm font-medium tabular-nums mb-2">
                             {{ user.weight_goal.goal_weight }} lbs
                         </div>
-                        <Progress :model-value="weightStats.progress" class="mt-2 w-full" :class="{
+                        <Progress :model-value="weightStats.progress" class="w-full" :class="{
                             '[&>div]:hidden': weightStats.progress <= 0,
                         }" />
+                        <div class="invisible" aria-hidden="true"></div>
                     </CardContent>
                     <CardFooter class="text-sm">
                         <div class="flex items-center gap-2 font-medium">
@@ -258,12 +291,6 @@ const calorieConfig = {
                         </div>
                     </CardFooter>
                 </Card>
-            </div>
-            <div class="relative grid min-h-0 flex-1 auto-rows-min gap-4 rounded-xl md:grid-cols-2 md:grid-rows-[1fr]">
-                <ChartArea title="Calories" description="Calories consumed over the last 7 days" :data="chartData"
-                    :config="calorieConfig" dataKey="calories" chartType="line" />
-                <ChartArea title="Weight" description="Scale weigh-ins over the last 7 days" :data="chartData"
-                    :config="weightConfig" dataKey="weight" chartType="line" />
             </div>
         </div>
     </AppLayout>
