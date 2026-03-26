@@ -134,7 +134,7 @@ function submit() {
                                 Weight Goals
                             </h3>
                             <FieldDescription>
-                                Update your weight goals
+                                Set your targets and adjust your weight tracking preferences
                             </FieldDescription>
                         </div>
                         <Field>

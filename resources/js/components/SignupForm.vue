@@ -19,51 +19,47 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div class="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
-        <div class="w-full max-w-sm mt-10">
-            <div :class="cn('flex flex-col gap-6', props.class)">
-                <FieldGroup>
-                    <div class="flex flex-col items-center gap-2 text-center">
-                        <a href="/" class="flex flex-col items-center gap-2 font-medium">
-                            <div class="flex size-8 items-center justify-center rounded-md">
-                                <AppLogoIcon class="size-6" />
-                            </div>
-                            <span class="sr-only">Nourishr</span>
-                        </a>
-                        <h1 class="text-xl font-bold">
-                            Welcome to Nourishr
-                        </h1>
-                        <FieldDescription>
-                            Already have an account? <a href="/login">Sign in</a>
-                        </FieldDescription>
+    <div :class="cn('flex flex-col gap-6', props.class)">
+        <FieldGroup>
+            <div class="flex flex-col items-center gap-2 text-center">
+                <a href="/" class="flex flex-col items-center gap-2 font-medium">
+                    <div class="flex size-8 items-center justify-center rounded-md">
+                        <AppLogoIcon class="size-6" />
                     </div>
-                    <Field>
-                        <Button as-child>
-                            <a href="/setup-account">
-                                Create Account
-                            </a>
-                        </Button>
-                    </Field>
-                    <FieldSeparator>Or</FieldSeparator>
-                    <FieldGroup class="grid gap-4">
-                        <Button variant="outline" type="button">
-                            <a href="/auth/google/redirect" class="flex gap-x-2">
-                                <Icon icon="logos:google-icon" class="w-5 h-5" />
-                                Continue with Google
-                            </a>
-                        </Button>
-                    </FieldGroup>
-                </FieldGroup>
-                <FieldDescription class="flex justify-center text-center space-x-4">
-                    <a href="#">
-                        Terms of Use
-                    </a>
-                    <Separator orientation="vertical" class="h-auto!" />
-                    <a href="#">
-                        Privacy Policy
-                    </a>
+                    <span class="sr-only">Nourishr</span>
+                </a>
+                <h1 class="text-xl font-bold">
+                    Welcome to Nourishr
+                </h1>
+                <FieldDescription>
+                    Already have an account? <a href="/login">Sign in</a>
                 </FieldDescription>
             </div>
-        </div>
+            <Field>
+                <Button as-child>
+                    <a href="/setup-account">
+                        Create Account
+                    </a>
+                </Button>
+            </Field>
+            <FieldSeparator>Or</FieldSeparator>
+            <FieldGroup class="grid gap-4">
+                <Button variant="outline" type="button">
+                    <a href="/auth/google/redirect" class="flex gap-x-2 items-center">
+                        <Icon icon="logos:google-icon" class="w-5 h-5" />
+                        Continue with Google
+                    </a>
+                </Button>
+            </FieldGroup>
+        </FieldGroup>
+        <FieldDescription class="flex justify-center text-center space-x-4">
+            <a href="#">
+                Terms of Use
+            </a>
+            <Separator orientation="vertical" class="h-auto!" />
+            <a href="#">
+                Privacy Policy
+            </a>
+        </FieldDescription>
     </div>
 </template>

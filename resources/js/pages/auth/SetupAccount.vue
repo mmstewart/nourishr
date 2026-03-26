@@ -65,7 +65,11 @@ const form = useForm('post', '/setup-account', {
     height_inches: (Number(data.feet) * 12) + Number(data.inches),
 }));
 
-watch(() => form.country_code, async (countryCode) => {
+watch(() => form.country_code, async (countryCode, oldCountryCode) => {
+    if (oldCountryCode !== undefined) {
+        form.timezone = '';
+    }
+
     if (!countryCode) {
         timezones.value = [];
         return;

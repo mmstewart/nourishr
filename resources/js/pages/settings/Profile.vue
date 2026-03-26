@@ -176,7 +176,11 @@ const allFieldsFilled = computed(() => {
     return !!(form.name && form.age && form.gender && form.inches && form.feet && form.email && form.country_code && form.timezone)
 })
 
-watch(() => form.country_code, async (countryCode) => {
+watch(() => form.country_code, async (countryCode, oldCountryCode) => {
+    if (oldCountryCode !== undefined) {
+        form.timezone = '';
+    }
+
     if (!countryCode) {
         timezones.value = [];
         return;
@@ -239,7 +243,7 @@ function submit() {
                                 Profile information
                             </h3>
                             <FieldDescription>
-                                Update your personal information
+                                Manage your personal details, physical metrics, and regional settings
                             </FieldDescription>
                         </div>
                         <Field>
@@ -290,7 +294,7 @@ function submit() {
                                         )">
                                             <SelectValue placeholder="Select your gender" />
                                         </SelectTrigger>
-                                        <SelectContent class="w-46.25">
+                                        <SelectContent class="w-70.25">
                                             <SelectGroup>
                                                 <SelectLabel>Gender</SelectLabel>
                                                 <SelectItem value="male">Male</SelectItem>
@@ -307,7 +311,7 @@ function submit() {
                                         Age
                                     </FieldLabel>
                                     <Input v-model="form.age" @blur="markTouched('age')" id="age" name="age" step="1"
-                                        type="number" class="h-10"
+                                        type="number" class="h-9"
                                         :class="{ 'border-red-500': ageError || form.errors.age }" />
                                     <div v-if="ageError || form.errors.age" class="text-red-500 text-sm">
                                         {{ ageError || form.errors.age }}
@@ -322,8 +326,7 @@ function submit() {
                                     <FieldLabel for="feet">
                                         Feet
                                     </FieldLabel>
-                                    <InputGroup :class="{ 'border-red-500': feetError || form.errors.feet }"
-                                        class="h-10">
+                                    <InputGroup :class="{ 'border-red-500': feetError || form.errors.feet }">
                                         <InputGroupInput v-model="form.feet" @blur="markTouched('feet')" id="feet"
                                             name="feet" type="number" />
                                         <InputGroupAddon align="inline-end">
@@ -338,8 +341,7 @@ function submit() {
                                     <FieldLabel for="inches">
                                         Inches
                                     </FieldLabel>
-                                    <InputGroup :class="{ 'border-red-500': inchesError || form.errors.inches }"
-                                        class="h-10">
+                                    <InputGroup :class="{ 'border-red-500': inchesError || form.errors.inches }">
                                         <InputGroupInput v-model="form.inches" @blur="markTouched('inches')" id="inches"
                                             name="inches" type="number" />
                                         <InputGroupAddon align="inline-end">
@@ -365,7 +367,7 @@ function submit() {
                                         <ChevronsUpDown class="opacity-50" />
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent class="w-96.25 p-0">
+                                <PopoverContent class="w-143.75 p-0">
                                     <Command>
                                         <CommandInput class="h-9" placeholder="Search country" />
                                         <CommandList>
@@ -399,13 +401,13 @@ function submit() {
                                     <Button id="timezone" name="timezone" variant="outline" role="combobox"
                                         :aria-expanded="timezoneOpen" :class="[
                                             'w-full justify-between',
-                                            { 'border-red-500!': timezoneError || form.errors.timezone }
+                                            { 'border-red-500! ring-red-500/50': timezoneError || form.errors.timezone }
                                         ]">
                                         {{ selectedTimezoneLabel }}
                                         <ChevronsUpDown class="opacity-50" />
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent class="w-96.25 p-0">
+                                <PopoverContent class="w-143.75 p-0">
                                     <Command>
                                         <CommandInput class="h-9" placeholder="Search timezone" />
                                         <CommandList>

@@ -10,7 +10,6 @@ import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { disable, enable } from '@/routes/two-factor';
 import { BreadcrumbItem } from '@/types';
 import { Form, Head } from '@inertiajs/vue3';
-import { SeparatorVertical, ShieldBan, ShieldCheck } from 'lucide-vue-next';
 import { onUnmounted, ref } from 'vue';
 import DeleteUser from '@/components/DeleteUser.vue';
 
@@ -51,14 +50,14 @@ onUnmounted(() => {
                         Security settings
                     </h3>
                     <FieldDescription>
-                        Strengthen your login security with 2FA and manage your account visibility or deactivation
+                        Secure your login with two-factor authentication and manage your account status
                     </FieldDescription>
                 </div>
                 <div v-if="!twoFactorEnabled" class="flex flex-col items-start justify-start space-y-4">
                     <div class="space-y-4 rounded-lg border p-4 bg-linear-to-tl from-primary/5 to-default">
                         <div class="relative space-y-0.5">
                             <div class="flex items-center gap-2">
-                                <p class="font-medium">Two Factor Authentication</p>
+                                <p class="font-medium">Two-Factor Authentication</p>
                                 <Badge variant="destructive">Disabled</Badge>
                             </div>
                             <p class="text-sm">
@@ -85,7 +84,7 @@ onUnmounted(() => {
                     <div class="space-y-4 rounded-lg border p-4 bg-linear-to-tl from-primary/5 to-default">
                         <div class="relative space-y-0.5">
                             <div class="flex items-center gap-2">
-                                <p class="font-medium">Two Factor Authentication</p>
+                                <p class="font-medium">Two-Factor Authentication</p>
                                 <Badge variant="default">Enabled</Badge>
                             </div>
                             <p class="text-sm">

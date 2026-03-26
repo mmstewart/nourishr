@@ -183,7 +183,7 @@ watch(() => page.props.flash.success, (newMessage) => {
         </div>
         <div class="flex h-full flex-1 flex-col justify-center gap-4 overflow-x-auto rounded-xl p-4">
             <div
-                class="grid auto-rows-min gap-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:grid-cols-3 dark:*:data-[slot=card]:bg-card">
+                class="grid auto-rows-min gap-4 *:data-[slot=card]:bg-linear-to-tl *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:grid-cols-3 dark:*:data-[slot=card]:bg-card">
                 <Card class="@container/card justify-between">
                     <CardHeader>
                         <CardDescription>Calories</CardDescription>

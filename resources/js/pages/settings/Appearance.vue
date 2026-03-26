@@ -29,7 +29,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
                         Appearance settings
                     </h3>
                     <FieldDescription>
-                        Update your account's appearance settings
+                        Customize how the application looks and feels on your device
                     </FieldDescription>
                 </div>
                 <AppearanceTabs />

@@ -131,7 +131,7 @@ function submit() {
                                         @update:open="(val) => { if (!val) touchedDate = true }">
                                         <PopoverTrigger as-child>
                                             <Button id="date" name="date" variant="outline" :class="cn(
-                                                'w-70 justify-start text-left font-normal h-10',
+                                                'w-70 justify-start text-left font-normal',
                                                 !form.date && 'text-muted-foreground',
                                                 { 'border-red-500!': form.errors.date || dateError }
                                             )">

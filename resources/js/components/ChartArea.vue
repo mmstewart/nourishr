@@ -98,7 +98,7 @@ const yDomain = computed(() => {
                     <VisAxis type="y" :duration="0" :tick-values="yTickValues" :tick-line="false" :domain-line="false"
                         :tick-format="(v: number) => v.toLocaleString()" />
                     <ChartTooltip />
-                    <ChartCrosshair color="#fff" :template="componentToString(config, ChartTooltipContent, {
+                    <ChartCrosshair :color="chartColor" :template="componentToString(config, ChartTooltipContent, {
                         labelFormatter: (d: number | Date) => {
                             const index = Math.round(Number(d));
                             const record = props.data[index];

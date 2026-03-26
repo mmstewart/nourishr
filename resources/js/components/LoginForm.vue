@@ -129,7 +129,7 @@ function submit() {
                 </Field>
                 <FieldSeparator>Or</FieldSeparator>
                 <Button variant="outline" type="button">
-                    <a href="/auth/google/redirect" class="flex gap-x-2">
+                    <a href="/auth/google/redirect" class="flex gap-x-2 items-center">
                         <Icon icon="logos:google-icon" class="w-5 h-5" />
                         Continue with Google
                     </a>

@@ -51,7 +51,7 @@ const chartDescription = computed(() =>
 );
 
 const weightConfig = {
-    weight: { label: "Weight", color: "#fff" }
+    calories: { label: "Weight", color: "#8ec5ff" }
 }
 
 const currentWeight = computed(() => {
@@ -85,7 +85,7 @@ watch(timeRange, (newRange) => {
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-4 p-4">
             <div
-                class="grid auto-rows-min gap-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs md:grid-cols-2 dark:*:data-[slot=card]:bg-card">
+                class="grid auto-rows-min gap-4 *:data-[slot=card]:bg-linear-to-tl *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs md:grid-cols-2 dark:*:data-[slot=card]:bg-card">
                 <Card class="@container/card">
                     <CardHeader>
                         <CardDescription>Current Weight</CardDescription>
@@ -127,12 +127,12 @@ watch(timeRange, (newRange) => {
                             </a>
                         </Button>
                     </CardHeader>
-                    <ul role="list" class="divide-y divide-white/5">
+                    <ul role="list" class="divide-y dark:divide-white/5 ">
                         <li v-for="entry in weightEntries" :key="entry.id">
                             <a :href="`/weight-entries/${entry.id}/edit`"
-                                class="flex items-center justify-between gap-x-6 px-6 py-5 hover:bg-white/5 transition-colors">
+                                class="flex items-center justify-between gap-x-6 px-6 py-5 hover:bg-muted/50 dark:hover:dark:bg-white/5 transition-colors">
                                 <div class="min-w-0">
-                                    <p class="text-sm/6 font-semibold text-white">{{ entry.weight }} lbs</p>
+                                    <p class="text-sm/6 font-semibold">{{ entry.weight }} lbs</p>
                                     <p class="mt-1 text-xs/5 text-gray-400 truncate">{{ entry.date }}</p>
                                 </div>
                                 <ChevronRight class="size-5 text-gray-500 shrink-0" />

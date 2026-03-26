@@ -42,7 +42,7 @@ const touchedNewPasswordConfirmation = ref(false)
 const attemptedSubmit = ref(false)
 
 function markTouched(field: string) {
-    if (field === 'password') touchedCurrentPassword.value = true
+    if (field === 'current_password') touchedCurrentPassword.value = true
     if (field === 'new_password') touchedNewPassword.value = true
     if (field === 'new_password_confirmation') touchedNewPasswordConfirmation.value = true
 }
@@ -129,7 +129,7 @@ function submit() {
                                 Update password
                             </h3>
                             <FieldDescription>
-                                Ensure your account is using a long, random password to stay secure
+                                Ensure your account stays protected with a strong, unique password
                             </FieldDescription>
                         </div>
                         <Field>
