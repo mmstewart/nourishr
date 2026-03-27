@@ -184,7 +184,8 @@ function submit() {
                                         </li>
                                     </ul>
 
-                                    <p v-else-if="form.search && !isSearching" class="mt-2 text-sm text-gray-400">
+                                    <p v-else-if="form.search && !isSearching"
+                                        class="mt-2 text-sm text-muted-foreground">
                                         No results found.
                                     </p>
                                 </div>

@@ -49,7 +49,7 @@ onUnmounted(() => {
 
 <template>
     <div ref="ringRef" class="relative flex items-center justify-center"
-        aria-description="An animated ring visualization showing a calorie count ticking upward to 2847">
+        aria-description="An animated ring visualization showing a calorie count ticking upward to 2080">
         <motion.svg :width="size" :height="size" :viewBox="`0 0 ${size} ${size}`"
             class="drop-shadow-[0_0_30px_rgba(0,255,65,0.15)]" :style="{
                 animation: 'pulse-ring 4s ease-in-out infinite',
@@ -61,7 +61,6 @@ onUnmounted(() => {
                     <stop offset="100%" stop-color="#7bf1a8" stop-opacity="0.8" />
                 </linearGradient>
             </defs>
-
             <ellipse :cx="size / 2 + mousePos.x" :cy="size / 2 + mousePos.y" :rx="r"
                 :ry="r - Math.abs(mousePos.y) * 0.5" fill="none" stroke="url(#ringGrad)" stroke-width="1.5"
                 class="transition-all duration-700 ease-out" />
@@ -70,18 +69,15 @@ onUnmounted(() => {
                 :ry="r - 20 - Math.abs(mousePos.x) * 0.3" fill="none" stroke="#7bf1a8" stroke-width="0.5"
                 stroke-opacity="0.2" class="transition-all duration-1000 ease-out" />
         </motion.svg>
-
         <div class="absolute inset-0 flex flex-col items-center justify-center">
-            <span class="text-xs font-space uppercase tracking-[0.3em] text-carbon/40 mb-1">
+            <span class="text-xs uppercase tracking-[0.3em] text-muted-foreground/50 mb-1">
                 Daily Intake
             </span>
-
-            <motion.span class="text-5xl md:text-6xl font-space font-light text-carbon tabular-nums" :key="calories"
+            <motion.span class="text-5xl md:text-6xl font-light tabular-nums" :key="calories"
                 :initial="{ opacity: 0.7 }" :animate="{ opacity: 1 }">
                 {{ calories.toLocaleString() }}
             </motion.span>
-
-            <span class="text-xs font-space uppercase tracking-[0.3em] text-green-500 mt-1">
+            <span class="text-xs uppercase tracking-[0.3em] text-green-500 mt-1">
                 kcal
             </span>
         </div>

@@ -24,6 +24,6 @@ onUnmounted(() => {
 
 <template>
     <div class="fixed top-0 left-0 w-full h-px z-50 bg-transparent">
-        <div class="h-full bg-metabolic transition-all duration-150 ease-out" :style="{ width: `${progress}%` }" />
+        <div class="h-full bg-green-500 transition-all duration-150 ease-out" :style="{ width: `${progress}%` }" />
     </div>
 </template>

@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { motion } from "motion-v";
+import { login, register } from '@/routes';
 import AppLogo from './../AppLogo.vue';
 import { Button } from '@/components/ui/button';
+import { Link } from '@inertiajs/vue3';
 
 interface NavItem {
     label: string;
@@ -15,43 +17,50 @@ const navItems: NavItem[] = [
     { label: 'Access', href: '#cta' },
 ];
 
-const hoveredIndex = ref<number | null>(null);
-
 const scrollTo = (href: string) => {
     const el = document.querySelector(href);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+    }
 };
+
+withDefaults(
+    defineProps<{
+        canRegister: boolean;
+    }>(),
+    {
+        canRegister: true,
+    },
+);
 </script>
 
 <template>
-    <div class="fixed top-6 left-6 right-6 md:left-12 md:right-12 z-40 flex justify-between items-center mx-auto">
-        <AppLogo class="w-7 h-7" />
-        <div class="flex gap-4">
-            <Button size="lg">
-                Login
-            </Button>
-            <Button variant="outline" size="lg">
-                Register
-            </Button>
-        </div>
-    </div>
-
-    <nav class="fixed right-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center gap-3"
-        aria-label="Page navigation">
-        <div v-for="(item, i) in navItems" :key="item.label" class="relative flex items-center"
-            @mouseenter="hoveredIndex = i" @mouseleave="hoveredIndex = null">
-            <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0 translate-x-2"
-                enter-to-class="opacity-100 translate-x-0" leave-active-class="transition duration-150 ease-in"
-                leave-from-class="opacity-100 translate-x-0" leave-to-class="opacity-0 translate-x-2">
-                <span v-if="hoveredIndex === i"
-                    class="absolute right-8 text-xs font-space font-medium text-carbon whitespace-nowrap tracking-wider uppercase">
+    <motion.header
+        class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 h-16 backdrop-blur-md border-b"
+        :initial="{ opacity: 0, y: -10 }" :animate="{ opacity: 1, y: 0 }"
+        :transition="{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }">
+        <button @click="scrollTo('#hero')" class="flex items-center gap-1 group cursor-pointer focus:outline-none z-10">
+            <AppLogo />
+        </button>
+        <div class="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center">
+            <nav class="flex items-center gap-8" aria-label="Main navigation">
+                <button v-for="item in navItems" :key="item.label" @click="scrollTo(item.href)"
+                    class="text-[11px] font-space cursor-pointer uppercase tracking-[0.25em] text-muted-foreground hover:text-neutral-900 transition-colors duration-200 focus:outline-none">
                     {{ item.label }}
-                </span>
-            </Transition>
-
-            <button @click="scrollTo(item.href)"
-                class="w-0.75 rounded-full bg-carbon/20 hover:bg-metabolic transition-all duration-300 focus:outline-2 focus:outline-metabolic"
-                :style="{ height: `${18 + (i % 2 === 0 ? 12 : 6)}px` }" :aria-label="item.label" />
+                </button>
+            </nav>
         </div>
-    </nav>
+        <div class="flex items-center gap-2.5 z-10">
+            <Button variant="secondary" size="lg" as-child>
+                <Link :href="login()">
+                    Login
+                </Link>
+            </Button>
+            <Button size="lg" v-if="canRegister" as-child>
+                <Link :href="register()">
+                    Register
+                </Link>
+            </Button>
+        </div>
+    </motion.header>
 </template>
