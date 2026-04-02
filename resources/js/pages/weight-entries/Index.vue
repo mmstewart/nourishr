@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select"
 import { Button } from '@/components/ui/button';
 import ChartArea from '../../components/ChartArea.vue';
-import { Plus, ChevronRight } from 'lucide-vue-next';
+import { CirclePlus, ChevronRight } from 'lucide-vue-next';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -51,7 +51,7 @@ const chartDescription = computed(() =>
 );
 
 const weightConfig = {
-    calories: { label: "Weight", color: "#8ec5ff" }
+    weight: { label: "Weight", color: "#00c951" }
 }
 
 const currentWeight = computed(() => {
@@ -83,6 +83,14 @@ watch(timeRange, (newRange) => {
     <Head title="Weight Entries" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
+        <template #actions>
+            <Button class="bg-green-500 hover:bg-green-400" as-child>
+                <a href="/weight-entries/create">
+                    <CirclePlus class="size-4" />
+                    Log
+                </a>
+            </Button>
+        </template>
         <div class="flex flex-col gap-4 p-4">
             <div
                 class="grid auto-rows-min gap-4 *:data-[slot=card]:bg-linear-to-tl *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs md:grid-cols-2 dark:*:data-[slot=card]:bg-card">
@@ -121,11 +129,6 @@ watch(timeRange, (newRange) => {
                 <Card class="@container/card py-0! gap-0!">
                     <CardHeader class="flex justify-between items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
                         <CardTitle>Weight Entries</CardTitle>
-                        <Button variant="outline" size="sm" as-child>
-                            <a href="/weight-entries/create">
-                                <Plus class="size-4.5" />
-                            </a>
-                        </Button>
                     </CardHeader>
                     <ul role="list" class="divide-y dark:divide-white/5 ">
                         <li v-for="entry in weightEntries" :key="entry.id">

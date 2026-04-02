@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Feedback;
 use App\Http\Requests\StoreFeedbackRequest;
+use App\Mail\FeedbackReceived;
+use App\Models\Feedback;
 use Illuminate\Support\Facades\Mail;
 
 class FeedbackController extends Controller
@@ -17,10 +18,9 @@ class FeedbackController extends Controller
 
         $validated = $request->validated();
 
-        Feedback::create($validated);
+        $feedback = Feedback::create($validated);
 
-        // todo
-        // Mail::to('admin@yourwebsite.com')->send(new FeedbackReceived($validated));
+        Mail::to(env('NOURISHR_EMAIL'))->send(new FeedbackReceived($feedback));
 
         return to_route('dashboard')->with('success', 'Thanks for reaching out! We really value your thoughts. 
                     If your feedback requires a follow-up, someone from our team will get back to you within 24 hours.');

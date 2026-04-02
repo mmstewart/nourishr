@@ -1,8 +1,32 @@
 <script setup lang="ts">
 import { motion } from 'motion-v';
 import AppLogo from './../AppLogo.vue';
+import { Link } from '@inertiajs/vue3';
 
-const footerLinks = ['Features', 'Science', 'Privacy', 'Contact'];
+// const footerLinks = ['Features', 'Science', 'Privacy', 'Contact'];
+
+interface FooterLinks {
+    label: string;
+    href: string;
+}
+
+const footerLinks: FooterLinks[] = [
+    { label: 'Features', href: '#features' },
+    { label: 'Science', href: '#science' },
+    { label: 'Privacy', href: '/privacy' },
+    { label: 'Contact', href: '/contact' },
+];
+
+const navigate = (href: string) => {
+    if (href.startsWith('#')) {
+        const el = document.querySelector(href)
+
+        if (el) el.scrollIntoView({ behavior: 'smooth' })
+    } else {
+        window.location.href = href
+    }
+}
+
 const currentYear = new Date().getFullYear();
 </script>
 
@@ -12,9 +36,10 @@ const currentYear = new Date().getFullYear();
             <div class="grid md:grid-cols-2 gap-12 items-end">
                 <motion.div :initial="{ opacity: 0, y: 20 }" :while-in-view="{ opacity: 1, y: 0 }"
                     :viewport="{ once: true }" :transition="{ duration: 0.6 }">
-                    <div class="flex items-center gap-2.5 mb-5">
+                    <Link @click="navigate('#hero')"
+                        class="flex items-center gap-1 mb-5 group cursor-pointer focus:outline-none">
                         <AppLogo />
-                    </div>
+                    </Link>
                     <p class="text-sm text-gray-800/85 leading-relaxed max-w-sm">
                         Simple nutrition, smarter choices. Nourishr makes healthy eating simple and sustainable — no
                         strict diets, no guesswork, just clear insights for everyday health.
@@ -24,10 +49,16 @@ const currentYear = new Date().getFullYear();
                     :while-in-view="{ opacity: 1, y: 0 }" :viewport="{ once: true }"
                     :transition="{ duration: 0.6, delay: 0.1 }">
                     <nav class="flex gap-8">
-                        <span v-for="link in footerLinks" :key="link"
-                            class="text-xs font-space uppercase tracking-[0.2em] text-gray-800/85 hover:text-gray-900 transition-colors cursor-pointer">
-                            {{ link }}
-                        </span>
+                        <template v-for="link in footerLinks" :key="link.label">
+                            <Link v-if="!link.href.startsWith('#')" :href="link.href"
+                                class="text-xs font-space uppercase tracking-[0.2em] text-gray-800/85 hover:text-gray-900 transition-colors">
+                                {{ link.label }}
+                            </Link>
+                            <a v-else :href="link.href" @click.prevent="navigate(link.href)" class="text-xs font-space uppercase tracking-[0.2em] text-gray-800/85 hover:text-gray-900
+                            transition-colors cursor-pointer">
+                                {{ link.label }}
+                            </a>
+                        </template>
                     </nav>
                     <p class="text-xs font-inter text-gray-800/85">
                         © {{ currentYear }} Nourishr. All systems operational.

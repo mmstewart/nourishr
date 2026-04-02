@@ -5,17 +5,55 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\NutritionEntryController;
 use App\Http\Controllers\SetupWeightGoalController;
 use App\Http\Controllers\WeightEntryController;
+use App\Services\LocationService;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+use OpenFoodFacts\Laravel\Facades\OpenFoodFacts;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canRegister' => Features::enabled(Features::registration()),
     ]);
-})->name('home');
+})->middleware('guest')->name('home');
+
+Route::redirect('/dashboard', '/');
 
 Route::middleware('auth')->group(function () {
+    Route::get('api/countries/{country}/timezones', function ($country) {
+        abort_if(!preg_match('/^[A-Z]{2}$/', $country), 422);
+
+        return response()->json(LocationService::getTimezonesForCountry($country));
+    });
+
+    // todo: make work
+    Route::get('api/foodfacts', function () {
+        $food_item = request()->query('food_item');
+        $type = request()->query('type', 'search');
+
+        if (!$food_item) {
+            return response()->json(['error' => 'Missing food item'], 400);
+        }
+
+        try {
+            if ($type === 'barcode') {
+                $result = OpenFoodFacts::barcode($food_item);
+                return response()->json($result);
+            }
+
+            $collection = OpenFoodFacts::find($food_item);
+            return response()->json([
+                'products' => $collection->values()->toArray()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ], 500);
+        }
+    });
+
     Route::get('dashboard', DashboardController::class)
         ->middleware('hasWeightGoal', 'verified')
         ->name('dashboard');

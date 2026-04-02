@@ -9,11 +9,11 @@ interface FeedItem {
 }
 
 const feedItems: FeedItem[] = [
-    { time: "7:12 AM", event: "Weight logged", value: "180 lbs", delta: "-3 lbs" },
+    { time: "7:15 AM", event: "Weight logged", value: "180 lbs", delta: "-3 lbs" },
     { time: "8:45 AM", event: "Breakfast scanned", value: "420 kcal", delta: "Protein: 32g" },
     { time: "12:30 PM", event: "Lunch scanned", value: "680 kcal", delta: "Carbohydrates: 65g" },
     { time: "3:15 PM", event: "Snack logged", value: "180 kcal", delta: "Fat: 12g" },
-    { time: "6:00 PM", event: "Weight goal reached", value: "Target met", delta: "✓ Success" },
+    { time: "6:00 PM", event: "Weight goal reached", value: "178 lbs", delta: "✓ Target met" },
     { time: "7:45 PM", event: "Dinner logged", value: "750 kcal", delta: "Protein: 45g" },
 ];
 </script>
@@ -32,7 +32,7 @@ const feedItems: FeedItem[] = [
                 <h2 class="text-center font-bold text-4xl md:text-5xl leading-tight tracking-tight mb-4">
                     Your daily <span class="text-green-500">success stream</span>
                 </h2>
-                <p class="text-lg text-muted-foreground/50 text-center">
+                <p class="text-lg text-muted-foreground/50 text-center leading-relaxed">
                     Every action is recorded. Every metric flows into your personal biological timeline.
                 </p>
             </motion.div>

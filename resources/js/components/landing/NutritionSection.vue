@@ -46,7 +46,7 @@ const features: Feature[] = [
             </span>
         </motion.div>
         <div class="max-w-7xl mx-auto px-6 md:px-12">
-            <div class="grid lg:grid-cols-2 gap-16 items-center mb-20">
+            <div class="grid lg:grid-cols-2 gap-16 items-center mb-12">
                 <motion.div :initial="{ opacity: 0, x: -40 }" :while-in-view="{ opacity: 1, x: 0 }"
                     :viewport="{ once: true }" :transition="{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }">
                     <h2 class="font-bold text-4xl md:text-5xl lg:text-6xl leading-[1.05] tracking-tight mb-6">

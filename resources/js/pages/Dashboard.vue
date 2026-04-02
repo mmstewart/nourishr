@@ -13,6 +13,14 @@ import {
     AlertDescription,
     AlertTitle,
 } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Progress } from '@/components/ui/progress';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
@@ -21,11 +29,12 @@ import { Head, usePage } from '@inertiajs/vue3';
 import {
     BicepsFlexed,
     Flame,
-    Target,
+    PieChart,
     TrendingDown,
     TrendingUp,
-    Weight,
-    CircleCheck
+    Scale,
+    CircleCheck,
+    CirclePlus,
 } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 
@@ -36,14 +45,11 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const props = defineProps(['latestWeight']);
+const props = defineProps(['latestWeight', 'today']);
 
 const page = usePage();
 const user = page.props.auth.user;
 
-// Match the YYYY-MM-DD format
-// Todo: This ensures consistent date comparison regardless of timezone issues
-const todayDate = new Date().toLocaleDateString('en-CA');
 const showSuccessMessage = ref(false)
 
 const weightStats = computed(() => {
@@ -95,7 +101,7 @@ const weightStats = computed(() => {
 
 const todayEntries = computed(() => {
     return (user.nutrition_entries || []).filter(
-        (entry) => entry.date === todayDate,
+        (entry) => entry.date === props.today,
     );
 });
 
@@ -170,11 +176,34 @@ watch(() => page.props.flash.success, (newMessage) => {
     <Head title="Dashboard" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div v-if="showSuccessMessage" class="p-4">
-            <Alert class="max-w-lg">
-                <CircleCheck />
-                <AlertTitle>
-                    Thank you for reaching out!
+        <template #actions>
+            <DropdownMenu>
+                <DropdownMenuTrigger as-child>
+                    <Button class="bg-green-500 hover:bg-green-400">
+                        <CirclePlus class="size-4" />
+                        Log
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent class="w-32" align="end">
+                    <DropdownMenuItem as-child>
+                        <a href="/weight-entries/create">
+                            Weight Entry
+                        </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem as-child>
+                        <a href="/nutrition-entries/create">
+                            Nutrition Entry
+                        </a>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </template>
+        <div v-if="showSuccessMessage" class="fixed bottom-4 right-4 z-50 w-full max-w-md">
+            <Alert>
+                <CircleCheck class="stroke-green-500" />
+                <AlertTitle class="text-green-500">
+                    Thank you for the feedback!
                 </AlertTitle>
                 <AlertDescription>
                     {{ page.props.flash.success }}
@@ -188,7 +217,7 @@ watch(() => page.props.flash.success, (newMessage) => {
                     <CardHeader>
                         <CardDescription>Calories</CardDescription>
                         <CardTitle class="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                            {{ totalEatenCalories }} calories
+                            {{ totalEatenCalories }} kcal
                         </CardTitle>
                         <CardAction>
                             <Flame class="mr-1 size-4.5" />
@@ -200,7 +229,7 @@ watch(() => page.props.flash.success, (newMessage) => {
                             <div class="h-2"></div>
                         </div>
                         <div class="text-end text-sm font-medium tabular-nums mb-2">
-                            {{ user.weight_goal.target_calories }} calories
+                            {{ user.weight_goal.target_calories }} kcal
                         </div>
                         <Progress :model-value="calorieProgress" class="w-full"
                             :class="{ '[&>div]:hidden': calorieProgress <= 0 }" />
@@ -209,7 +238,7 @@ watch(() => page.props.flash.success, (newMessage) => {
                     <CardFooter class="text-sm">
                         <div class="flex items-center gap-2 font-medium">
                             <TrendingUp class="size-4.5 text-green-500" />
-                            {{ kcalRemaining }} calories remaining
+                            {{ kcalRemaining }} kcal remaining
                         </div>
                     </CardFooter>
                 </Card>
@@ -217,7 +246,7 @@ watch(() => page.props.flash.success, (newMessage) => {
                     <CardHeader>
                         <CardDescription>Macros</CardDescription>
                         <CardAction>
-                            <Target class="mr-1 size-4.5" />
+                            <PieChart class="mr-1 size-4.5" />
                         </CardAction>
                     </CardHeader>
                     <CardContent>
@@ -265,7 +294,7 @@ watch(() => page.props.flash.success, (newMessage) => {
                             {{ weightStats.currentDisplay }} lbs
                         </CardTitle>
                         <CardAction>
-                            <Weight class="mr-1 size-4.5" />
+                            <Scale class="mr-1 size-4.5" />
                         </CardAction>
                     </CardHeader>
                     <CardContent>

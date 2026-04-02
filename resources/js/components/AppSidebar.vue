@@ -14,7 +14,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { LifeBuoy, Send, Weight, House, Apple } from 'lucide-vue-next';
+import { Send, Scale, House, Apple } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -26,7 +26,7 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Weight Entries',
         href: '/weight-entries',
-        icon: Weight,
+        icon: Scale,
     },
     {
         title: 'Nutrition Entries',
@@ -36,11 +36,6 @@ const mainNavItems: NavItem[] = [
 ];
 
 const footerNavItems: NavItem[] = [
-    {
-        title: 'Support',
-        href: '/support',
-        icon: LifeBuoy,
-    },
     {
         title: 'Feedback',
         href: '/feedback',
@@ -54,7 +49,8 @@ const footerNavItems: NavItem[] = [
         <SidebarHeader>
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton size="lg" as-child class="flex items-center">
+                    <SidebarMenuButton size="lg" class="flex items-center group-data-[collapsible=icon]:justify-center"
+                        as-child>
                         <Link :href="dashboard()">
                             <AppLogo />
                         </Link>

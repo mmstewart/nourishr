@@ -88,7 +88,8 @@ function submit() {
                             </div>
                         </Field>
                         <Field>
-                            <Button :disabled="form.processing || !allFieldsFilled" type="submit">
+                            <Button :disabled="form.processing || !allFieldsFilled" type="submit"
+                                class="bg-green-500 hover:bg-green-400">
                                 <Spinner v-if="form.processing" class="mr-2" />
                                 Confirm Password
                             </Button>

@@ -124,7 +124,6 @@ function submit() {
                                         Create your weight entry to track your progress towards your weight goal.
                                     </FieldDescription>
                                 </div>
-                                <!-- todo: make it so that the calendar depends on the timezone -->
                                 <Field>
                                     <FieldLabel for="date">
                                         Date

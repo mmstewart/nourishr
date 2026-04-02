@@ -59,7 +59,7 @@ defineProps<{
 
 <template>
     <section id="science" class="relative py-32 md:py-40 overflow-hidden"
-        :style="{ background: 'linear-gradient(180deg, #FAFAFA 0%, #F0FAF3 50%, #FAFAFA 100%)' }">
+        :style="{ background: 'linear-gradient(180deg, #f3f4f6 0%, #f0faf3 50%, #f3f4f6 100%)' }">
         <motion.div class="absolute top-20 right-6 md:right-12 text-right" :initial="{ opacity: 0 }"
             :while-in-view="{ opacity: 1 }" :viewport="{ once: true }">
             <span class="text-[10px] uppercase tracking-[0.4em] text-green-500">

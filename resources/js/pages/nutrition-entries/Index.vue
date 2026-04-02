@@ -20,12 +20,12 @@ import {
 } from "@/components/ui/select"
 import { Button } from '@/components/ui/button';
 import ChartArea from '../../components/ChartArea.vue';
-import { Plus, ChevronRight } from 'lucide-vue-next';
+import { CirclePlus, ChevronRight } from 'lucide-vue-next';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Weight Entries',
-        href: '/weight-entries',
+        title: 'Nutrition Entries',
+        href: '/nutrition-entries',
     },
 ];
 
@@ -52,7 +52,7 @@ const chartDescription = computed(() =>
 );
 
 const calorieConfig = {
-    calories: { label: "Calories", color: "#8ec5ff" }
+    calories: { label: "Calories", color: "#00c951" }
 }
 
 const todayCalories = computed(() => {
@@ -83,6 +83,14 @@ watch(timeRange, (newRange) => {
     <Head title="Weight Entries" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
+        <template #actions>
+            <Button class="bg-green-500 hover:bg-green-400" as-child>
+                <a href="/nutrition-entries/create">
+                    <CirclePlus class="size-4" />
+                    Log
+                </a>
+            </Button>
+        </template>
         <div class="flex flex-col gap-4 p-4">
             <div
                 class="grid auto-rows-min gap-4 *:data-[slot=card]:bg-linear-to-tl *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs md:grid-cols-2 dark:*:data-[slot=card]:bg-card">
@@ -90,7 +98,7 @@ watch(timeRange, (newRange) => {
                     <CardHeader>
                         <CardDescription>Today's Calories</CardDescription>
                         <CardTitle class="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                            {{ todayCalories }} calories
+                            {{ todayCalories }} kcal
                         </CardTitle>
                     </CardHeader>
                 </Card>
@@ -98,7 +106,7 @@ watch(timeRange, (newRange) => {
                     <CardHeader>
                         <CardDescription>Average Daily Calories</CardDescription>
                         <CardTitle class="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                            {{ avgCalories }} calories
+                            {{ avgCalories }} kcal
                         </CardTitle>
                     </CardHeader>
                 </Card>
@@ -121,11 +129,6 @@ watch(timeRange, (newRange) => {
                 <Card class="@container/card py-0! gap-0!">
                     <CardHeader class="flex justify-between items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
                         <CardTitle>Nutrition Entries</CardTitle>
-                        <Button variant="outline" size="sm" as-child>
-                            <a href="/nutrition-entries/create">
-                                <Plus class="size-4.5" />
-                            </a>
-                        </Button>
                     </CardHeader>
                     <ul role="list" class="divide-y dark:divide-white/5">
                         <li v-for="entry in nutritionEntries" :key="entry.id">

@@ -16,9 +16,12 @@ class DashboardController extends Controller
 
         $latestWeight = $user->weightEntries->first()?->weight ?? $user->weightGoal->start_weight;
 
+        $today = now()->inUserTimezone()->format('Y-m-d');
+
         return Inertia::render('Dashboard', [
             'user' => $user,
             'latestWeight' => $latestWeight,
+            'today' => $today,
         ]);
     }
 }

@@ -197,9 +197,10 @@ function submit() {
                         <Field class="flex items-center gap-4">
                             <Button
                                 :disabled="form.processing || !allFieldsFilled || hasClientErrors || !newPasswordRulesPassed"
-                                type="submit" class="inline-flex items-start w-auto! self-start">
+                                type="submit"
+                                class="inline-flex items-start w-auto! self-start bg-green-500 hover:bg-green-400">
                                 <Spinner v-if="form.processing" class="mr-2" />
-                                Save password
+                                Save
                             </Button>
                             <Transition enter-active-class="transition ease-in-out" enter-from-class="opacity-0"
                                 leave-active-class="transition ease-in-out" leave-to-class="opacity-0">

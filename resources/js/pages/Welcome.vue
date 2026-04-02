@@ -8,6 +8,13 @@ import BiometricFeed from '@/components/landing/BiometricFeed.vue';
 import CTASection from '@/components/landing/CTASection.vue';
 import Footer from '@/components/landing/Footer.vue';
 
+const images = {
+    quinoa: "/quinoa.png",
+    avocado: "/avocado.png",
+    nutrition: "/nutrition.png",
+    pen: "/pen.png",
+};
+
 defineProps<{
     canRegister: boolean;
 }>()
@@ -18,10 +25,10 @@ defineProps<{
         <ScrollProgress />
         <NavBar :canRegister="canRegister" />
         <HeroSection />
-        <NutritionSection :image="''" />
-        <WeightSection :image="''" />
+        <NutritionSection :image="images.nutrition" />
+        <WeightSection :image="images.pen" />
         <BiometricFeed />
-        <CTASection :canRegister="canRegister" :images="[]" />
+        <CTASection :canRegister="canRegister" :images="[images.quinoa, images.avocado]" />
         <Footer />
     </div>
 </template>

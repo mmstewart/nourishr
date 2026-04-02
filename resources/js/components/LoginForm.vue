@@ -122,7 +122,8 @@ function submit() {
                     </div>
                 </Field>
                 <Field>
-                    <Button :disabled="form.processing || !allFieldsFilled || hasClientErrors" type="submit">
+                    <Button :disabled="form.processing || !allFieldsFilled || hasClientErrors"
+                        class="bg-green-500 hover:bg-green-400" type="submit">
                         <Spinner v-if="form.processing" class="mr-2" />
                         Login
                     </Button>

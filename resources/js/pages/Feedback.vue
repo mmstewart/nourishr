@@ -148,7 +148,8 @@ function submit() {
                                 </Field>
                                 <Field class="flex items-center gap-4">
                                     <Button :disabled="form.processing || !allFieldsFilled || hasClientErrors"
-                                        type="submit" class="inline-flex items-start w-auto! self-start">
+                                        type="submit"
+                                        class="inline-flex items-start w-auto! self-start bg-green-500 hover:bg-green-400">
                                         <Spinner v-if="form.processing" class="mr-2" />
                                         Submit
                                     </Button>

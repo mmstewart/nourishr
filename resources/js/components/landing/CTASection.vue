@@ -39,18 +39,6 @@ withDefaults(
                     Join Nourishr and start tracking your nutrition, calories, and weight — effortless, insightful, and
                     stress-free.
                 </p>
-                <div class="flex flex-col sm:flex-row gap-2.5 justify-center">
-                    <Button variant="secondary" size="lg" as-child>
-                        <Link :href="login()">
-                            Login
-                        </Link>
-                    </Button>
-                    <Button size="lg" v-if="canRegister" as-child>
-                        <Link :href="register()">
-                            Register
-                        </Link>
-                    </Button>
-                </div>
             </motion.div>
         </div>
     </section>

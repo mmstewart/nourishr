@@ -36,7 +36,7 @@ const props = defineProps<{
                 </FieldDescription>
             </div>
             <Field>
-                <Button as-child>
+                <Button class="bg-green-500 hover:bg-green-400" as-child>
                     <a href="/setup-account">
                         Create Account
                     </a>

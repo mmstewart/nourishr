@@ -281,42 +281,40 @@ function submit() {
                                 address.
                             </div>
                         </FieldDescription>
-                        <Field>
-                            <Field class="grid grid-cols-2 gap-4">
-                                <Field>
-                                    <FieldLabel for="gender">
-                                        Gender
-                                    </FieldLabel>
-                                    <Select v-model="form.gender" @blur="markTouched('gender')">
-                                        <SelectTrigger id="gender" name="gender" :class="cn(
-                                            'w-full dark:bg-input/30',
-                                            (genderError || form.errors.gender) && 'border-red-500 ring-red-500'
-                                        )">
-                                            <SelectValue placeholder="Select your gender" />
-                                        </SelectTrigger>
-                                        <SelectContent class="w-70.25">
-                                            <SelectGroup>
-                                                <SelectLabel>Gender</SelectLabel>
-                                                <SelectItem value="male">Male</SelectItem>
-                                                <SelectItem value="female">Female</SelectItem>
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
-                                    <div v-if="genderError || form.errors.gender" class="text-red-500 text-sm">
-                                        {{ genderError || form.errors.gender }}
-                                    </div>
-                                </Field>
-                                <Field class="flex flex-col">
-                                    <FieldLabel for="age">
-                                        Age
-                                    </FieldLabel>
-                                    <Input v-model="form.age" @blur="markTouched('age')" id="age" name="age" step="1"
-                                        type="number" class="h-9"
-                                        :class="{ 'border-red-500': ageError || form.errors.age }" />
-                                    <div v-if="ageError || form.errors.age" class="text-red-500 text-sm">
-                                        {{ ageError || form.errors.age }}
-                                    </div>
-                                </Field>
+                        <Field class="grid grid-cols-2 gap-4">
+                            <Field>
+                                <FieldLabel for="gender">
+                                    Gender
+                                </FieldLabel>
+                                <Select v-model="form.gender" @blur="markTouched('gender')">
+                                    <SelectTrigger id="gender" name="gender" :class="cn(
+                                        'w-full dark:bg-input/30',
+                                        (genderError || form.errors.gender) && 'border-red-500 ring-red-500'
+                                    )">
+                                        <SelectValue placeholder="Select your gender" />
+                                    </SelectTrigger>
+                                    <SelectContent class="w-70.25">
+                                        <SelectGroup>
+                                            <SelectLabel>Gender</SelectLabel>
+                                            <SelectItem value="male">Male</SelectItem>
+                                            <SelectItem value="female">Female</SelectItem>
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                                <div v-if="genderError || form.errors.gender" class="text-red-500 text-sm">
+                                    {{ genderError || form.errors.gender }}
+                                </div>
+                            </Field>
+                            <Field class="flex flex-col">
+                                <FieldLabel for="age">
+                                    Age
+                                </FieldLabel>
+                                <Input v-model="form.age" @blur="markTouched('age')" id="age" name="age" step="1"
+                                    type="number" class="h-9"
+                                    :class="{ 'border-red-500': ageError || form.errors.age }" />
+                                <div v-if="ageError || form.errors.age" class="text-red-500 text-sm">
+                                    {{ ageError || form.errors.age }}
+                                </div>
                             </Field>
                         </Field>
                         <Field>
@@ -354,88 +352,90 @@ function submit() {
                                 </Field>
                             </Field>
                         </Field>
-                        <Field>
-                            <FieldLabel for="country_code">Country</FieldLabel>
-                            <Popover v-model:open="countryOpen">
-                                <PopoverTrigger as-child>
-                                    <Button id="country_code" name="country_code" variant="outline" role="combobox"
-                                        :aria-expanded="countryOpen" :class="[
-                                            'w-full justify-between',
-                                            { 'border-red-500!': countryCodeError || form.errors.country_code }
-                                        ]">
-                                        {{ selectedCountryLabel }}
-                                        <ChevronsUpDown class="opacity-50" />
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent class="w-143.75 p-0">
-                                    <Command>
-                                        <CommandInput class="h-9" placeholder="Search country" />
-                                        <CommandList>
-                                            <CommandEmpty>No country found.</CommandEmpty>
-                                            <CommandGroup>
-                                                <CommandItem v-for="(name, code) in countries" :key="code" :value="name"
-                                                    @select="() => {
-                                                        form.country_code = code as string
-                                                        countryOpen = false
-                                                        markTouched('country_code')
+                        <Field class="grid grid-cols-2 gap-4">
+                            <Field>
+                                <FieldLabel for="country_code">Country</FieldLabel>
+                                <Popover v-model:open="countryOpen">
+                                    <PopoverTrigger as-child>
+                                        <Button id="country_code" name="country_code" variant="outline" role="combobox"
+                                            :aria-expanded="countryOpen" :class="[
+                                                'w-full justify-between',
+                                                { 'border-red-500!': countryCodeError || form.errors.country_code }
+                                            ]">
+                                            {{ selectedCountryLabel }}
+                                            <ChevronsUpDown class="opacity-50" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent class="w-70.25 p-0">
+                                        <Command>
+                                            <CommandInput class="h-9" placeholder="Search country" />
+                                            <CommandList>
+                                                <CommandEmpty>No country found.</CommandEmpty>
+                                                <CommandGroup>
+                                                    <CommandItem v-for="(name, code) in countries" :key="code"
+                                                        :value="name" @select="() => {
+                                                            form.country_code = code as string
+                                                            countryOpen = false
+                                                            markTouched('country_code')
+                                                        }">
+                                                        <Check :class="cn(
+                                                            'mr-2 h-4 w-4',
+                                                            form.country_code === code ? 'opacity-100' : 'opacity-0'
+                                                        )" />
+                                                        {{ name }}
+                                                    </CommandItem>
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
+                                <div v-if="countryCodeError || form.errors.country_code" class="text-red-500 text-sm">{{
+                                    countryCodeError || form.errors.country_code }}
+                                </div>
+                            </Field>
+                            <Field>
+                                <FieldLabel for="timezone">Timezone</FieldLabel>
+                                <Popover v-model:open="timezoneOpen">
+                                    <PopoverTrigger as-child>
+                                        <Button id="timezone" name="timezone" variant="outline" role="combobox"
+                                            :aria-expanded="timezoneOpen" :class="[
+                                                'w-full justify-between',
+                                                { 'border-red-500! ring-red-500/50': timezoneError || form.errors.timezone }
+                                            ]">
+                                            {{ selectedTimezoneLabel }}
+                                            <ChevronsUpDown class="opacity-50" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent class="w-70.25 p-0">
+                                        <Command>
+                                            <CommandInput class="h-9" placeholder="Search timezone" />
+                                            <CommandList>
+                                                <CommandEmpty>No timezone found.</CommandEmpty>
+                                                <CommandGroup>
+                                                    <CommandItem v-for="tz in timezones" :key="tz" :value="tz" @select="() => {
+                                                        form.timezone = tz
+                                                        timezoneOpen = false
+                                                        markTouched('timezone')
                                                     }">
-                                                    <Check :class="cn(
-                                                        'mr-2 h-4 w-4',
-                                                        form.country_code === code ? 'opacity-100' : 'opacity-0'
-                                                    )" />
-                                                    {{ name }}
-                                                </CommandItem>
-                                            </CommandGroup>
-                                        </CommandList>
-                                    </Command>
-                                </PopoverContent>
-                            </Popover>
-                            <div v-if="countryCodeError || form.errors.country_code" class="text-red-500 text-sm">{{
-                                countryCodeError || form.errors.country_code }}
-                            </div>
-                        </Field>
-                        <Field>
-                            <FieldLabel for="timezone">Timezone</FieldLabel>
-                            <Popover v-model:open="timezoneOpen">
-                                <PopoverTrigger as-child>
-                                    <Button id="timezone" name="timezone" variant="outline" role="combobox"
-                                        :aria-expanded="timezoneOpen" :class="[
-                                            'w-full justify-between',
-                                            { 'border-red-500! ring-red-500/50': timezoneError || form.errors.timezone }
-                                        ]">
-                                        {{ selectedTimezoneLabel }}
-                                        <ChevronsUpDown class="opacity-50" />
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent class="w-143.75 p-0">
-                                    <Command>
-                                        <CommandInput class="h-9" placeholder="Search timezone" />
-                                        <CommandList>
-                                            <CommandEmpty>No timezone found.</CommandEmpty>
-                                            <CommandGroup>
-                                                <CommandItem v-for="tz in timezones" :key="tz" :value="tz" @select="() => {
-                                                    form.timezone = tz
-                                                    timezoneOpen = false
-                                                    markTouched('timezone')
-                                                }">
-                                                    <Check :class="cn(
-                                                        'mr-2 h-4 w-4',
-                                                        form.timezone === tz ? 'opacity-100' : 'opacity-0'
-                                                    )" />
-                                                    {{ tz }}
-                                                </CommandItem>
-                                            </CommandGroup>
-                                        </CommandList>
-                                    </Command>
-                                </PopoverContent>
-                            </Popover>
-                            <div v-if="timezoneError || form.errors.timezone" class="text-red-500 text-sm">{{
-                                timezoneError || form.errors.timezone }}
-                            </div>
+                                                        <Check :class="cn(
+                                                            'mr-2 h-4 w-4',
+                                                            form.timezone === tz ? 'opacity-100' : 'opacity-0'
+                                                        )" />
+                                                        {{ tz }}
+                                                    </CommandItem>
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
+                                <div v-if="timezoneError || form.errors.timezone" class="text-red-500 text-sm">{{
+                                    timezoneError || form.errors.timezone }}
+                                </div>
+                            </Field>
                         </Field>
                         <Field class="flex items-center gap-4">
                             <Button :disabled="form.processing || !allFieldsFilled || hasClientErrors" type="submit"
-                                class="inline-flex items-start w-auto! self-start">
+                                class="inline-flex items-start w-auto! self-start bg-green-500 hover:bg-green-400">
                                 <Spinner v-if="form.processing" class="mr-2" />
                                 Save
                             </Button>
