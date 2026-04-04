@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Fortify\Contracts\LogoutResponse;
 
 class AppServiceProvider extends ServiceProvider
 {

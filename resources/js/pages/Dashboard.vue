@@ -179,19 +179,19 @@ watch(() => page.props.flash.success, (newMessage) => {
         <template #actions>
             <DropdownMenu>
                 <DropdownMenuTrigger as-child>
-                    <Button class="bg-green-500 hover:bg-green-400">
+                    <Button class="bg-green-500 hover:bg-green-400 dark:text-white cursor-pointer">
                         <CirclePlus class="size-4" />
                         Log
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent class="w-32" align="end">
-                    <DropdownMenuItem as-child>
+                    <DropdownMenuItem class="cursor-pointer" as-child>
                         <a href="/weight-entries/create">
                             Weight Entry
                         </a>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem as-child>
+                    <DropdownMenuItem class="cursor-pointer" as-child>
                         <a href="/nutrition-entries/create">
                             Nutrition Entry
                         </a>

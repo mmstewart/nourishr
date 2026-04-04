@@ -123,12 +123,12 @@ function submit() {
                 </Field>
                 <Field>
                     <Button :disabled="form.processing || !allFieldsFilled || hasClientErrors"
-                        class="bg-green-500 hover:bg-green-400" type="submit">
+                        class="bg-green-500 hover:bg-green-400 dark:text-white" type="submit">
                         <Spinner v-if="form.processing" class="mr-2" />
                         Login
                     </Button>
                 </Field>
-                <FieldSeparator>Or</FieldSeparator>
+                <FieldSeparator class="bg-gray-100">Or</FieldSeparator>
                 <Button variant="outline" type="button">
                     <a href="/auth/google/redirect" class="flex gap-x-2 items-center">
                         <Icon icon="logos:google-icon" class="w-5 h-5" />

@@ -21,7 +21,7 @@ class StoreSetupAccountRequest extends FormRequest
                 'required',
                 'email',
                 'max:255',
-                Rule::unique(User::class)->ignore($this->user()->id),
+                Rule::unique(User::class, 'email'),
             ],
             'gender' => ['required'],
             'country_code' => ['required'],

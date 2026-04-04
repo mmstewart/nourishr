@@ -91,12 +91,12 @@ const handleContinue = () => {
 </script>
 
 <template>
-    <div class="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
+    <div class="bg-gray-100 flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
         <Stepper v-model="step" class="flex w-1/2 items-start gap-2">
             <StepperItem v-for="stepItem in steps" :key="stepItem.step" v-slot="{ state }"
                 class="relative flex w-full flex-col items-center justify-center" :step="stepItem.step">
                 <StepperSeparator v-if="stepItem.step !== steps[steps.length - 1]?.step"
-                    class="absolute left-[calc(50%+20px)] right-[calc(-50%+10px)] top-5 block h-0.5 shrink-0 rounded-full bg-muted group-data-[state=completed]:bg-primary" />
+                    class="absolute left-[calc(50%+20px)] right-[calc(-50%+10px)] top-5 block h-0.5 shrink-0 rounded-full bg-gray-300 group-data-[state=completed]:bg-primary" />
                 <StepperTrigger as-child :disabled="stepItem.step > step">
                     <Button :variant="state === 'completed' || state === 'active' ? 'default' : 'outline'" size="icon"
                         class="z-10 rounded-full shrink-0"
@@ -212,7 +212,8 @@ const handleContinue = () => {
                         </template>
                         <Field orientation="horizontal">
                             <Button v-if="step > 1" variant="outline" type="button" @click="prevStep">Back</Button>
-                            <Button type="submit" :disabled="form.processing || isValidating">
+                            <Button type="submit" :disabled="form.processing || isValidating"
+                                class="bg-green-500 hover:bg-green-400 dark:text-white">
                                 <Spinner v-if="form.processing || isValidating" class="mr-2" />
                                 {{ step === totalSteps ? 'Finish' : 'Continue' }}
                             </Button>

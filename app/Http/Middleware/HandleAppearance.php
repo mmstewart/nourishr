@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\Response;
 
+use Illuminate\Support\Facades\Log;
+
 class HandleAppearance
 {
     /**
@@ -16,7 +18,16 @@ class HandleAppearance
      */
     public function handle(Request $request, Closure $next): Response
     {
-        View::share('appearance', $request->cookie('appearance') ?? 'system');
+        Log::info('HandleAppearance', [
+            'user' => $request->user()?->id,
+            'cookie' => $request->cookie('appearance'),
+        ]);
+
+        $appearance = $request->user()
+            ? ($request->cookie('appearance') ?? 'system')
+            : 'light';
+
+        View::share('appearance', $appearance);
 
         return $next($request);
     }

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Mail;
 
 class FeedbackController extends Controller
 {
-    public function store(StoreFeedbackRequest $request)
+    public function __invoke(StoreFeedbackRequest $request)
     {
         if ($request->filled('phone_number')) {
             return to_route('dashboard')->with('success', 'Thanks for reaching out! We really value your thoughts. 

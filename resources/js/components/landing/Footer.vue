@@ -3,8 +3,6 @@ import { motion } from 'motion-v';
 import AppLogo from './../AppLogo.vue';
 import { Link } from '@inertiajs/vue3';
 
-// const footerLinks = ['Features', 'Science', 'Privacy', 'Contact'];
-
 interface FooterLinks {
     label: string;
     href: string;
@@ -26,8 +24,6 @@ const navigate = (href: string) => {
         window.location.href = href
     }
 }
-
-const currentYear = new Date().getFullYear();
 </script>
 
 <template>
@@ -60,8 +56,8 @@ const currentYear = new Date().getFullYear();
                             </a>
                         </template>
                     </nav>
-                    <p class="text-xs font-inter text-gray-800/85">
-                        © {{ currentYear }} Nourishr. All systems operational.
+                    <p class="text-xs text-gray-800/85">
+                        © {{ new Date().getFullYear() }} Nourishr. All rights reserved.
                     </p>
                 </motion.div>
             </div>

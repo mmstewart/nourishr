@@ -54,16 +54,20 @@ const handleSystemThemeChange = () => {
     updateTheme(currentAppearance || 'system');
 };
 
-export function initializeTheme() {
-    if (typeof window === 'undefined') {
+// passes auth state so guests always get light mode on instead of blindly reading localStorage
+export function initializeTheme(isAuthenticated = true) {
+    if (typeof window === 'undefined') return;
+
+    if (!isAuthenticated) {
+        localStorage.removeItem('appearance');
+        updateTheme('light');
+        mediaQuery()?.addEventListener('change', handleSystemThemeChange);
         return;
     }
 
-    // Initialize theme from saved preference or default to system...
     const savedAppearance = getStoredAppearance();
     updateTheme(savedAppearance || 'system');
 
-    // Set up system theme change listener...
     mediaQuery()?.addEventListener('change', handleSystemThemeChange);
 }
 

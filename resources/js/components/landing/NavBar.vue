@@ -58,7 +58,7 @@ withDefaults(
                     Login
                 </Link>
             </Button>
-            <Button size="lg" v-if="canRegister" class="bg-green-500 hover:bg-green-400" as-child>
+            <Button size="lg" v-if="canRegister" class="bg-green-500 hover:bg-green-400 dark:text-white" as-child>
                 <Link :href="register()">
                     Register
                 </Link>

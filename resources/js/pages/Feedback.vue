@@ -31,7 +31,7 @@ const form = useForm({
     name: '',
     email: '',
     message: '',
-    phone_number: '', // honeypot for spam prevention
+    phone_number: '',
 })
 
 // Touch tracking so we don't show errors before the user interacts
@@ -149,7 +149,7 @@ function submit() {
                                 <Field class="flex items-center gap-4">
                                     <Button :disabled="form.processing || !allFieldsFilled || hasClientErrors"
                                         type="submit"
-                                        class="inline-flex items-start w-auto! self-start bg-green-500 hover:bg-green-400">
+                                        class="inline-flex items-start w-auto! self-start bg-green-500 hover:bg-green-400 dark:text-white">
                                         <Spinner v-if="form.processing" class="mr-2" />
                                         Submit
                                     </Button>

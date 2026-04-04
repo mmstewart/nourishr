@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\NutritionEntryController;
@@ -17,7 +18,10 @@ Route::get('/', function () {
     ]);
 })->middleware('guest')->name('home');
 
-Route::redirect('/dashboard', '/');
+Route::get('contact', fn() => Inertia::render('Contact'))->name('contact');
+Route::post('contact', ContactController::class)->middleware('throttle:6,1')->name('contact.store');
+
+Route::redirect('dashboard', '/');
 
 Route::middleware('auth')->group(function () {
     Route::get('api/countries/{country}/timezones', function ($country) {
@@ -59,7 +63,7 @@ Route::middleware('auth')->group(function () {
         ->name('dashboard');
 
     Route::get('feedback', fn() => Inertia::render('Feedback'))->name('feedback');
-    Route::post('feedback', [FeedbackController::class, 'store'])->middleware('throttle:6,1')->name('feedback.store');
+    Route::post('feedback', FeedbackController::class)->middleware('throttle:6,1')->name('feedback.store');
 
     Route::resource('nutrition-entries', NutritionEntryController::class)->except('destroy');
 

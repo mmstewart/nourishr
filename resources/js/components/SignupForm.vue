@@ -36,13 +36,13 @@ const props = defineProps<{
                 </FieldDescription>
             </div>
             <Field>
-                <Button class="bg-green-500 hover:bg-green-400" as-child>
+                <Button class="bg-green-500 hover:bg-green-400 dark:text-white" as-child>
                     <a href="/setup-account">
                         Create Account
                     </a>
                 </Button>
             </Field>
-            <FieldSeparator>Or</FieldSeparator>
+            <FieldSeparator class="bg-gray-100">Or</FieldSeparator>
             <FieldGroup class="grid gap-4">
                 <Button variant="outline" type="button">
                     <a href="/auth/google/redirect" class="flex gap-x-2 items-center">

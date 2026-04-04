@@ -14,15 +14,13 @@ class GoogleAuthCallbackController extends Controller
     {
         $googleUser = Socialite::driver('google')->user();
 
-        $user = User::updateOrCreate([
-            'id' => $googleUser->getId(),
-        ], [
-            'name' => $googleUser->getName(),
-            'email' => $googleUser->getEmail(),
-            'email_verified_at' => now(),
-        ]);
-
-        Auth::login($user);
+        // $user = User::updateOrCreate([
+        //     'id' => $googleUser->getId(),
+        // ], [
+        //     'name' => $googleUser->getName(),
+        //     'email' => $googleUser->getEmail(),
+        //     'email_verified_at' => now(),
+        // ]);
 
         return Inertia::location(route('dashboard'));
     }

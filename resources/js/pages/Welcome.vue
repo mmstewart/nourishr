@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import { ref, watch } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { CircleCheck } from 'lucide-vue-next'
+
 import ScrollProgress from '@/components/landing/ScrollProgress.vue';
 import NavBar from '@/components/landing/NavBar.vue';
 import HeroSection from '@/components/landing/HeroSection.vue';
@@ -18,10 +24,35 @@ const images = {
 defineProps<{
     canRegister: boolean;
 }>()
+
+const page = usePage();
+
+const showSuccessMessage = ref(false)
+
+watch(() => page.props.flash.success, (newMessage) => {
+    if (newMessage) {
+        showSuccessMessage.value = true
+
+        setTimeout(() => {
+            showSuccessMessage.value = false
+        }, 5000)
+    }
+}, { immediate: true })
 </script>
 
 <template>
-    <div className="min-h-screen bg-gray-100">
+    <div class="min-h-screen bg-gray-100">
+        <div v-if="showSuccessMessage" class="fixed top-20 right-6 md:right-12 z-50 w-full max-w-md">
+            <Alert>
+                <CircleCheck class="stroke-green-500" />
+                <AlertTitle class="text-green-500">
+                    Thank you for the feedback!
+                </AlertTitle>
+                <AlertDescription>
+                    {{ page.props.flash.success }}
+                </AlertDescription>
+            </Alert>
+        </div>
         <ScrollProgress />
         <NavBar :canRegister="canRegister" />
         <HeroSection />
