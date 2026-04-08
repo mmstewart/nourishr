@@ -13,9 +13,10 @@ class User extends Authenticatable
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
     protected $fillable = [
-        'age',
         'country_code',
+        'dob',
         'email',
+        'email_verified_at',
         'gender',
         'height_inches',
         'name',
@@ -51,5 +52,16 @@ class User extends Authenticatable
     public function weightGoal()
     {
         return $this->hasOne(WeightGoal::class);
+    }
+
+    public function hasCompletedSetup()
+    {
+        return collect([
+            $this->dob,
+            $this->height_inches,
+            $this->country_code,
+            $this->timezone,
+            $this->gender,
+        ])->every(fn($value) => !empty($value));
     }
 }

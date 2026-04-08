@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
 
 class GoogleAuthCallbackController extends Controller
@@ -14,14 +13,15 @@ class GoogleAuthCallbackController extends Controller
     {
         $googleUser = Socialite::driver('google')->user();
 
-        // $user = User::updateOrCreate([
-        //     'id' => $googleUser->getId(),
-        // ], [
-        //     'name' => $googleUser->getName(),
-        //     'email' => $googleUser->getEmail(),
-        //     'email_verified_at' => now(),
-        // ]);
+        $user = User::firstOrCreate(
+            ['email' => $googleUser->getEmail()],
+            [
+                'name' => $googleUser->getName(),
+            ]
+        );
 
-        return Inertia::location(route('dashboard'));
+        Auth::login($user);
+
+        return redirect()->route('setup');
     }
 }

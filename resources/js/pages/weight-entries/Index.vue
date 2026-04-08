@@ -130,17 +130,24 @@ watch(timeRange, (newRange) => {
                     <CardHeader class="flex justify-between items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
                         <CardTitle>Weight Entries</CardTitle>
                     </CardHeader>
-                    <ul role="list" class="divide-y dark:divide-white/5 ">
-                        <li v-for="entry in weightEntries" :key="entry.id">
-                            <a :href="`/weight-entries/${entry.id}/edit`"
-                                class="flex items-center justify-between gap-x-6 px-6 py-5 hover:bg-muted/50 dark:hover:dark:bg-white/5 transition-colors">
-                                <div class="min-w-0">
-                                    <p class="text-sm/6 font-semibold">{{ entry.weight }} lbs</p>
-                                    <p class="mt-1 text-xs/5 text-gray-400 truncate">{{ entry.date }}</p>
-                                </div>
-                                <ChevronRight class="size-5 text-gray-500 shrink-0" />
-                            </a>
-                        </li>
+                    <ul role="list" class="divide-y dark:divide-white/5">
+                        <template v-if="!weightEntries.length">
+                            <li class="text-center py-10">
+                                No weight entries logged yet.
+                            </li>
+                        </template>
+                        <template v-else>
+                            <li v-for="entry in weightEntries" :key="entry.id">
+                                <a :href="`/weight-entries/${entry.id}/edit`"
+                                    class="flex items-center justify-between gap-x-6 px-6 py-5 hover:bg-muted/50 dark:hover:dark:bg-white/5 transition-colors">
+                                    <div class="min-w-0">
+                                        <p class="text-sm/6 font-semibold">{{ entry.weight }} lbs</p>
+                                        <p class="mt-1 text-xs/5 text-gray-400 truncate">{{ entry.date }}</p>
+                                    </div>
+                                    <ChevronRight class="size-5 text-gray-500 shrink-0" />
+                                </a>
+                            </li>
+                        </template>
                     </ul>
                 </Card>
             </div>

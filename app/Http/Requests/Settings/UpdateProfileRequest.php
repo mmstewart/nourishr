@@ -12,7 +12,7 @@ class UpdateProfileRequest extends FormRequest
     {
         return [
             'name' => ['required', 'max:255', 'blasp_check'],
-            'age' => ['required', 'integer', 'min:13', 'max:120'],
+            'dob' => ['required', 'date', 'before:today'],
             'feet' => ['required', 'integer', 'min:1', 'max:8'],
             'inches' => ['required', 'integer', 'min:0', 'max:11'],
             'height_inches' => ['required', 'integer'],

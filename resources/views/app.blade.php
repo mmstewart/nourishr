@@ -30,7 +30,7 @@
             }
         </style>
 
-        <title inertia>{{ config('app.name', 'Nourishr') }}</title>
+        <title inertia>{{ config('app.name') }}</title>
 
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         <link rel="icon" type="image/png" href="/favicon.png?v=1">

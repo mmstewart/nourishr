@@ -15,21 +15,20 @@ use OpenFoodFacts\Laravel\Facades\OpenFoodFacts;
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canRegister' => Features::enabled(Features::registration()),
+        'isLoggedIn' => auth()->check(),
     ]);
-})->middleware('guest')->name('home');
+})->name('home');
+
+Route::get('api/countries/{country}/timezones', function ($country) {
+    abort_if(!preg_match('/^[A-Z]{2}$/', $country), 422);
+
+    return response()->json(LocationService::getTimezonesForCountry($country));
+});
 
 Route::get('contact', fn() => Inertia::render('Contact'))->name('contact');
 Route::post('contact', ContactController::class)->middleware('throttle:6,1')->name('contact.store');
 
-Route::redirect('dashboard', '/');
-
 Route::middleware('auth')->group(function () {
-    Route::get('api/countries/{country}/timezones', function ($country) {
-        abort_if(!preg_match('/^[A-Z]{2}$/', $country), 422);
-
-        return response()->json(LocationService::getTimezonesForCountry($country));
-    });
-
     // todo: make work
     Route::get('api/foodfacts', function () {
         $food_item = request()->query('food_item');
@@ -59,7 +58,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::get('dashboard', DashboardController::class)
-        ->middleware('hasWeightGoal', 'verified')
+        ->middleware('verified')
         ->name('dashboard');
 
     Route::get('feedback', fn() => Inertia::render('Feedback'))->name('feedback');
@@ -67,8 +66,8 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('nutrition-entries', NutritionEntryController::class)->except('destroy');
 
-    Route::get('setup-weight-goal', [SetupWeightGoalController::class, 'create'])->name('setup-weight-goal');
-    Route::post('setup-weight-goal', [SetupWeightGoalController::class, 'store'])->middleware('handlePrecognition')->name('setup-weight-goal.store');
+    // Route::get('setup-weight-goal', [SetupWeightGoalController::class, 'create'])->name('setup-weight-goal');
+    // Route::post('setup-weight-goal', [SetupWeightGoalController::class, 'store'])->middleware('handlePrecognition')->name('setup-weight-goal.store');
 
     Route::resource('weight-entries', WeightEntryController::class)->except('show', 'destroy');
 });

@@ -52,6 +52,7 @@ class WeightGoal extends Model
 
         $weightInKG = $this->current_weight / 2.20462;
 
+        // todo: age
         return round((10 * $weightInKG) + (6.25 * $heightInCM) - (5 * $this->user->age) + $gender);
     }
 

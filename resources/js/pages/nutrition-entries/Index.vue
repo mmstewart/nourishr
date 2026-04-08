@@ -131,35 +131,42 @@ watch(timeRange, (newRange) => {
                         <CardTitle>Nutrition Entries</CardTitle>
                     </CardHeader>
                     <ul role="list" class="divide-y dark:divide-white/5">
-                        <li v-for="entry in nutritionEntries" :key="entry.id">
-                            <a :href="`/nutrition-entries/${entry.id}/edit`"
-                                class="flex items-start justify-between gap-x-6 px-6 py-5 hover:bg-muted/50 dark:hover:bg-white/5 transition-colors">
-                                <div class="min-w-0">
-                                    <p class="text-sm/6 font-semibold capitalize">
-                                        {{ entry.food_item }}
-                                    </p>
-                                    <p class="mt-1 truncate text-xs/5 text-gray-400">
-                                        {{ entry.date }}
-                                    </p>
-                                </div>
-                                <div class="flex items-start gap-x-6 shrink-0">
-                                    <div class="hidden sm:block text-right">
-                                        <p class="text-sm/6">{{ entry.calories }} calories</p>
-                                        <details class="mt-1">
-                                            <summary class="text-xs/5 text-gray-400 cursor-pointer">
-                                                Macros
-                                            </summary>
-                                            <div class="flex flex-col gap-1 mt-3 text-xs/5">
-                                                <p>Protein: {{ entry.protein }}g</p>
-                                                <p>Carbohydrates: {{ entry.carbohydrates }}g</p>
-                                                <p>Fat: {{ entry.fats }}g</p>
-                                            </div>
-                                        </details>
+                        <template v-if="!nutritionEntries.length">
+                            <li class="text-center py-10">
+                                No nutrition entries logged yet.
+                            </li>
+                        </template>
+                        <template v-else>
+                            <li v-for="entry in nutritionEntries" :key="entry.id">
+                                <a :href="`/nutrition-entries/${entry.id}/edit`"
+                                    class="flex items-start justify-between gap-x-6 px-6 py-5 hover:bg-muted/50 dark:hover:bg-white/5 transition-colors">
+                                    <div class="min-w-0">
+                                        <p class="text-sm/6 font-semibold capitalize">
+                                            {{ entry.food_item }}
+                                        </p>
+                                        <p class="mt-1 truncate text-xs/5 text-gray-400">
+                                            {{ entry.date }}
+                                        </p>
                                     </div>
-                                    <ChevronRight class="size-5 text-gray-500 shrink-0 self-center" />
-                                </div>
-                            </a>
-                        </li>
+                                    <div class="flex items-start gap-x-6 shrink-0">
+                                        <div class="hidden sm:block text-right">
+                                            <p class="text-sm/6">{{ entry.calories }} calories</p>
+                                            <details class="mt-1">
+                                                <summary class="text-xs/5 text-gray-400 cursor-pointer">
+                                                    Macros
+                                                </summary>
+                                                <div class="flex flex-col gap-1 mt-3 text-xs/5">
+                                                    <p>Protein: {{ entry.protein }}g</p>
+                                                    <p>Carbohydrates: {{ entry.carbohydrates }}g</p>
+                                                    <p>Fat: {{ entry.fats }}g</p>
+                                                </div>
+                                            </details>
+                                        </div>
+                                        <ChevronRight class="size-5 text-gray-500 shrink-0 self-center" />
+                                    </div>
+                                </a>
+                            </li>
+                        </template>
                     </ul>
                 </Card>
             </div>

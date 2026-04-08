@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, type HTMLAttributes } from 'vue'
 import { useForm } from '@inertiajs/vue3';
-import { motion } from "motion-v";
 
 import {
     Field,
@@ -91,65 +90,62 @@ function submit() {
         <NavBarSmall />
         <main class="flex-1 flex items-center justify-center px-6 py-18">
             <div class="w-full max-w-xl">
-                <motion.div :initial="{ opacity: 0, y: 30 }" :animate="{ opacity: 1, y: 0 }"
-                    :transition="{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }">
-                    <span class="text-[10px] uppercase tracking-[0.4em] text-green-500 mb-6 block">
-                        Get in touch
-                    </span>
-                    <h2 class="font-bold text-4xl md:text-5xl leading-[1.05] tracking-tight mb-4">
-                        We'd love to
-                        <br />
-                        <span class="text-green-500">hear from you.</span>
-                    </h2>
-                    <p class="text-lg text-muted-foreground/50 leading-relaxed mb-8 max-w-md">
-                        Questions, feedback, or partnership inquiries — send us a message and we'll get back to you
-                        promptly.
-                    </p>
-                    <form @submit.prevent="submit">
-                        <input v-model="form.company" type="text" class="hidden" tabindex="-1" autocomplete="off" />
-                        <FieldGroup>
-                            <Field class="grid grid-cols-2 gap-4">
-                                <Field>
-                                    <FieldLabel for="name">
-                                        Name
-                                    </FieldLabel>
-                                    <Input v-model="form.name" @blur="markTouched('name')" id="name" name="name"
-                                        type="text" :class="{ 'border-red-500': nameError || form.errors.name }" />
-                                    <div v-if="nameError || form.errors.name" class="text-red-500 text-sm">
-                                        {{ nameError || form.errors.name }}
-                                    </div>
-                                </Field>
-                                <Field>
-                                    <FieldLabel for="email">
-                                        Email
-                                    </FieldLabel>
-                                    <Input v-model="form.email" @blur="markTouched('email')" id="email" name="email"
-                                        type="email" :class="{ 'border-red-500': emailError || form.errors.email }" />
-                                    <div v-if="emailError || form.errors.email" class="text-red-500 text-sm">
-                                        {{ emailError || form.errors.email }}
-                                    </div>
-                                </Field>
-                            </Field>
+                <span class="text-[10px] uppercase tracking-[0.4em] text-green-500 mb-6 block">
+                    Get in touch
+                </span>
+                <h2 class="font-bold text-4xl md:text-5xl leading-[1.05] tracking-tight mb-4">
+                    We'd love to
+                    <br />
+                    <span class="text-green-500">hear from you.</span>
+                </h2>
+                <p class="text-lg text-muted-foreground/50 leading-relaxed mb-8 max-w-md">
+                    Questions, feedback, or partnership inquiries — send us a message and we'll get back to you
+                    promptly.
+                </p>
+                <form @submit.prevent="submit">
+                    <input v-model="form.company" type="text" class="hidden" tabindex="-1" autocomplete="off" />
+                    <FieldGroup>
+                        <Field class="grid grid-cols-2 gap-4">
                             <Field>
-                                <FieldLabel for="message">
-                                    Message
+                                <FieldLabel for="name">
+                                    Name
                                 </FieldLabel>
-                                <Textarea v-model="form.message" @blur="markTouched('message')" id="message"
-                                    :class="['min-h-32', { 'border-red-500': messageError || form.errors.message }]" />
-                                <div v-if="messageError || form.errors.message" class="text-red-500 text-sm">
-                                    {{ messageError || form.errors.message }}
+                                <Input v-model="form.name" @blur="markTouched('name')" id="name" name="name" type="text"
+                                    :class="{ 'border-red-500': nameError || form.errors.name }" />
+                                <div v-if="nameError || form.errors.name" class="text-red-500 text-sm">
+                                    {{ nameError || form.errors.name }}
                                 </div>
                             </Field>
-                            <Field class="flex items-center gap-4">
-                                <Button :disabled="form.processing || !allFieldsFilled || hasClientErrors" type="submit"
-                                    class="inline-flex items-start w-auto! self-start bg-green-500 hover:bg-green-400 dark:text-white">
-                                    <Spinner v-if="form.processing" class="mr-2" />
-                                    Submit
-                                </Button>
+                            <Field>
+                                <FieldLabel for="email">
+                                    Email
+                                </FieldLabel>
+                                <Input v-model="form.email" @blur="markTouched('email')" id="email" name="email"
+                                    type="email" :class="{ 'border-red-500': emailError || form.errors.email }" />
+                                <div v-if="emailError || form.errors.email" class="text-red-500 text-sm">
+                                    {{ emailError || form.errors.email }}
+                                </div>
                             </Field>
-                        </FieldGroup>
-                    </form>
-                </motion.div>
+                        </Field>
+                        <Field>
+                            <FieldLabel for="message">
+                                Message
+                            </FieldLabel>
+                            <Textarea v-model="form.message" @blur="markTouched('message')" id="message"
+                                :class="['min-h-32', { 'border-red-500': messageError || form.errors.message }]" />
+                            <div v-if="messageError || form.errors.message" class="text-red-500 text-sm">
+                                {{ messageError || form.errors.message }}
+                            </div>
+                        </Field>
+                        <Field class="flex items-center gap-4">
+                            <Button :disabled="form.processing || !allFieldsFilled || hasClientErrors" type="submit"
+                                class="inline-flex items-start w-auto! self-start bg-green-500 hover:bg-green-400 dark:text-white">
+                                <Spinner v-if="form.processing" class="mr-2" />
+                                Submit
+                            </Button>
+                        </Field>
+                    </FieldGroup>
+                </form>
             </div>
         </main>
         <FooterSmall />

@@ -28,9 +28,11 @@ const scrollTo = (href: string) => {
 withDefaults(
     defineProps<{
         canRegister: boolean;
+        isLoggedIn: boolean;
     }>(),
     {
         canRegister: true,
+        isLoggedIn: false,
     },
 );
 </script>
@@ -40,9 +42,9 @@ withDefaults(
         class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 h-16 backdrop-blur-md border-b"
         :initial="{ opacity: 0, y: -10 }" :animate="{ opacity: 1, y: 0 }"
         :transition="{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }">
-        <Link @click="scrollTo('#hero')" class="flex items-center gap-1 group cursor-pointer focus:outline-none z-10">
+        <a @click="scrollTo('#hero')" class="flex items-center gap-1 group cursor-pointer focus:outline-none z-10">
             <AppLogo />
-        </Link>
+        </a>
         <div class="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center">
             <nav class="flex items-center gap-8" aria-label="Main navigation">
                 <a v-for="item in navItems" :key="item.label" :href="item.href" @click.prevent="scrollTo(item.href)"
@@ -53,16 +55,25 @@ withDefaults(
             </nav>
         </div>
         <div class="flex items-center gap-2.5 z-10">
-            <Button variant="outline" size="lg" as-child>
-                <Link :href="login()">
-                    Login
-                </Link>
-            </Button>
-            <Button size="lg" v-if="canRegister" class="bg-green-500 hover:bg-green-400 dark:text-white" as-child>
-                <Link :href="register()">
-                    Register
-                </Link>
-            </Button>
+            <template v-if="$page.props.auth.user">
+                <Button size="lg" class="bg-green-500 hover:bg-green-400 dark:text-white" as-child>
+                    <a href="/setup">
+                        Continue Setup
+                    </a>
+                </Button>
+            </template>
+            <template v-else>
+                <Button variant="outline" size="lg" as-child>
+                    <Link :href="login()">
+                        Login
+                    </Link>
+                </Button>
+                <Button size="lg" v-if="canRegister" class="bg-green-500 hover:bg-green-400 dark:text-white" as-child>
+                    <Link :href="register()">
+                        Register
+                    </Link>
+                </Button>
+            </template>
         </div>
     </motion.header>
 </template>

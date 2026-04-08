@@ -58,7 +58,7 @@ onUnmounted(() => {
                         <div class="relative space-y-0.5">
                             <div class="flex items-center gap-2">
                                 <p class="font-medium">Two-Factor Authentication</p>
-                                <Badge variant="destructive">Disabled</Badge>
+                                <Badge>Disabled</Badge>
                             </div>
                             <p class="text-sm">
                                 When you enable two-factor authentication, you will be
@@ -68,12 +68,14 @@ onUnmounted(() => {
                             </p>
                         </div>
                         <div>
-                            <Button v-if="hasSetupData" @click="showSetupModal = true">
+                            <Button v-if="hasSetupData" @click="showSetupModal = true"
+                                class="bg-green-500 hover:bg-green-400 dark:text-white">
                                 Continue Setup
                             </Button>
                             <Form v-else v-bind="enable.form()" @success="showSetupModal = true"
                                 #default="{ processing }">
-                                <Button type="submit" :disabled="processing">
+                                <Button :disabled="processing" type="submit"
+                                    class="bg-green-500 hover:bg-green-400 dark:text-white">
                                     Enable 2FA
                                 </Button>
                             </Form>
@@ -85,7 +87,7 @@ onUnmounted(() => {
                         <div class="relative space-y-0.5">
                             <div class="flex items-center gap-2">
                                 <p class="font-medium">Two-Factor Authentication</p>
-                                <Badge variant="default">Enabled</Badge>
+                                <Badge variant="default" class="bg-green-500">Enabled</Badge>
                             </div>
                             <p class="text-sm">
                                 With two-factor authentication enabled, you will be
@@ -94,7 +96,6 @@ onUnmounted(() => {
                                 your phone.
                             </p>
                         </div>
-                        <TwoFactorRecoveryCodes />
                         <div class="relative inline">
                             <Form v-bind="disable.form()" #default="{ processing }">
                                 <Button variant="destructive" type="submit" :disabled="processing">
@@ -103,6 +104,7 @@ onUnmounted(() => {
                             </Form>
                         </div>
                     </div>
+                    <TwoFactorRecoveryCodes />
                 </div>
                 <TwoFactorSetupModal v-model:isOpen="showSetupModal" :requiresConfirmation="requiresConfirmation"
                     :twoFactorEnabled="twoFactorEnabled" />

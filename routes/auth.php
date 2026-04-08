@@ -5,6 +5,8 @@ use App\Http\Controllers\Auth\GoogleAuthRedirectController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\SetupAccountController;
+use App\Http\Controllers\Auth\SetupController;
+use App\Http\Controllers\Auth\SetupProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('auth/google/callback', GoogleAuthCallbackController::class)->name('google.callback');
@@ -16,5 +18,7 @@ Route::post('login', [LoginController::class, 'store'])->name('login.store');
 Route::get('register', [RegisterController::class, 'create'])->name('register');
 Route::post('register', [RegisterController::class, 'store'])->name('register.store');
 
-Route::get('setup-account', [SetupAccountController::class, 'create'])->name('setup-account');
-Route::post('setup-account', [SetupAccountController::class, 'store'])->middleware('handlePrecognition')->name('setup-account.store');
+Route::get('setup', SetupController::class)->name('setup');
+Route::post('setup-account', SetupAccountController::class)->middleware('handlePrecognition')->name('setup.account');
+Route::post('setup-profile', SetupProfileController::class)->middleware('handlePrecognition')->name('setup.profile');
+// Route::post('setup-weight-goal', SetupWeightGoalController::class)->middleware('handlePrecognition')->name('setup.weight-goal');

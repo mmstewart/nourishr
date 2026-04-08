@@ -5,7 +5,7 @@ import { usePage } from '@inertiajs/vue3';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { CircleCheck } from 'lucide-vue-next'
 
-import ScrollProgress from '@/components/landing/ScrollProgress.vue';
+// import ScrollProgress from '@/components/landing/ScrollProgress.vue';
 import NavBar from '@/components/landing/NavBar.vue';
 import HeroSection from '@/components/landing/HeroSection.vue';
 import NutritionSection from '@/components/landing/NutritionSection.vue';
@@ -23,6 +23,7 @@ const images = {
 
 defineProps<{
     canRegister: boolean;
+    isLoggedIn: boolean;
 }>()
 
 const page = usePage();
@@ -53,8 +54,9 @@ watch(() => page.props.flash.success, (newMessage) => {
                 </AlertDescription>
             </Alert>
         </div>
-        <ScrollProgress />
-        <NavBar :canRegister="canRegister" />
+        <!-- on screen  progress indicator that the transparent navbar covers -->
+        <!-- <ScrollProgress /> -->
+        <NavBar :isLoggedIn="isLoggedIn" :canRegister="canRegister" />
         <HeroSection />
         <NutritionSection :image="images.nutrition" />
         <WeightSection :image="images.pen" />

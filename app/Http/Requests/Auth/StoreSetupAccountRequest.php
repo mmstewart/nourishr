@@ -13,21 +13,14 @@ class StoreSetupAccountRequest extends FormRequest
     {
         return [
             'name' => ['required', 'max:255', 'blasp_check'],
-            'age' => ['required', 'integer', 'min:13', 'max:120'],
-            'feet' => ['required', 'integer', 'min:1', 'max:8'],
-            'inches' => ['required', 'integer', 'min:0', 'max:11'],
-            'height_inches' => ['required', 'integer'],
             'email' => [
                 'required',
                 'email',
                 'max:255',
                 Rule::unique(User::class, 'email'),
             ],
-            'gender' => ['required'],
-            'country_code' => ['required'],
-            'timezone' => ['required'],
-            'password' => ['required', Password::min(10)->numbers()->symbols()],
-            'password_confirmation' => ['required', 'same:password'],
+            'password' => ['required', 'confirmed', Password::min(10)->numbers()->symbols()],
+            'password_confirmation' => ['required'],
         ];
     }
 }

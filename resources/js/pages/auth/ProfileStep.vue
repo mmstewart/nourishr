@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, useTemplateRef, type HTMLAttributes } from 'vue'
+import { ref, computed, watch, nextTick, useTemplateRef, onMounted, type HTMLAttributes } from 'vue'
 import axios from 'axios';
 import { useForm } from '@inertiajs/vue3'
 import { cn } from '@/lib/utils'
@@ -18,19 +18,29 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover'
+import { Calendar } from '@/components/ui/calendar'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Stepper, StepperItem, StepperSeparator, StepperTitle, StepperTrigger } from '@/components/ui/stepper'
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group'
-import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
-import { Check, Circle, Dot, ChevronsUpDown } from 'lucide-vue-next'
+import { Check, Circle, Dot, ChevronsUpDown, CalendarIcon } from 'lucide-vue-next'
+import { today, getLocalTimeZone } from '@internationalized/date'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     class?: HTMLAttributes['class'];
-    countries: Record<string, string>;
-}>();
+    countries?: Record<string, string>;
+}>(), {
+    countries: () => ({})
+});
 
-const totalSteps = 7
+const steps = [
+    { step: 1, title: 'Date of Birth', fields: ['dob'] },
+    { step: 2, title: 'Gender', fields: ['gender'] },
+    { step: 3, title: 'Height', fields: ['feet', 'inches'] },
+    { step: 4, title: 'Country', fields: ['country_code', 'timezone'] },
+]
+
+const totalSteps = steps.length;
 const step = ref(1)
 const isValidating = ref(false)
 const timezoneOpen = ref(false)
@@ -39,31 +49,19 @@ const timezones = ref([]);
 const loadingTimezones = ref(false);
 const setupRef = useTemplateRef('setupRef')
 
-const steps = [
-    { step: 1, title: 'Name', fields: ['name'] },
-    { step: 2, title: 'Email', fields: ['email'] },
-    { step: 3, title: 'Age', fields: ['age'] },
-    { step: 4, title: 'Gender', fields: ['gender'] },
-    { step: 5, title: 'Height', fields: ['feet', 'inches'] },
-    { step: 6, title: 'Country', fields: ['country_code', 'timezone'] },
-    { step: 7, title: 'Password', fields: ['password', 'password_confirmation'] },
-]
-
-const form = useForm('post', '/setup-account', {
-    name: '',
-    age: '',
+const form = useForm('post', '/setup-profile', {
+    dob: today(getLocalTimeZone()) as any,
     gender: '',
     feet: '',
     inches: '',
-    email: '',
     country_code: '',
     timezone: '',
-    password: '',
-    password_confirmation: '',
 }).transform((data) => ({
     ...data,
     height_inches: (Number(data.feet) * 12) + Number(data.inches),
 }));
+
+const defaultPlaceholder = today(getLocalTimeZone())
 
 watch(() => form.country_code, async (countryCode, oldCountryCode) => {
     if (oldCountryCode !== undefined) {
@@ -86,7 +84,7 @@ watch(() => form.country_code, async (countryCode, oldCountryCode) => {
     } finally {
         loadingTimezones.value = false;
     }
-});
+}, { immediate: true });
 
 const selectedCountryLabel = computed(() => {
     return props.countries[form.country_code] || 'Select a country'
@@ -96,12 +94,6 @@ const selectedTimezoneLabel = computed(() => {
     return form.timezone ? form.timezone : 'Select a timezone'
 })
 
-const passwordsMatch = computed(() => form.password === form.password_confirmation)
-
-const passwordHasMinLength = (val: string) => val.length >= 10
-const passwordHasNumber = (val: string) => /\d/.test(val)
-const passwordHasSpecialChar = (val: string) => /[!@#$%^&*]/.test(val)
-
 const focusOnInput = () => {
     nextTick(() => {
         const el = setupRef.value?.querySelector('input, [role="combobox"]') as HTMLElement;
@@ -109,30 +101,27 @@ const focusOnInput = () => {
     });
 }
 
+onMounted(() => {
+    focusOnInput();
+})
+
 const prevStep = () => { if (step.value > 1) step.value-- }
 
 const handleContinue = () => {
-    const currentStep = steps.find(s => s.step === step.value);
-    if (!currentStep) return;
-
-    if (step.value === totalSteps) {
-        form.post('/setup-account', {
-            preserveState: true,
-            onBefore: () => { isValidating.value = true },
-            onFinish: () => { isValidating.value = false },
-        });
-
-        return;
-    }
+    const currentStepConfig = steps.find(s => s.step === step.value);
+    if (!currentStepConfig) return;
 
     isValidating.value = true;
 
     form.validate({
-        only: [...currentStep.fields] as any,
+        only: currentStepConfig.fields as Array<keyof typeof form.data>,
         onSuccess: () => {
-            step.value++
-
-            focusOnInput();
+            if (step.value === totalSteps) {
+                form.post('/setup-profile');
+            } else {
+                step.value++;
+                focusOnInput();
+            }
         },
         onValidationError: () => {
             isValidating.value = false;
@@ -146,7 +135,7 @@ const handleContinue = () => {
 
 <template>
     <div class="bg-gray-100 flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
-        <Stepper v-model="step" class="flex w-2/3 items-start gap-2">
+        <Stepper v-model="step" class="flex w-1/2 items-start gap-2">
             <StepperItem v-for="stepItem in steps" :key="stepItem.step" v-slot="{ state }"
                 class="relative flex w-full flex-col items-center justify-center" :step="stepItem.step">
                 <StepperSeparator v-if="stepItem.step !== steps[steps.length - 1]?.step"
@@ -173,35 +162,34 @@ const handleContinue = () => {
                 <form @submit.prevent="handleContinue">
                     <FieldGroup>
                         <div class="flex flex-col items-center gap-2 text-center mb-4">
-                            <h1 class="text-xl font-bold">Create your account</h1>
+                            <h1 class="text-xl font-bold">Setup your account</h1>
                         </div>
                         <template v-if="step === 1">
                             <Field>
-                                <FieldLabel for="name">Full Name</FieldLabel>
-                                <Input v-model="form.name" id="name" name="name"
-                                    :class="{ 'border-red-500': form.errors.name }" autofocus />
-                                <div v-if="form.invalid('name')" class="text-red-500 text-sm">{{ form.errors.name }}
-                                </div>
+                                <FieldLabel for="dob">Age</FieldLabel>
+                                <Popover v-slot="{ close }">
+                                    <PopoverTrigger as-child>
+                                        <Button id="dob" name="dob" variant="outline" :class="cn(
+                                            'w-70 justify-start text-left font-normal',
+                                            !form.dob && 'text-muted-foreground',
+                                            { 'border-red-500!': form.errors.dob }
+                                        )">
+                                            <CalendarIcon class="mr-2 h-4 w-4" />
+                                            {{ form.dob ? form.dob.toDate(getLocalTimeZone()).toLocaleDateString()
+                                                : "Pick a date" }}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent class="w-96.25 p-0" align="start">
+                                        <Calendar v-model="form.dob" :default-placeholder="defaultPlaceholder"
+                                            layout="month-and-year" calendar-label="Date of birth"
+                                            :max-value="defaultPlaceholder" @update:model-value="close"
+                                            disable-days-outside-current-view initial-focus />
+                                    </PopoverContent>
+                                </Popover>
+                                <div v-if="form.invalid('dob')" class="text-red-500 text-sm">{{ form.errors.dob }}</div>
                             </Field>
                         </template>
                         <template v-else-if="step === 2">
-                            <Field>
-                                <FieldLabel for="email">Email</FieldLabel>
-                                <Input v-model="form.email" @change="form.validate('email')" id="email" name="email"
-                                    type="email" :class="{ 'border-red-500': form.errors.email }" />
-                                <div v-if="form.invalid('email')" class="text-red-500 text-sm">{{ form.errors.email }}
-                                </div>
-                            </Field>
-                        </template>
-                        <template v-else-if="step === 3">
-                            <Field>
-                                <FieldLabel for="age">Age</FieldLabel>
-                                <Input v-model="form.age" id="age" name="age" type="number"
-                                    :class="{ 'border-red-500': form.errors.age }" />
-                                <div v-if="form.invalid('age')" class="text-red-500 text-sm">{{ form.errors.age }}</div>
-                            </Field>
-                        </template>
-                        <template v-else-if="step === 4">
                             <Field>
                                 <FieldLabel for="gender">Gender</FieldLabel>
                                 <Select v-model="form.gender" @change="form.validate('gender')">
@@ -218,7 +206,7 @@ const handleContinue = () => {
                                 </div>
                             </Field>
                         </template>
-                        <template v-else-if="step === 5">
+                        <template v-else-if="step === 3">
                             <Field>
                                 <FieldLegend>Height</FieldLegend>
                                 <Field class="grid grid-cols-2 gap-4">
@@ -249,7 +237,7 @@ const handleContinue = () => {
                                 </Field>
                             </Field>
                         </template>
-                        <template v-else-if="step === 6">
+                        <template v-else-if="step === 4">
                             <Field>
                                 <FieldLabel for="country_code">Country</FieldLabel>
                                 <Popover v-model:open="countryOpen">
@@ -263,7 +251,7 @@ const handleContinue = () => {
                                             <ChevronsUpDown class="opacity-50" />
                                         </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent class="w-96.25 p-0">
+                                    <PopoverContent class="w-96.25 p-0" align="start">
                                         <Command>
                                             <CommandInput class="h-9" placeholder="Search country" />
                                             <CommandList>
@@ -303,7 +291,7 @@ const handleContinue = () => {
                                             <ChevronsUpDown class="opacity-50" />
                                         </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent class="w-96.25 p-0">
+                                    <PopoverContent class="w-96.25 p-0" align="start">
                                         <Command>
                                             <CommandInput class="h-9" placeholder="Search timezone" />
                                             <CommandList>
@@ -327,51 +315,6 @@ const handleContinue = () => {
                                 </Popover>
                                 <div v-if="form.invalid('timezone')" class="text-red-500 text-sm">{{
                                     form.errors.timezone }}
-                                </div>
-                            </Field>
-                        </template>
-                        <template v-else-if="step === 7">
-                            <Field>
-                                <FieldLabel for="password">Password</FieldLabel>
-                                <Input v-model="form.password" @change="form.validate('password')" id="password"
-                                    name="password" type="password"
-                                    :class="{ 'border-red-500': form.errors.password }" />
-                                <div v-if="form.invalid('password')" class="text-red-500 text-sm">
-                                    {{ form.errors.password }}
-                                </div>
-                                <div v-if="form.password"
-                                    class="flex flex-col gap-1 text-base mt-2 border border-muted-foreground/30 px-3 space-y-0.5 md:text-sm py-1 rounded-md">
-                                    <div class="flex gap-x-2"
-                                        :class="passwordHasMinLength(form.password) ? 'text-green-600' : 'text-muted-foreground'">
-                                        {{ passwordHasMinLength(form.password) ? '✓' : '•' }} Contains at least 10
-                                        characters
-                                    </div>
-                                    <div class="flex gap-x-2"
-                                        :class="passwordHasNumber(form.password) ? 'text-green-600' : 'text-muted-foreground'">
-                                        {{ passwordHasNumber(form.password) ? '✓' : '•' }} Contains a number
-                                    </div>
-                                    <div class="flex gap-x-2"
-                                        :class="passwordHasSpecialChar(form.password) ? 'text-green-600' : 'text-muted-foreground'">
-                                        {{ passwordHasSpecialChar(form.password) ? '✓' : '•' }} Contains a special
-                                        character
-                                    </div>
-                                </div>
-                            </Field>
-                            <Field>
-                                <FieldLabel for="password_confirmation">Confirm Password</FieldLabel>
-                                <Input v-model="form.password_confirmation"
-                                    @change="form.validate('password_confirmation')" id="password_confirmation"
-                                    name="password_confirmation" type="password"
-                                    :class="{ 'border-red-500': form.errors.password_confirmation }" />
-                                <div v-if="form.invalid('password_confirmation')" class="text-red-500 text-sm">{{
-                                    form.errors.password_confirmation }}
-                                </div>
-                                <div v-if="form.password_confirmation"
-                                    class="flex flex-col gap-1 text-base mt-2 border border-muted-foreground/30 px-3 space-y-0.5 md:text-sm py-1 rounded-md">
-                                    <div class="flex gap-x-2"
-                                        :class="passwordsMatch ? 'text-green-600' : 'text-muted-foreground'">
-                                        {{ passwordsMatch ? '✓' : '•' }} Passwords match
-                                    </div>
                                 </div>
                             </Field>
                         </template>

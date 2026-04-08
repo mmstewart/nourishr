@@ -16,7 +16,7 @@ class SetupWeightGoalController extends Controller
 
         $activityLevels = ActivityLevel::all();
 
-        return Inertia::render('SetupWeight', [
+        return Inertia::render('SetupWeightGoal', [
             'weeklyGoals' => $weeklyGoals,
             'activityLevels' => $activityLevels,
         ]);

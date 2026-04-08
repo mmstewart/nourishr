@@ -29,6 +29,7 @@ const props = defineProps<{
     activityLevels: Array<{ id: number, name: string }>,
 }>()
 
+
 const totalSteps = 4
 const step = ref(1)
 const isValidating = ref(false)
@@ -119,7 +120,6 @@ const handleContinue = () => {
                 <form @submit.prevent="handleContinue">
                     <FieldGroup>
                         <div class="flex flex-col items-center gap-2 text-center">
-                            <span class="sr-only">Setup for Nourishr</span>
                             <h1 class="text-xl font-bold">
                                 Let's map out your journey
                             </h1>

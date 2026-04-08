@@ -79,6 +79,7 @@ async function searchFood(query: string) {
     isSearching.value = true
 
     try {
+        // todo
         console.log('Searching for:', query)
         console.log('Searching test:', encodeURIComponent(query))
 
