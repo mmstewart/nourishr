@@ -96,7 +96,7 @@ function submit() {
     form
         .transform((data) => ({
             ...data,
-            date: data.date.toString(),
+            date: data.date ? data.date.toString() : null,
         }))
         .post('/weight-entries')
 }

@@ -9,12 +9,11 @@ class StoreSetupProfileRequest extends FormRequest
     public function rules()
     {
         return [
-            // todo
             'dob' => [
                 'required',
                 'date',
-                'before:' . now()->subYears(13)->format('Y-m-d'),
                 'after:1900-01-01',
+                'before:' . now()->subYears(13)->format('Y-m-d'),
             ],
             'feet' => ['required', 'integer', 'min:1', 'max:8'],
             'inches' => ['required', 'integer', 'min:0', 'max:11'],
@@ -28,8 +27,9 @@ class StoreSetupProfileRequest extends FormRequest
     public function messages()
     {
         return [
-            'dob.before' => 'You must be at least 13 years old to use Nourishr.',
+            'dob.required' => 'Please enter your date of birth.',
             'dob.after' => 'Please enter a valid birth date.',
+            'dob.before' => 'You must be at least 13 years old to use Nourishr.',
         ];
     }
 }

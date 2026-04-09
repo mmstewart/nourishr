@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class RedirectIfHasWeightGoal
+class EnsureProfileIsSetup
 {
     /**
      * Handle an incoming request.
@@ -15,8 +15,8 @@ class RedirectIfHasWeightGoal
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user()->weightGoal()->exists()) {
-            return redirect()->route('dashboard');
+        if ($request->user() && !$request->user()->hasCompletedSetup()) {
+            return to_route('setup');
         }
 
         return $next($request);

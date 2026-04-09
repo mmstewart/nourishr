@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\StoreSetupProfileRequest;
-use Inertia\Inertia;
 
 class SetupProfileController extends Controller
 {
@@ -14,6 +13,6 @@ class SetupProfileController extends Controller
 
         auth()->user()->update($validated);
 
-        return Inertia::location(route('setup'));
+        return to_route('setup');
     }
 }

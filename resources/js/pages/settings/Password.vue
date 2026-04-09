@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue"
 import { ref, computed } from 'vue'
-import { useForm } from '@inertiajs/vue3'
+import { useForm, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { edit } from '@/routes/user-password';
@@ -28,6 +28,9 @@ const breadcrumbItems: BreadcrumbItem[] = [
 defineProps<{
     class?: HTMLAttributes["class"]
 }>()
+
+const page = usePage();
+const user = page.props.auth.user;
 
 const form = useForm({
     current_password: '',
@@ -94,7 +97,9 @@ const hasClientErrors = computed(() => {
 })
 
 const allFieldsFilled = computed(() => {
-    return !!(form.current_password && form.new_password && form.new_password_confirmation)
+    const newPassFilled = !!(form.new_password && form.new_password_confirmation);
+
+    return user.has_password ? (!!form.current_password && newPassFilled) : newPassFilled;
 })
 
 
@@ -132,7 +137,7 @@ function submit() {
                                 Ensure your account stays protected with a strong, unique password
                             </FieldDescription>
                         </div>
-                        <Field>
+                        <Field v-if="user.has_password">
                             <FieldLabel for="current_password">
                                 Current Password
                             </FieldLabel>

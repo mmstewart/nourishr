@@ -9,12 +9,17 @@ class UpdatePasswordRequest extends FormRequest
 {
     public function rules()
     {
+        $hasPassword = !is_null($this->user()->password);
+
         return [
-            'current_password' => ['required', 'current_password'],
+            'current_password' => [
+                $hasPassword ? 'required' : 'nullable',
+                $hasPassword ? 'current_password' : ''
+            ],
             'new_password' => [
                 'required',
                 'confirmed',
-                'different:current_password',
+                $hasPassword ? 'different:current_password' : '',
                 Password::min(10)->numbers()->symbols()
             ],
         ];

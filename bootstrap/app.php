@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Middleware\RedirectIfHasWeightGoal;
-use App\Http\Middleware\RedirectIfNoWeightGoal;
+use App\Http\Middleware\EnsureProfileIsSetup;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\RedirectIfSetupComplete;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,9 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            // 'redirectIfNoWeightGoal' => RedirectIfNoWeightGoal::class,
-            // 'redirectIfHasWeightGoal' => RedirectIfHasWeightGoal::class,
-            'handlePrecognition' => HandlePrecognitiveRequests::class
+            'handlePrecognition' => HandlePrecognitiveRequests::class,
+
+            'setup.complete' => RedirectIfSetupComplete::class,
+            'setup.incomplete' => EnsureProfileIsSetup::class,
         ]);
 
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
@@ -32,5 +33,5 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // todo: add error logging here
     })->create();

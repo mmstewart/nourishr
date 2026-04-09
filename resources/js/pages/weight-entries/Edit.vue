@@ -98,7 +98,7 @@ function submit() {
     form
         .transform((data) => ({
             ...data,
-            date: data.date.toString(),
+            date: data.date ? data.date.toString() : null,
         }))
         .put(`/weight-entries/${props.weightEntry.id}`)
 }

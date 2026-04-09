@@ -17,6 +17,7 @@ class PasswordController extends Controller
     {
         $validated = $request->validated();
 
+        // todo, test for google and non google users
         $request->user()->update([
             'password' => $validated['new_password'],
         ]);

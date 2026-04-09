@@ -58,6 +58,7 @@ const form = useForm('post', '/setup-profile', {
     timezone: '',
 }).transform((data) => ({
     ...data,
+    dob: data.dob ? data.dob.toString() : null,
     height_inches: (Number(data.feet) * 12) + Number(data.inches),
 }));
 
@@ -162,11 +163,11 @@ const handleContinue = () => {
                 <form @submit.prevent="handleContinue">
                     <FieldGroup>
                         <div class="flex flex-col items-center gap-2 text-center mb-4">
-                            <h1 class="text-xl font-bold">Setup your account</h1>
+                            <h1 class="text-xl font-bold">Setup your profile</h1>
                         </div>
                         <template v-if="step === 1">
                             <Field>
-                                <FieldLabel for="dob">Age</FieldLabel>
+                                <FieldLabel for="dob">Date of birth</FieldLabel>
                                 <Popover v-slot="{ close }">
                                     <PopoverTrigger as-child>
                                         <Button id="dob" name="dob" variant="outline" :class="cn(

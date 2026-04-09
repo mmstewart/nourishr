@@ -30,13 +30,14 @@ export type AppPageProps<
 export interface User {
     id: number;
     name: string;
-    age: number;
+    dob:string;
     height_inches: number;
     gender: string;
     country_code: string;
     timezone: string;
     email: string;
     email_verified_at: string | null;
+    has_password: boolean;
     weight_goal: WeightGoal;
     nutrition_entries: NutritionEntry[];
     weight_entries: WeightEntry[];

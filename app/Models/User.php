@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
@@ -30,9 +30,14 @@ class User extends Authenticatable
         'two_factor_recovery_codes',
     ];
 
+    protected $appends = [
+        'has_password',
+    ];
+
     protected function casts()
     {
         return [
+            'dob' => 'date:Y-m-d',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
@@ -54,7 +59,17 @@ class User extends Authenticatable
         return $this->hasOne(WeightGoal::class);
     }
 
-    public function hasCompletedSetup()
+    public function getAgeAttribute()
+    {
+        return $this->dob?->age;
+    }
+
+    public function getHasPasswordAttribute()
+    {
+        return !is_null($this->password);
+    }
+
+    public function hasCompletedProfile()
     {
         return collect([
             $this->dob,
@@ -63,5 +78,10 @@ class User extends Authenticatable
             $this->timezone,
             $this->gender,
         ])->every(fn($value) => !empty($value));
+    }
+
+    public function hasCompletedSetup()
+    {
+        return $this->hasCompletedProfile() && $this->weightGoal()->exists();
     }
 }

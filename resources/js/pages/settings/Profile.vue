@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { edit } from '@/routes/profile';
 import { send } from '@/routes/verification';
-import { Head, Link, usePage, useForm } from '@inertiajs/vue3';
+import { Head, usePage, useForm } from '@inertiajs/vue3';
 import { ref, computed, watch } from 'vue'
 import axios from 'axios';
 
@@ -38,11 +38,14 @@ import {
     CommandItem,
     CommandList
 } from '@/components/ui/command'
-import { ChevronsUpDown, Check } from 'lucide-vue-next';
+import { Calendar } from '@/components/ui/calendar'
+import { Badge } from '@/components/ui/badge'
+import { ChevronsUpDown, Check, CalendarIcon } from 'lucide-vue-next';
 
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { type BreadcrumbItem } from '@/types';
+import { today, getLocalTimeZone, parseDate } from '@internationalized/date'
 
 const props = defineProps<{
     mustVerifyEmail: boolean;
@@ -65,7 +68,7 @@ const inches = user.height_inches % 12;
 
 const form = useForm({
     name: user.name,
-    age: user.age,
+    dob: parseDate(user.dob) as any,
     gender: user.gender,
     feet: feet,
     inches: inches,
@@ -76,7 +79,7 @@ const form = useForm({
 
 // Touch tracking so we don't show errors before the user interacts
 const touchedName = ref(false)
-const touchedAge = ref(false)
+const touchedDob = ref(false)
 const touchedGender = ref(false)
 const touchedFeet = ref(false)
 const touchedInches = ref(false)
@@ -90,9 +93,11 @@ const countryOpen = ref(false)
 const timezones = ref([]);
 const loadingTimezones = ref(false);
 
+const defaultPlaceholder = today(getLocalTimeZone())
+
 function markTouched(field: string) {
     if (field === 'name') touchedName.value = true
-    if (field === 'age') touchedAge.value = true
+    if (field === 'dob') touchedDob.value = true
     if (field === 'gender') touchedGender.value = true
     if (field === 'feet') touchedFeet.value = true
     if (field === 'inches') touchedInches.value = true
@@ -111,15 +116,8 @@ const nameError = computed(() => {
     return ''
 })
 
-const ageError = computed(() => {
-    if (!form.age && (touchedAge.value || attemptedSubmit.value)) return 'Age is required.'
-    if (form.age) {
-        const ageNum = Number(form.age)
-
-        if (isNaN(ageNum) || ageNum < 13 || ageNum > 120) {
-            return 'Age must be a number between 13 and 120.'
-        }
-    }
+const dobError = computed(() => {
+    if (!form.dob && (touchedDob.value || attemptedSubmit.value)) return 'Please select a date.'
     return ''
 })
 
@@ -169,11 +167,11 @@ const timezoneError = computed(() => {
 })
 
 const hasClientErrors = computed(() => {
-    return !!(nameError.value || ageError.value || genderError.value || inchesError.value || feetError.value || emailError.value || countryCodeError.value || timezoneError.value)
+    return !!(nameError.value || dobError.value || genderError.value || inchesError.value || feetError.value || emailError.value || countryCodeError.value || timezoneError.value)
 })
 
 const allFieldsFilled = computed(() => {
-    return !!(form.name && form.age && form.gender && form.inches && form.feet && form.email && form.country_code && form.timezone)
+    return !!(form.name && form.dob && form.gender && form.inches && form.feet && form.email && form.country_code && form.timezone)
 })
 
 watch(() => form.country_code, async (countryCode, oldCountryCode) => {
@@ -199,6 +197,22 @@ watch(() => form.country_code, async (countryCode, oldCountryCode) => {
     }
 }, { immediate: true });
 
+const age = computed(() => {
+    if (!form.dob) return null;
+
+    const now = today(getLocalTimeZone());
+
+    let calculatedAge = now.year - form.dob.year;
+
+    const birthDayThisYear = form.dob.add({ years: calculatedAge });
+
+    if (birthDayThisYear.compare(now) > 0) {
+        calculatedAge--;
+    }
+
+    return calculatedAge;
+});
+
 const selectedCountryLabel = computed(() => {
     return props.countries[form.country_code] || 'Select a country'
 })
@@ -210,7 +224,7 @@ const selectedTimezoneLabel = computed(() => {
 function submit() {
     attemptedSubmit.value = true
     touchedName.value = true
-    touchedAge.value = true
+    touchedDob.value = true
     touchedGender.value = true
     touchedInches.value = true
     touchedFeet.value = true
@@ -222,6 +236,7 @@ function submit() {
 
     form.transform(data => ({
         ...data,
+        dob: data.dob ? data.dob.toString() : null,
         height_inches: Number(data.feet) * 12 + Number(data.inches),
     }))
         .put('/settings/profile')
@@ -266,14 +281,12 @@ function submit() {
                                 {{ emailError || form.errors.email }}
                             </div>
                         </Field>
-                        <!-- todo -->
                         <FieldDescription v-if="mustVerifyEmail && !user.email_verified_at">
                             <p class="-mt-4 text-sm text-muted-foreground">
                                 Your email address is unverified.
-                                <Link :href="send()" as="button"
-                                    class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500">
+                                <Button :href="send().url" method="post" variant="link" class="p-0!">
                                     Click here to resend the verification email.
-                                </Link>
+                                </Button>
                             </p>
                             <div v-if="status === 'verification-link-sent'"
                                 class="mt-2 text-sm font-medium text-green-600">
@@ -306,14 +319,33 @@ function submit() {
                                 </div>
                             </Field>
                             <Field class="flex flex-col">
-                                <FieldLabel for="age">
-                                    Age
-                                </FieldLabel>
-                                <Input v-model="form.age" @blur="markTouched('age')" id="age" name="age" step="1"
-                                    type="number" class="h-9"
-                                    :class="{ 'border-red-500': ageError || form.errors.age }" />
-                                <div v-if="ageError || form.errors.age" class="text-red-500 text-sm">
-                                    {{ ageError || form.errors.age }}
+                                <div class="flex justify-between items-center">
+                                    <FieldLabel for="dob">Date of birth</FieldLabel>
+                                    <Badge v-if="age !== null" variant="secondary">
+                                        {{ age }} years old
+                                    </Badge>
+                                </div>
+                                <Popover v-slot="{ close }">
+                                    <PopoverTrigger as-child>
+                                        <Button id="dob" name="dob" variant="outline" :class="cn(
+                                            'w-70 justify-start text-left font-normal',
+                                            !form.dob && 'text-muted-foreground',
+                                            { 'border-red-500!': form.errors.dob }
+                                        )">
+                                            <CalendarIcon class="mr-2 h-4 w-4" />
+                                            {{ form.dob ? form.dob.toDate(getLocalTimeZone()).toLocaleDateString()
+                                                : "Pick a date" }}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent class="w-96.25 p-0" align="start">
+                                        <Calendar v-model="form.dob" :default-placeholder="defaultPlaceholder"
+                                            layout="month-and-year" calendar-label="Date of birth"
+                                            :max-value="defaultPlaceholder" @update:model-value="close"
+                                            disable-days-outside-current-view initial-focus />
+                                    </PopoverContent>
+                                </Popover>
+                                <div v-if="dobError || form.errors.dob" class="text-red-500 text-sm">
+                                    {{ dobError || form.errors.dob }}
                                 </div>
                             </Field>
                         </Field>

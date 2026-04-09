@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\StoreSetupAccountRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
 
 class SetupAccountController extends Controller
 {
@@ -18,6 +17,6 @@ class SetupAccountController extends Controller
 
         Auth::login($user);
 
-        return Inertia::location(route('setup'));
+        return to_route('setup');
     }
 }

@@ -12,7 +12,12 @@ class UpdateProfileRequest extends FormRequest
     {
         return [
             'name' => ['required', 'max:255', 'blasp_check'],
-            'dob' => ['required', 'date', 'before:today'],
+            'dob' => [
+                'required',
+                'date',
+                'after:1900-01-01',
+                'before:' . now()->subYears(13)->format('Y-m-d'),
+            ],
             'feet' => ['required', 'integer', 'min:1', 'max:8'],
             'inches' => ['required', 'integer', 'min:0', 'max:11'],
             'height_inches' => ['required', 'integer'],
@@ -25,6 +30,15 @@ class UpdateProfileRequest extends FormRequest
             'gender' => ['required'],
             'country_code' => ['required'],
             'timezone' => ['required'],
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'dob.required' => 'Please enter your date of birth.',
+            'dob.after' => 'Please enter a valid birth date.',
+            'dob.before' => 'You must be at least 13 years old to use Nourishr.',
         ];
     }
 }

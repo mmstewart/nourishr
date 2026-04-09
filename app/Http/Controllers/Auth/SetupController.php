@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLevel;
+use App\Models\WeeklyGoal;
 use App\Support\CountryList;
 use Inertia\Inertia;
 
@@ -18,7 +20,7 @@ class SetupController extends Controller
             ]);
         }
 
-        if (!$user->hasCompletedSetup()) {
+        if (!$user->hasCompletedProfile()) {
             $countries = CountryList::all();
 
             return Inertia::render('auth/Setup', [
@@ -28,8 +30,13 @@ class SetupController extends Controller
         }
 
         if ($user->weightGoal()->doesntExist()) {
+            $weeklyGoals = WeeklyGoal::all();
+            $activityLevels = ActivityLevel::all();
+
             return Inertia::render('auth/Setup', [
                 'step' => 'weightGoal',
+                'weeklyGoals' => $weeklyGoals,
+                'activityLevels' => $activityLevels,
             ]);
         }
 
