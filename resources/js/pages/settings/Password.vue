@@ -30,7 +30,7 @@ defineProps<{
 }>()
 
 const page = usePage();
-const user = page.props.auth.user;
+const user = computed(() => page.props.auth.user)
 
 const form = useForm({
     current_password: '',
@@ -68,7 +68,10 @@ const newPasswordHasMinLength = computed(() => hasMinimumLength(form.new_passwor
 const newPasswordsMatch = computed(() => form.new_password === form.new_password_confirmation)
 
 const currentPasswordError = computed(() => {
+    if (!user.value.has_password) return ''
+
     if (!form.current_password && (touchedCurrentPassword.value || attemptedSubmit.value)) return 'Password is required.'
+
     return ''
 })
 
@@ -93,28 +96,37 @@ const newPasswordRulesPassed = computed(() => {
 })
 
 const hasClientErrors = computed(() => {
-    return !!(currentPasswordError.value || newPasswordError.value || newPasswordConfirmationError.value || !newPasswordRulesPassed.value)
+    const newPasswordErrors = !!(newPasswordError.value || newPasswordConfirmationError.value || !newPasswordRulesPassed.value)
+
+    return user.value.has_password ? (!!currentPasswordError.value || newPasswordErrors) : newPasswordErrors;
 })
 
 const allFieldsFilled = computed(() => {
     const newPassFilled = !!(form.new_password && form.new_password_confirmation);
 
-    return user.has_password ? (!!form.current_password && newPassFilled) : newPassFilled;
+    return user.value.has_password ? (!!form.current_password && newPassFilled) : newPassFilled;
 })
 
 
 function submit() {
     attemptedSubmit.value = true
+
     touchedCurrentPassword.value = true
     touchedNewPassword.value = true
     touchedNewPasswordConfirmation.value = true
 
-    if (hasClientErrors.value || !newPasswordRulesPassed.value) return
+    if (hasClientErrors.value) return
 
     form.put('/settings/password', {
         preserveScroll: true,
         onSuccess: () => {
-            form.reset('current_password', 'new_password', 'new_password_confirmation');
+            attemptedSubmit.value = false
+
+            touchedCurrentPassword.value = false
+            touchedNewPassword.value = false
+            touchedNewPasswordConfirmation.value = false
+
+            form.reset('current_password', 'new_password', 'new_password_confirmation')
         },
     })
 }
@@ -159,24 +171,30 @@ function submit() {
                             <div v-if="newPasswordError || form.errors.new_password" class="text-red-500 text-sm">
                                 {{ newPasswordError || form.errors.new_password }}
                             </div>
-                            <div v-if="form.new_password"
-                                class="flex flex-col gap-1 text-base mt-2 border border-muted-foreground/30 px-3 space-y-0.5 md:text-sm py-1 rounded-md">
-                                <div class="flex gap-x-2"
-                                    :class="newPasswordHasMinLength ? 'text-green-600' : 'text-muted-foreground'">
-                                    <div>{{ newPasswordHasMinLength ? '✓' : '•' }}</div>
-                                    <div>At least 10 characters</div>
+                            <transition enter-active-class="transition duration-200 ease-out"
+                                enter-from-class="transform -translate-y-2 opacity-0"
+                                enter-to-class="transform translate-y-0 opacity-100"
+                                leave-active-class="transition duration-150 ease-in" leave-from-class="opacity-100"
+                                leave-to-class="opacity-0">
+                                <div v-if="form.new_password"
+                                    class="flex flex-col gap-1 text-base mt-2 border border-muted-foreground/30 px-3 space-y-0.5 md:text-sm py-1 rounded-md">
+                                    <div class="flex gap-x-2"
+                                        :class="newPasswordHasMinLength ? 'text-green-600' : 'text-muted-foreground'">
+                                        <div>{{ newPasswordHasMinLength ? '✓' : '•' }}</div>
+                                        <div>At least 10 characters</div>
+                                    </div>
+                                    <div class="flex gap-x-2"
+                                        :class="newPasswordHasNumber ? 'text-green-600' : 'text-muted-foreground'">
+                                        <div>{{ newPasswordHasNumber ? '✓' : '•' }}</div>
+                                        <div>Contains a number</div>
+                                    </div>
+                                    <div class="flex gap-x-2"
+                                        :class="newPasswordHasSpecialChar ? 'text-green-600' : 'text-muted-foreground'">
+                                        <div>{{ newPasswordHasSpecialChar ? '✓' : '•' }}</div>
+                                        <div>Contains a special character</div>
+                                    </div>
                                 </div>
-                                <div class="flex gap-x-2"
-                                    :class="newPasswordHasNumber ? 'text-green-600' : 'text-muted-foreground'">
-                                    <div>{{ newPasswordHasNumber ? '✓' : '•' }}</div>
-                                    <div>Contains a number</div>
-                                </div>
-                                <div class="flex gap-x-2"
-                                    :class="newPasswordHasSpecialChar ? 'text-green-600' : 'text-muted-foreground'">
-                                    <div>{{ newPasswordHasSpecialChar ? '✓' : '•' }}</div>
-                                    <div>Contains a special character</div>
-                                </div>
-                            </div>
+                            </transition>
                         </Field>
                         <Field>
                             <FieldLabel for="new_password_confirmation">
@@ -190,19 +208,23 @@ function submit() {
                                 class="text-red-500 text-sm">
                                 {{ newPasswordConfirmationError || form.errors.new_password_confirmation }}
                             </div>
-                            <div v-if="form.new_password_confirmation"
-                                class="flex flex-col gap-1 text-base mt-2 border border-muted-foreground/30 px-3 space-y-0.5 md:text-sm py-1 rounded-md">
-                                <div :class="newPasswordsMatch ? 'text-green-600' : 'text-muted-foreground'"
-                                    class="flex gap-x-2">
-                                    <div>{{ newPasswordsMatch ? '✓' : '•' }}</div>
-                                    <div>Passwords match</div>
+                            <transition enter-active-class="transition duration-200 ease-out"
+                                enter-from-class="transform -translate-y-2 opacity-0"
+                                enter-to-class="transform translate-y-0 opacity-100"
+                                leave-active-class="transition duration-150 ease-in" leave-from-class="opacity-100"
+                                leave-to-class="opacity-0">
+                                <div v-if="form.new_password_confirmation"
+                                    class="flex flex-col gap-1 text-base mt-2 border border-muted-foreground/30 px-3 space-y-0.5 md:text-sm py-1 rounded-md">
+                                    <div :class="newPasswordsMatch ? 'text-green-600' : 'text-muted-foreground'"
+                                        class="flex gap-x-2">
+                                        <div>{{ newPasswordsMatch ? '✓' : '•' }}</div>
+                                        <div>Passwords match</div>
+                                    </div>
                                 </div>
-                            </div>
+                            </transition>
                         </Field>
                         <Field class="flex items-center gap-4">
-                            <Button
-                                :disabled="form.processing || !allFieldsFilled || hasClientErrors || !newPasswordRulesPassed"
-                                type="submit"
+                            <Button :disabled="form.processing || !allFieldsFilled || hasClientErrors" type="submit"
                                 class="inline-flex items-start w-auto! self-start bg-green-500 hover:bg-green-400 dark:text-white">
                                 <Spinner v-if="form.processing" class="mr-2" />
                                 Save

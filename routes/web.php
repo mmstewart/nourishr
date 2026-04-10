@@ -22,16 +22,19 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('api/countries/{country}/timezones', function ($country) {
-    abort_if(!preg_match('/^[A-Z]{2}$/', $country), 422);
-
-    return response()->json(LocationService::getTimezonesForCountry($country));
-});
-
+// todo
 Route::get('contact', fn() => Inertia::render('Contact'))->name('contact');
 Route::post('contact', ContactController::class)->middleware('throttle:6,1')->name('contact.store');
 
-Route::middleware('auth', 'setup.incomplete')->group(function () {
+Route::middleware('auth')->group(function () {
+    Route::get('api/countries/{country}/timezones', function ($country) {
+        abort_if(!preg_match('/^[A-Z]{2}$/', $country), 422);
+
+        return response()->json(LocationService::getTimezonesForCountry($country));
+    });
+});
+
+Route::middleware('auth', 'setup.incomplete', 'verified')->group(function () {
     // todo: make work
     Route::get('api/foodfacts', function () {
         $food_item = request()->query('food_item');
@@ -60,7 +63,7 @@ Route::middleware('auth', 'setup.incomplete')->group(function () {
         }
     });
 
-    Route::get('dashboard', DashboardController::class)->middleware('verified')->name('dashboard');
+    Route::get('dashboard', DashboardController::class)->name('dashboard');
 
     Route::get('feedback', fn() => Inertia::render('Feedback'))->name('feedback');
     Route::post('feedback', FeedbackController::class)->middleware('throttle:6,1')->name('feedback.store');

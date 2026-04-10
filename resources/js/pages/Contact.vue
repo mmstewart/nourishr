@@ -69,6 +69,7 @@ const allFieldsFilled = computed(() => {
 
 function submit() {
     attemptedSubmit.value = true
+
     touchedName.value = true
     touchedEmail.value = true
     touchedMessage.value = true
@@ -76,6 +77,9 @@ function submit() {
     if (hasClientErrors.value) return
 
     form.post('/contact', {
+        onSuccess: () => {
+            attemptedSubmit.value = false
+        },
         onError: (errors) => {
             if (!errors.name && !errors.email && !errors.message) {
                 alert("Slow down! You're sending messages too fast.");

@@ -223,6 +223,7 @@ const selectedTimezoneLabel = computed(() => {
 
 function submit() {
     attemptedSubmit.value = true
+
     touchedName.value = true
     touchedDob.value = true
     touchedGender.value = true
@@ -239,7 +240,11 @@ function submit() {
         dob: data.dob ? data.dob.toString() : null,
         height_inches: Number(data.feet) * 12 + Number(data.inches),
     }))
-        .put('/settings/profile')
+        .put('/settings/profile', {
+            onSuccess: () => {
+                attemptedSubmit.value = false
+            }
+        });
 }
 </script>
 

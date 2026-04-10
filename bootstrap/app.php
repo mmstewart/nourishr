@@ -4,6 +4,7 @@ use App\Http\Middleware\EnsureProfileIsSetup;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\RedirectIfSetupComplete;
+use App\Models\ErrorLog;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -33,5 +34,18 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        // todo: add error logging here
+        if (app()->isProduction()) {
+            $exceptions->reportable(function (Throwable $e) {
+                ErrorLog::create([
+                    'user_id' => auth()->id(),
+                    'url' => request()->fullUrl(),
+                    'method' => request()->method(),
+                    'exception' => get_class($e),
+                    'message' => $e->getMessage(),
+                    'input' => request()->except(['password', 'password_confirmation']),
+                    'stack_trace' => collect($e->getTrace())->take(10),
+                    'ip' => request()->ip(),
+                ]);
+            });
+        }
     })->create();

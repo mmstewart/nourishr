@@ -49,6 +49,7 @@ const allFieldsFilled = computed(() => {
 
 function submit() {
     attemptedSubmit.value = true
+
     touchedEmail.value = true
 
     if (hasClientErrors.value) {
@@ -57,6 +58,9 @@ function submit() {
 
     form.post('/forgot-password', {
         preserveState: true,
+        onSuccess: () => {
+            attemptedSubmit.value = false
+        },
     })
 }
 </script>

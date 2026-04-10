@@ -18,9 +18,9 @@ class UpdatePasswordRequest extends FormRequest
             ],
             'new_password' => [
                 'required',
-                'confirmed',
+                Password::min(10)->numbers()->symbols(),
                 $hasPassword ? 'different:current_password' : '',
-                Password::min(10)->numbers()->symbols()
+                'confirmed',
             ],
         ];
     }

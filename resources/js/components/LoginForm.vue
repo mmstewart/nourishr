@@ -64,6 +64,7 @@ const allFieldsFilled = computed(() => {
 
 function submit() {
     attemptedSubmit.value = true
+
     touchedEmail.value = true
     touchedPassword.value = true
 
@@ -71,6 +72,9 @@ function submit() {
 
     form.post('/login', {
         preserveState: true,
+        onSuccess: () => {
+            attemptedSubmit.value = false
+        },
     })
 }
 </script>

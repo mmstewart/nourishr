@@ -45,6 +45,7 @@ const allFieldsFilled = computed(() => {
 
 function submit() {
     attemptedSubmit.value = true
+
     touchedPassword.value = true
 
     if (hasClientErrors.value) {
@@ -53,7 +54,9 @@ function submit() {
 
     form.post('/user/confirm-password', {
         onSuccess: () => {
-            form.reset('password');
+            attemptedSubmit.value = false
+
+            form.reset('password')
         }
     })
 }

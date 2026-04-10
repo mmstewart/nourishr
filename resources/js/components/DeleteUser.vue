@@ -49,6 +49,7 @@ const allFieldsFilled = computed(() => {
 
 function submit() {
     attemptedSubmit.value = true
+
     touchedPassword.value = true
 
     if (hasClientErrors.value) {
@@ -58,7 +59,9 @@ function submit() {
     form.delete('/settings/password', {
         preserveScroll: true,
         onSuccess: () => {
-            form.reset('password');
+            attemptedSubmit.value = false
+
+            form.reset('password')
         }
     })
 }

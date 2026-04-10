@@ -57,12 +57,6 @@ const handleContinue = () => {
     const currentStepConfig = steps.find(s => s.step === step.value);
     if (!currentStepConfig) return;
 
-    if (step.value === 3 && !passwordsMatch.value) {
-        form.setError('password_confirmation', 'Passwords do not match.');
-
-        return;
-    }
-
     isValidating.value = true;
 
     form.validate({
@@ -76,6 +70,11 @@ const handleContinue = () => {
             }
         },
         onValidationError: () => {
+            if (form.errors.password === 'The password field confirmation does not match.') {
+                form.clearErrors('password')
+                form.setError('password_confirmation', 'Passwords do not match.')
+            }
+
             isValidating.value = false;
         },
         onFinish: () => {

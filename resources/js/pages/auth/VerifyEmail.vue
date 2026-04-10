@@ -23,11 +23,12 @@ defineProps<{
             provided during registration.
         </div>
         <Form v-bind="send.form()" class="space-y-6 text-center" v-slot="{ processing }">
-            <Button :disabled="processing" class="bg-green-500 hover:bg-green-400 dark:text-white">
+            <Button :disabled="processing"
+                class="bg-green-500 hover:bg-green-400 dark:text-white w-full cursor-pointer">
                 <Spinner v-if="processing" />
                 Resend verification email
             </Button>
-            <TextLink :href="logout()" as="button" class="mx-auto block text-sm">
+            <TextLink :href="logout()" as="button" class="mx-auto block text-sm cursor-pointer">
                 Log out
             </TextLink>
         </Form>

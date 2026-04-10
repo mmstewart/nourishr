@@ -108,6 +108,7 @@ const allFieldsFilled = computed(() => {
 
 function submit() {
     attemptedSubmit.value = true
+
     touchedWeeklyGoalId.value = true
     touchedActivityLevelId.value = true
     touchedCurrentWeight.value = true
@@ -115,7 +116,11 @@ function submit() {
 
     if (hasClientErrors.value) return
 
-    form.put('/settings/weight-goal')
+    form.put('/settings/weight-goal', {
+        onSuccess: () => {
+            attemptedSubmit.value = false
+        },
+    })
 }
 </script>
 

@@ -19,8 +19,7 @@ class StoreSetupAccountRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class, 'email'),
             ],
-            'password' => ['required', 'confirmed', Password::min(10)->numbers()->symbols()],
-            'password_confirmation' => ['required'],
+            'password' => ['required', Password::min(10)->numbers()->symbols(), 'confirmed'],
         ];
     }
 }

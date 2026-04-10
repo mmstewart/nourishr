@@ -90,6 +90,7 @@ const allFieldsFilled = computed(() => {
 
 function submit() {
     attemptedSubmit.value = true
+
     touchedDate.value = true
     touchedWeight.value = true
 
@@ -100,7 +101,11 @@ function submit() {
             ...data,
             date: data.date ? data.date.toString() : null,
         }))
-        .put(`/weight-entries/${props.weightEntry.id}`)
+        .put(`/weight-entries/${props.weightEntry.id}`, {
+            onSuccess: () => {
+                attemptedSubmit.value = false
+            }
+        });
 }
 </script>
 

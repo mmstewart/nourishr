@@ -13,6 +13,14 @@ return new class extends Migration
     {
         Schema::create('error_logs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
+            $table->string('url');
+            $table->string('method');
+            $table->text('message');
+            $table->string('exception');
+            $table->json('input')->nullable();
+            $table->string('ip')->nullable();
+            $table->json('stack_trace')->nullable();
             $table->timestamps();
         });
     }
