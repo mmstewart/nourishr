@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from "vue"
-import { ref, computed } from 'vue'
-import { useForm, usePage } from '@inertiajs/vue3'
+import { ref, computed, type HTMLAttributes } from 'vue'
+import { Head, useForm, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { edit } from '@/routes/user-password';
-import { Head } from '@inertiajs/vue3';
 
 import { Button } from '@/components/ui/button'
 import {
@@ -42,13 +40,6 @@ const form = useForm({
 const touchedCurrentPassword = ref(false)
 const touchedNewPassword = ref(false)
 const touchedNewPasswordConfirmation = ref(false)
-const attemptedSubmit = ref(false)
-
-function markTouched(field: string) {
-    if (field === 'current_password') touchedCurrentPassword.value = true
-    if (field === 'new_password') touchedNewPassword.value = true
-    if (field === 'new_password_confirmation') touchedNewPasswordConfirmation.value = true
-}
 
 function hasNumber(value: string): boolean {
     return /\d/.test(value)
@@ -69,20 +60,18 @@ const newPasswordsMatch = computed(() => form.new_password === form.new_password
 
 const currentPasswordError = computed(() => {
     if (!user.value.has_password) return ''
-
-    if (!form.current_password && (touchedCurrentPassword.value || attemptedSubmit.value)) return 'Password is required.'
-
+    if (!form.current_password && touchedCurrentPassword.value) return 'Password is required.'
     return ''
 })
 
 const newPasswordError = computed(() => {
-    if (!form.new_password && (touchedNewPassword.value || attemptedSubmit.value)) return 'Password is required.'
+    if (!form.new_password && touchedNewPassword.value) return 'Password is required.'
     return ''
 })
 
 const newPasswordConfirmationError = computed(() => {
-    if (!form.new_password_confirmation && (touchedNewPasswordConfirmation.value || attemptedSubmit.value)) return 'Please confirm your password.'
-    if (form.new_password_confirmation && form.new_password_confirmation !== form.new_password && (touchedNewPasswordConfirmation.value || attemptedSubmit.value)) return 'Passwords do not match.'
+    if (!form.new_password_confirmation && touchedNewPasswordConfirmation.value) return 'Please confirm your password.'
+    if (form.new_password_confirmation && form.new_password_confirmation !== form.new_password && touchedNewPasswordConfirmation.value) return 'Passwords do not match.'
     return ''
 })
 
@@ -101,16 +90,7 @@ const hasClientErrors = computed(() => {
     return user.value.has_password ? (!!currentPasswordError.value || newPasswordErrors) : newPasswordErrors;
 })
 
-const allFieldsFilled = computed(() => {
-    const newPassFilled = !!(form.new_password && form.new_password_confirmation);
-
-    return user.value.has_password ? (!!form.current_password && newPassFilled) : newPassFilled;
-})
-
-
 function submit() {
-    attemptedSubmit.value = true
-
     touchedCurrentPassword.value = true
     touchedNewPassword.value = true
     touchedNewPasswordConfirmation.value = true
@@ -120,8 +100,6 @@ function submit() {
     form.put('/settings/password', {
         preserveScroll: true,
         onSuccess: () => {
-            attemptedSubmit.value = false
-
             touchedCurrentPassword.value = false
             touchedNewPassword.value = false
             touchedNewPasswordConfirmation.value = false
@@ -138,7 +116,7 @@ function submit() {
         <Head title="Password settings" />
         <SettingsLayout>
             <div class="space-y-6">
-                <form action="/settings/password" method="put" @submit.prevent="submit">
+                <form @submit.prevent="submit">
                     <FieldGroup>
                         <div class="flex flex-col items-start text-left">
                             <span class="sr-only">Update password</span>
@@ -153,7 +131,7 @@ function submit() {
                             <FieldLabel for="current_password">
                                 Current Password
                             </FieldLabel>
-                            <Input v-model="form.current_password" @blur="markTouched('current_password')"
+                            <Input v-model="form.current_password" @blur="touchedCurrentPassword = true"
                                 id="current_password" name="current_password" type="password"
                                 :class="{ 'border-red-500': currentPasswordError || form.errors.current_password }" />
                             <div v-if="currentPasswordError || form.errors.current_password"
@@ -165,7 +143,7 @@ function submit() {
                             <FieldLabel for="new_password">
                                 New Password
                             </FieldLabel>
-                            <Input v-model="form.new_password" @blur="markTouched('new_password')" id="new_password"
+                            <Input v-model="form.new_password" @blur="touchedNewPassword = true" id="new_password"
                                 name="new_password" type="password"
                                 :class="{ 'border-red-500': newPasswordError || form.errors.new_password }" />
                             <div v-if="newPasswordError || form.errors.new_password" class="text-red-500 text-sm">
@@ -201,7 +179,7 @@ function submit() {
                                 Confirm Password
                             </FieldLabel>
                             <Input v-model="form.new_password_confirmation"
-                                @blur="markTouched('new_password_confirmation')" id="new_password_confirmation"
+                                @blur="touchedNewPasswordConfirmation = true" id="new_password_confirmation"
                                 name="new_password_confirmation" type="password"
                                 :class="{ 'border-red-500': newPasswordConfirmationError || form.errors.new_password_confirmation }" />
                             <div v-if="newPasswordConfirmationError || form.errors.new_password_confirmation"
@@ -224,7 +202,7 @@ function submit() {
                             </transition>
                         </Field>
                         <Field class="flex items-center gap-4">
-                            <Button :disabled="form.processing || !allFieldsFilled || hasClientErrors" type="submit"
+                            <Button :disabled="form.processing || hasClientErrors" type="submit"
                                 class="inline-flex items-start w-auto! self-start bg-green-500 hover:bg-green-400 dark:text-white">
                                 <Spinner v-if="form.processing" class="mr-2" />
                                 Save

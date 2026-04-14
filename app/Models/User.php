@@ -35,6 +35,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'has_password',
     ];
 
+    public $rememberTokenName = false;
+
     protected function casts()
     {
         return [

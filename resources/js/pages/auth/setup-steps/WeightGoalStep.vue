@@ -11,7 +11,6 @@ import {
     FieldLabel,
 } from "@/components/ui/field"
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group'
-import { Check, Circle, Dot } from 'lucide-vue-next'
 import { Stepper, StepperItem, StepperSeparator, StepperTitle, StepperTrigger } from '@/components/ui/stepper'
 import {
     Select,
@@ -22,6 +21,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
+import { Check, Circle, Dot } from 'lucide-vue-next'
 
 const props = defineProps<{
     class?: HTMLAttributes["class"],

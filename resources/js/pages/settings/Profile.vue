@@ -12,6 +12,7 @@ import {
     FieldDescription,
     FieldGroup,
     FieldLabel,
+    FieldLegend,
 } from '@/components/ui/field'
 import {
     Select,
@@ -86,7 +87,6 @@ const touchedInches = ref(false)
 const touchedEmail = ref(false)
 const touchedCountryCode = ref(false)
 const touchedTimezone = ref(false)
-const attemptedSubmit = ref(false)
 
 const timezoneOpen = ref(false)
 const countryOpen = ref(false)
@@ -95,83 +95,62 @@ const loadingTimezones = ref(false);
 
 const defaultPlaceholder = today(getLocalTimeZone())
 
-function markTouched(field: string) {
-    if (field === 'name') touchedName.value = true
-    if (field === 'dob') touchedDob.value = true
-    if (field === 'gender') touchedGender.value = true
-    if (field === 'feet') touchedFeet.value = true
-    if (field === 'inches') touchedInches.value = true
-    if (field === 'email') touchedEmail.value = true
-    if (field === 'country_code') touchedCountryCode.value = true
-    if (field === 'timezone') touchedTimezone.value = true
-}
-
 function validateEmail(value: string): boolean {
     // https://medium.com/@python-javascript-php-html-css/the-best-regular-expression-for-email-address-verification-42bf83ba2885
     return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)
 }
 
 const nameError = computed(() => {
-    if (!form.name && (touchedName.value || attemptedSubmit.value)) return 'Name is required.'
+    if (!form.name && touchedName.value) return 'Name is required.'
     return ''
 })
 
 const dobError = computed(() => {
-    if (!form.dob && (touchedDob.value || attemptedSubmit.value)) return 'Please select a date.'
+    if (!form.dob && touchedDob.value) return 'Please select a date.'
     return ''
 })
 
 const genderError = computed(() => {
-    if (!form.gender && (touchedGender.value || attemptedSubmit.value)) return 'Gender is required.'
+    if (!form.gender && touchedGender.value) return 'Gender is required.'
     return ''
 })
 
 const inchesError = computed(() => {
-    if (!form.inches && (touchedInches.value || attemptedSubmit.value)) return 'Inches is required.'
+    if (!form.inches && touchedInches.value) return 'Inches is required.'
     if (form.inches) {
         const inchesNum = Number(form.inches)
-
-        if (isNaN(inchesNum) || inchesNum < 0 || inchesNum >= 12) {
-            return 'Inches must be a number between 0 and 11.'
-        }
+        if (isNaN(inchesNum) || inchesNum < 0 || inchesNum >= 12) return 'Inches must be a number between 0 and 11.'
     }
     return ''
 })
 
 const feetError = computed(() => {
-    if (!form.feet && (touchedInches.value || attemptedSubmit.value)) return 'Inches is required.'
+    if (!form.feet && touchedFeet.value) return 'Feet is required.'
     if (form.feet) {
         const feetNum = Number(form.feet)
-
-        if (isNaN(feetNum) || feetNum < 1 || feetNum > 8) {
-            return 'Feet must be a number between 1 and 8.'
-        }
+        if (isNaN(feetNum) || feetNum < 1 || feetNum > 8) return 'Feet must be a number between 1 and 8.'
     }
     return ''
 })
 
 const emailError = computed(() => {
-    if (!form.email && !validateEmail(form.email) && (touchedEmail.value || attemptedSubmit.value)) return 'Email is required.'
-    if (form.email && !validateEmail(form.email) && (touchedEmail.value || attemptedSubmit.value)) return 'Email is not valid.'
+    if (!form.email && touchedEmail.value) return 'Email is required.'
+    if (form.email && !validateEmail(form.email) && touchedEmail.value) return 'Email is not valid.'
     return ''
 })
 
 const countryCodeError = computed(() => {
-    if (!form.country_code && (touchedCountryCode.value || attemptedSubmit.value)) return 'Country is required.'
+    if (!form.country_code && touchedCountryCode.value) return 'Country is required.'
     return ''
 })
 
 const timezoneError = computed(() => {
-    if (!form.timezone && (touchedTimezone.value || attemptedSubmit.value)) return 'Timezone is required.'
+    if (!form.timezone && touchedTimezone.value) return 'Timezone is required.'
     return ''
 })
 
 const hasClientErrors = computed(() => {
     return !!(nameError.value || dobError.value || genderError.value || inchesError.value || feetError.value || emailError.value || countryCodeError.value || timezoneError.value)
-})
-
-const allFieldsFilled = computed(() => {
-    return !!(form.name && form.dob && form.gender && form.inches && form.feet && form.email && form.country_code && form.timezone)
 })
 
 watch(() => form.country_code, async (countryCode, oldCountryCode) => {
@@ -222,8 +201,6 @@ const selectedTimezoneLabel = computed(() => {
 })
 
 function submit() {
-    attemptedSubmit.value = true
-
     touchedName.value = true
     touchedDob.value = true
     touchedGender.value = true
@@ -240,11 +217,7 @@ function submit() {
         dob: data.dob ? data.dob.toString() : null,
         height_inches: Number(data.feet) * 12 + Number(data.inches),
     }))
-        .put('/settings/profile', {
-            onSuccess: () => {
-                attemptedSubmit.value = false
-            }
-        });
+        .put('/settings/profile');
 }
 </script>
 
@@ -255,7 +228,7 @@ function submit() {
 
         <SettingsLayout>
             <div class="space-y-6">
-                <form action="/settings/profile" method="put" @submit.prevent="submit">
+                <form @submit.prevent="submit">
                     <FieldGroup>
                         <div class="flex flex-col items-start text-left">
                             <span class="sr-only">Profile information</span>
@@ -270,9 +243,9 @@ function submit() {
                             <FieldLabel for="name">
                                 Name
                             </FieldLabel>
-                            <Input v-model="form.name" @blur="markTouched('name')" id="name" name="name" type=""
+                            <Input v-model="form.name" @blur="touchedName = true" id="name" name="name" type=""
                                 :class="{ 'border-red-500': nameError || form.errors.name }" />
-                            <div v-if="nameError || form.errors.email" class="text-red-500 text-sm">
+                            <div v-if="nameError || form.errors.name" class="text-red-500 text-sm">
                                 {{ nameError || form.errors.name }}
                             </div>
                         </Field>
@@ -280,8 +253,8 @@ function submit() {
                             <FieldLabel for="email">
                                 Email
                             </FieldLabel>
-                            <Input v-model="form.email" @blur="markTouched('email')" id="email" name="email"
-                                type="email" :class="{ 'border-red-500': emailError || form.errors.email }" />
+                            <Input v-model="form.email" @blur="touchedEmail = true" id="email" name="email" type="email"
+                                :class="{ 'border-red-500': emailError || form.errors.email }" />
                             <div v-if="emailError || form.errors.email" class="text-red-500 text-sm">
                                 {{ emailError || form.errors.email }}
                             </div>
@@ -304,7 +277,7 @@ function submit() {
                                 <FieldLabel for="gender">
                                     Gender
                                 </FieldLabel>
-                                <Select v-model="form.gender" @blur="markTouched('gender')">
+                                <Select v-model="form.gender" @blur="touchedGender = true">
                                     <SelectTrigger id="gender" name="gender" :class="cn(
                                         'w-full dark:bg-input/30',
                                         (genderError || form.errors.gender) && 'border-red-500 ring-red-500'
@@ -362,7 +335,7 @@ function submit() {
                                         Feet
                                     </FieldLabel>
                                     <InputGroup :class="{ 'border-red-500': feetError || form.errors.feet }">
-                                        <InputGroupInput v-model="form.feet" @blur="markTouched('feet')" id="feet"
+                                        <InputGroupInput v-model="form.feet" @blur="touchedFeet = true" id="feet"
                                             name="feet" type="number" />
                                         <InputGroupAddon align="inline-end">
                                             <InputGroupText>ft</InputGroupText>
@@ -377,7 +350,7 @@ function submit() {
                                         Inches
                                     </FieldLabel>
                                     <InputGroup :class="{ 'border-red-500': inchesError || form.errors.inches }">
-                                        <InputGroupInput v-model="form.inches" @blur="markTouched('inches')" id="inches"
+                                        <InputGroupInput v-model="form.inches" @blur="touchedInches = true" id="inches"
                                             name="inches" type="number" />
                                         <InputGroupAddon align="inline-end">
                                             <InputGroupText>in</InputGroupText>
@@ -413,7 +386,7 @@ function submit() {
                                                         :value="name" @select="() => {
                                                             form.country_code = code as string
                                                             countryOpen = false
-                                                            markTouched('country_code')
+                                                            touchedCountryCode = true
                                                         }">
                                                         <Check :class="cn(
                                                             'mr-2 h-4 w-4',
@@ -452,7 +425,7 @@ function submit() {
                                                     <CommandItem v-for="tz in timezones" :key="tz" :value="tz" @select="() => {
                                                         form.timezone = tz
                                                         timezoneOpen = false
-                                                        markTouched('timezone')
+                                                        touchedTimezone = true
                                                     }">
                                                         <Check :class="cn(
                                                             'mr-2 h-4 w-4',
@@ -471,7 +444,7 @@ function submit() {
                             </Field>
                         </Field>
                         <Field class="flex items-center gap-4">
-                            <Button :disabled="form.processing || !allFieldsFilled || hasClientErrors" type="submit"
+                            <Button :disabled="form.processing || hasClientErrors" type="submit"
                                 class="inline-flex items-start w-auto! self-start bg-green-500 hover:bg-green-400 dark:text-white">
                                 <Spinner v-if="form.processing" class="mr-2" />
                                 Save

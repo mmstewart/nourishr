@@ -174,13 +174,19 @@ const handleContinue = () => {
                                 <div v-if="form.invalid('password_confirmation')" class="text-red-500 text-sm">{{
                                     form.errors.password_confirmation }}
                                 </div>
-                                <div v-if="form.password_confirmation"
-                                    class="flex flex-col gap-1 text-base mt-2 border border-muted-foreground/30 px-3 space-y-0.5 md:text-sm py-1 rounded-md">
-                                    <div class="flex gap-x-2"
-                                        :class="passwordsMatch ? 'text-green-600' : 'text-muted-foreground'">
-                                        {{ passwordsMatch ? '✓' : '•' }} Passwords match
+                                <transition enter-active-class="transition duration-200 ease-out"
+                                    enter-from-class="transform -translate-y-2 opacity-0"
+                                    enter-to-class="transform translate-y-0 opacity-100"
+                                    leave-active-class="transition duration-150 ease-in" leave-from-class="opacity-100"
+                                    leave-to-class="opacity-0">
+                                    <div v-if="form.password_confirmation"
+                                        class="flex flex-col gap-1 text-base mt-2 border border-muted-foreground/30 px-3 space-y-0.5 md:text-sm py-1 rounded-md">
+                                        <div class="flex gap-x-2"
+                                            :class="passwordsMatch ? 'text-green-600' : 'text-muted-foreground'">
+                                            {{ passwordsMatch ? '✓' : '•' }} Passwords match
+                                        </div>
                                     </div>
-                                </div>
+                                </transition>
                             </Field>
                         </template>
                         <Field orientation="horizontal">

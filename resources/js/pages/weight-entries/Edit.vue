@@ -46,35 +46,25 @@ const form = useForm({
 // Touch tracking so we don't show errors before the user interacts
 const touchedDate = ref(false)
 const touchedWeight = ref(false)
-const attemptedSubmit = ref(false)
-
-function markTouched(field: string) {
-    if (field === 'date') touchedDate.value = true
-    if (field === 'weight') touchedWeight.value = true
-}
 
 const defaultPlaceholder = today(getLocalTimeZone())
 
 const dateError = computed(() => {
-    if (!form.date && (touchedDate.value || attemptedSubmit.value)) return 'Please select a date.'
+    if (!form.date && touchedDate.value) return 'Please select a date.'
     return ''
 })
 
 const validateWeight = (value: string | number | null, isTouched: boolean, label: string) => {
-    if (!(isTouched || attemptedSubmit.value)) return '';
+    if (!isTouched) return ''
 
-    if (value === null || value === '') {
-        return `${label} is required.`;
-    }
+    if (value === null || value === '') return `${label} is required.`
 
-    const num = Number(value);
+    const num = Number(value)
 
-    if (num < 30 || num > 999) {
-        return `${label} must be between 30 and 999 lbs.`;
-    }
+    if (num < 30 || num > 999) return `${label} must be between 30 and 999 lbs.`
 
-    return '';
-};
+    return ''
+}
 
 const weightError = computed(() =>
     validateWeight(form.weight, touchedWeight.value, 'Weight')
@@ -84,13 +74,7 @@ const hasClientErrors = computed(() => {
     return !!(dateError.value || weightError.value)
 })
 
-const allFieldsFilled = computed(() => {
-    return !!(form.date && form.weight)
-})
-
 function submit() {
-    attemptedSubmit.value = true
-
     touchedDate.value = true
     touchedWeight.value = true
 
@@ -101,11 +85,7 @@ function submit() {
             ...data,
             date: data.date ? data.date.toString() : null,
         }))
-        .put(`/weight-entries/${props.weightEntry.id}`, {
-            onSuccess: () => {
-                attemptedSubmit.value = false
-            }
-        });
+        .put(`/weight-entries/${props.weightEntry.id}`);
 }
 </script>
 
@@ -162,7 +142,7 @@ function submit() {
                                         Weight
                                     </FieldLabel>
                                     <InputGroup :class="{ 'border-red-500': weightError || form.errors.weight }">
-                                        <InputGroupInput v-model="form.weight" @blur="markTouched('weight')" step="0.1"
+                                        <InputGroupInput v-model="form.weight" @blur="touchedWeight = true" step="0.1"
                                             inputmode="decimal" id="weight" name="weight" type="number" />
                                         <InputGroupAddon align="inline-end">
                                             <InputGroupText>lbs</InputGroupText>
@@ -173,8 +153,8 @@ function submit() {
                                     </div>
                                 </Field>
                                 <Field class="flex items-center gap-4">
-                                    <Button :disabled="form.processing || !allFieldsFilled || hasClientErrors"
-                                        type="submit" class="inline-flex items-start w-auto! self-start">
+                                    <Button :disabled="form.processing || hasClientErrors" type="submit"
+                                        class="inline-flex items-start w-auto! self-start">
                                         <Spinner v-if="form.processing" class="mr-2" />
                                         Save
                                     </Button>

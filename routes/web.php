@@ -22,8 +22,11 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-// todo
-Route::get('contact', fn() => Inertia::render('Contact'))->name('contact');
+Route::get('contact', function () {
+    return Inertia::render('Contact', [
+        'isLoggedIn' => auth()->check(),
+    ]);
+})->name('contact');
 Route::post('contact', ContactController::class)->middleware('throttle:6,1')->name('contact.store');
 
 Route::middleware('auth')->group(function () {

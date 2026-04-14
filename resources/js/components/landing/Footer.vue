@@ -37,8 +37,8 @@ const navigate = (href: string) => {
                         <AppLogo />
                     </Link>
                     <p class="text-sm text-gray-800/85 leading-relaxed max-w-sm">
-                        Simple nutrition, smarter choices. Nourishr makes healthy eating simple and sustainable — no
-                        strict diets, no guesswork, just clear insights for everyday health.
+                        Simple nutrition, smarter choices. Nourishr makes healthy eating simple and sustainable. No
+                        strict diets or guesswork: just clear insights for everyday health.
                     </p>
                 </motion.div>
                 <motion.div class="flex flex-col md:items-end gap-6" :initial="{ opacity: 0, y: 20 }"

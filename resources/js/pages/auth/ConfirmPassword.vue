@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, type HTMLAttributes } from 'vue'
+import { ref, type HTMLAttributes } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 
 import { cn } from '@/lib/utils'
@@ -24,37 +24,15 @@ const form = useForm({
 
 // Touch tracking so we don't show errors before the user interacts
 const touchedPassword = ref(false)
-const attemptedSubmit = ref(false)
-
-function markTouched(field: string) {
-    if (field === 'password') touchedPassword.value = true
-}
-
-const passwordError = computed(() => {
-    if (!form.password && (touchedPassword.value || attemptedSubmit.value)) return 'Password is required.'
-    return ''
-})
-
-const hasClientErrors = computed(() => {
-    return !!passwordError.value
-})
-
-const allFieldsFilled = computed(() => {
-    return !!form.password
-})
 
 function submit() {
-    attemptedSubmit.value = true
-
     touchedPassword.value = true
 
-    if (hasClientErrors.value) {
-        return
-    }
+    if (!form.password) return
 
     form.post('/user/confirm-password', {
         onSuccess: () => {
-            attemptedSubmit.value = false
+            touchedPassword.value = false
 
             form.reset('password')
         }
@@ -68,7 +46,7 @@ function submit() {
 
             <Head title="Confirm your password" />
             <div :class="cn('flex flex-col gap-6', props.class)">
-                <form action="/user/confirm-password" method="put" @submit.prevent="submit">
+                <form @submit.prevent="submit">
                     <FieldGroup>
                         <div class="flex flex-col items-center gap-2 text-center">
                             <span class="sr-only">Confirm your password</span>
@@ -84,14 +62,16 @@ function submit() {
                             <FieldLabel for="password">
                                 Password
                             </FieldLabel>
-                            <Input v-model="form.password" @blur="markTouched('password')" id="password" name="password"
-                                type="password" :class="{ 'border-red-500': passwordError || form.errors.password }" />
-                            <div v-if="passwordError || form.errors.password" class="text-red-500 text-sm">
-                                {{ passwordError || form.errors.password }}
+                            <Input v-model="form.password" @blur="touchedPassword = true" id="password" name="password"
+                                type="password"
+                                :class="{ 'border-red-500': (!form.password && touchedPassword) || form.errors.password }" />
+                            <div v-if="(!form.password && touchedPassword) || form.errors.password"
+                                class="text-red-500 text-sm">
+                                {{ form.errors.password || 'Password is required.' }}
                             </div>
                         </Field>
                         <Field>
-                            <Button :disabled="form.processing || !allFieldsFilled" type="submit"
+                            <Button :disabled="form.processing || !form.password" type="submit"
                                 class="bg-green-500 hover:bg-green-400 dark:text-white">
                                 <Spinner v-if="form.processing" class="mr-2" />
                                 Confirm Password

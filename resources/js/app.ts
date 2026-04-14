@@ -30,16 +30,20 @@ createInertiaApp({
 
 // re-runs theme initialization on every Inertia navigation so login/logout transitions apply the correct theme without a full refresh
 router.on('navigate', (event) => {
-    const isAuthenticated = !!event.detail.page.props.auth?.user;
-    const component = event.detail.page.component;
+    const { props, component } = event.detail.page;
+    const isAuthenticated = !!props.auth?.user;
 
-    const components = ['auth/Setup', 'auth/Login', 'auth/Register', 'Welcome', 'Privacy', 'Contact'];
+    const alwaysLight = new Set(['Welcome', 'Privacy', 'Terms', 'auth/Login', 'auth/Register', 'auth/ForgotPassword', 'auth/ResetPassword', 'auth/TwoFactorChallenge']);
 
-    // Force light mode on setup pages regardless of auth
-    if (components.some((c) => component.includes(c))) {
-        initializeTheme(false);
-        return;
+    const guestOnlyLight = new Set(['Contact', 'auth/Setup']);
+
+    let shouldBeDark = isAuthenticated;
+
+    if (alwaysLight.has(component)) {
+        shouldBeDark = false;
+    } else if (guestOnlyLight.has(component) && !isAuthenticated) {
+        shouldBeDark = false;
     }
 
-    initializeTheme(isAuthenticated);
+    initializeTheme(shouldBeDark);
 });

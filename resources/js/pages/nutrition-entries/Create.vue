@@ -55,14 +55,9 @@ const mode = ref<'text' | 'scan'>('text')
 
 // Touch tracking so we don't show errors before the user interacts
 const touchedSearch = ref(false)
-const attemptedSubmit = ref(false)
-
-function markTouched(field: string) {
-    if (field === 'search') touchedSearch.value = true
-}
 
 const searchError = computed(() => {
-    if (!form.search && (touchedSearch.value || attemptedSubmit.value)) return 'Search is required.'
+    if (!form.search && touchedSearch.value) return 'Search is required.'
     return ''
 })
 
@@ -112,8 +107,6 @@ function selectProduct(product: any) {
 watch(() => form.search, debouncedSearch)
 
 function submit() {
-    // attemptedSubmit.value = true
-
     // touchedDate.value = true
     // touchedWeight.value = true
 
@@ -124,11 +117,7 @@ function submit() {
     //         ...data,
     //         date: data.date.toString(),
     //     }))
-    //     .post('/nutrition-entries', {
-    //     onSuccess: () => {
-    //         attemptedSubmit.value = false
-    //     }
-    // });
+    //     .post('/nutrition-entries');
 }
 </script>
 
@@ -169,7 +158,7 @@ function submit() {
                                         <FieldLabel for="search">
                                             Search
                                         </FieldLabel>
-                                        <Input v-model="form.search" @blur="markTouched('search')" id="search"
+                                        <Input v-model="form.search" @blur="touchedSearch = true" id="search"
                                             name="search" step="1" type="text" class="h-9"
                                             :class="{ 'border-red-500': searchError || form.errors.search }" />
                                         <div v-if="searchError || form.errors.search" class="text-red-500 text-sm">

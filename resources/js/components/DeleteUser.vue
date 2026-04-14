@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from "vue"
-import { ref, computed } from 'vue'
+import { ref, type HTMLAttributes } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 
 import { Button } from '@/components/ui/button';
@@ -18,6 +17,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Spinner } from '@/components/ui/spinner';
 
 defineProps<{
     class?: HTMLAttributes["class"]
@@ -28,38 +28,16 @@ const form = useForm({
 });
 
 const touchedPassword = ref(false)
-const attemptedSubmit = ref(false)
-
-function markTouched(field: string) {
-    if (field === 'password') touchedPassword.value = true
-}
-
-const passwordError = computed(() => {
-    if (!form.password && (touchedPassword.value || attemptedSubmit.value)) return 'Password is required.'
-    return ''
-})
-
-const hasClientErrors = computed(() => {
-    return !!passwordError.value
-})
-
-const allFieldsFilled = computed(() => {
-    return !!form.password
-})
 
 function submit() {
-    attemptedSubmit.value = true
-
     touchedPassword.value = true
 
-    if (hasClientErrors.value) {
-        return
-    }
+    if (!form.password) return
 
     form.delete('/settings/password', {
         preserveScroll: true,
         onSuccess: () => {
-            attemptedSubmit.value = false
+            touchedPassword.value = false
 
             form.reset('password')
         }
@@ -82,7 +60,7 @@ function submit() {
                     <Button variant="destructive" data-test="delete-user-button">Delete account</Button>
                 </DialogTrigger>
                 <DialogContent>
-                    <form action="/settings/profile" method="delete" @submit.prevent="submit" class="space-y-6">
+                    <form @submit.prevent="submit" class="space-y-6">
                         <DialogHeader class="space-y-3">
                             <DialogTitle>Are you sure you want to delete your
                                 account?</DialogTitle>
@@ -98,25 +76,22 @@ function submit() {
                             <FieldLabel for="password">
                                 Password
                             </FieldLabel>
-                            <Input v-model="form.password" @blur="markTouched('password')" id="password" name="password"
-                                type="password" :class="{ 'border-red-500': passwordError || form.errors.password }"
+                            <Input v-model="form.password" @blur="touchedPassword = true" id="password" name="password"
+                                type="password"
+                                :class="{ 'border-red-500': (!form.password && touchedPassword) || form.errors.password }"
                                 autocomplete="new-password" />
-                            <div v-if="passwordError || form.errors.password" class="text-red-500 text-sm">
-                                {{ passwordError || form.errors.password }}
+                            <div v-if="(!form.password && touchedPassword) || form.errors.password"
+                                class="text-red-500 text-sm">
+                                {{ form.errors.password || 'Password is required.' }}
                             </div>
                         </div>
                         <DialogFooter class="gap-2">
                             <DialogClose as-child>
-                                <Button variant="secondary" @click="
-                                    () => {
-                                        form.clearErrors();
-                                        form.reset();
-                                    }
-                                ">
+                                <Button variant="secondary" @click="form.reset()">
                                     Cancel
                                 </Button>
                             </DialogClose>
-                            <Button :disabled="form.processing || !allFieldsFilled" variant="destructive" type="submit"
+                            <Button :disabled="form.processing || !form.password" variant="destructive" type="submit"
                                 data-test="confirm-delete-user-button">
                                 <Spinner v-if="form.processing" class="mr-2" />
                                 Delete account

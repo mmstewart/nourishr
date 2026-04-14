@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import AccountStep from './AccountStep.vue';
-import ProfileStep from './ProfileStep.vue';
-import WeightGoalStep from './WeightGoalStep.vue';
+import AccountStep from './setup-steps/AccountStep.vue';
+import ProfileStep from './setup-steps/ProfileStep.vue';
+import WeightGoalStep from './setup-steps/WeightGoalStep.vue';
 
 const props = defineProps<{
     name?: string | null;
