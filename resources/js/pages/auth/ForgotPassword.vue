@@ -2,6 +2,7 @@
 import { ref, computed, type HTMLAttributes } from 'vue'
 import { Head, useForm } from '@inertiajs/vue3'
 import { cn } from '@/lib/utils'
+
 import { Button } from '@/components/ui/button';
 import {
     Field,
@@ -11,6 +12,7 @@ import {
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
+import { Check } from 'lucide-vue-next';
 
 const props = defineProps<{
     class?: HTMLAttributes["class"];
@@ -20,6 +22,7 @@ const form = useForm({
     email: '',
 })
 
+const wasSent = ref(false)
 // Touch tracking so we don't show errors before the user interacts
 const touchedEmail = ref(false)
 
@@ -43,6 +46,7 @@ function submit() {
         preserveScroll: true,
         onSuccess: () => {
             touchedEmail.value = false
+            wasSent.value = true
 
             form.reset('email')
         },
@@ -55,7 +59,24 @@ function submit() {
         <div class="w-full max-w-sm">
 
             <Head title="Forgot password" />
-            <div :class="cn('flex flex-col gap-6', props.class)">
+            <div v-if="wasSent" :class="cn('flex flex-col gap-7 text-center')">
+                <div class="flex flex-col items-center gap-2 text-center">
+                    <div class="flex justify-center">
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <Check class="size-6 text-green-500" />
+                        </div>
+                    </div>
+                    <h1 class="text-xl font-bold">Check your email</h1>
+                    <p class="text-muted-foreground text-sm">
+                        We've sent a password reset link to your email address.
+                        It should arrive in a few minutes.
+                    </p>
+                </div>
+                <Button @click="wasSent = false" variant="outline" class="cursor-pointer">
+                    Didn't get the email? Try again
+                </Button>
+            </div>
+            <div v-else :class="cn('flex flex-col gap-6', props.class)">
                 <form @submit.prevent="submit">
                     <FieldGroup>
                         <div class="flex flex-col items-center gap-2 text-center">
@@ -79,7 +100,7 @@ function submit() {
                         </Field>
                         <Field>
                             <Button :disabled="form.processing || !form.email || !!emailError" type="submit"
-                                class="bg-green-500 hover:bg-green-400 dark:text-white">
+                                class="bg-green-500 hover:bg-green-400 dark:text-white cursor-pointer">
                                 <Spinner v-if="form.processing" class="mr-2" />
                                 Send reset link
                             </Button>

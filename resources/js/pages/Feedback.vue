@@ -136,14 +136,14 @@ function submit() {
                                     </FieldLabel>
                                     <Textarea v-model="form.message" @blur="touchedMessage = true" id="message"
                                         name="message"
-                                        :class="{ 'border-red-500': messageError || form.errors.message }" />
+                                        :class="['min-h-40', { 'border-red-500': messageError || form.errors.message }]" />
                                     <div v-if="messageError || form.errors.message" class="text-red-500 text-sm">
                                         {{ messageError || form.errors.message }}
                                     </div>
                                 </Field>
                                 <Field class="flex items-center gap-4">
                                     <Button :disabled="form.processing || hasClientErrors" type="submit"
-                                        class="inline-flex items-start w-auto! self-start bg-green-500 hover:bg-green-400 dark:text-white">
+                                        class="inline-flex items-start w-auto! self-start bg-green-500 hover:bg-green-400 dark:text-white cursor-pointer">
                                         <Spinner v-if="form.processing" class="mr-2" />
                                         Submit
                                     </Button>

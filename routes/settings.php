@@ -17,9 +17,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('settings/profile', [ProfileController::class, 'update'])->middleware('throttle:10,1')->name('profile.update');
-    Route::delete('settings/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('settings/security', [SecurityController::class, 'show'])->name('security.show');
+    Route::delete('settings/security', [SecurityController::class, 'destroy'])->name('security.destroy');
 
     Route::get('settings/weight-goal', [WeightGoalController::class, 'edit'])->name('weight-goal.edit');
     Route::put('settings/weight-goal', [WeightGoalController::class, 'update'])->middleware('throttle:10,1')->name('weight-goal.update');

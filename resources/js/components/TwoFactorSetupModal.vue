@@ -159,7 +159,7 @@ watch(isOpen, async (val) => {
                             </div>
                         </div>
                         <Button @click="handleModalNextStep"
-                            class="w-full bg-green-500 hover:bg-green-400 dark:text-white">
+                            class="w-full bg-green-500 hover:bg-green-400 dark:text-white cursor-pointer">
                             {{ modalConfig.buttonText }}
                         </Button>
                         <Field>
@@ -181,7 +181,7 @@ watch(isOpen, async (val) => {
                                         <InputGroupButton aria-label="Copy" title="Copy" size="icon-xs"
                                             @click="copy(manualSetupKey || '')">
                                             <Check v-if="copied" class="w-4 text-green-500" />
-                                            <Copy v-else class="w-4" />
+                                            <Copy v-else class="w-4 cursor-pointer" />
                                         </InputGroupButton>
                                     </InputGroupAddon>
                                 </InputGroup>
@@ -206,11 +206,11 @@ watch(isOpen, async (val) => {
                             </div>
                             <div class="flex w-full items-center space-x-5">
                                 <Button @click="showVerificationStep = false" variant="outline" :disabled="processing"
-                                    type="button" class="w-auto flex-1">
+                                    type="button" class="w-auto flex-1 cursor-pointer">
                                     Back
                                 </Button>
                                 <Button :disabled="processing || codeValue.length < 6" type="submit"
-                                    class="w-auto flex-1 bg-green-500 hover:bg-green-400 dark:text-white">
+                                    class="w-auto flex-1 bg-green-500 hover:bg-green-400 dark:text-white cursor-pointer">
                                     Confirm
                                 </Button>
                             </div>

@@ -45,13 +45,13 @@ onMounted(async () => {
             </p>
         </div>
         <div class="mt-4 flex flex-col select-none sm:flex-row sm:items-center sm:justify-between">
-            <Button @click="toggleRecoveryCodesVisibility" class="w-fit">
+            <Button @click="toggleRecoveryCodesVisibility" class="w-fit cursor-pointer">
                 {{ isRecoveryCodesVisible ? 'Hide' : 'View' }} Recovery Codes
             </Button>
             <Form v-if="isRecoveryCodesVisible && recoveryCodesList.length" v-bind="regenerateRecoveryCodes.form()"
                 method="post" :options="{ preserveScroll: true }" @success="fetchRecoveryCodes"
                 #default="{ processing }">
-                <Button variant="secondary" type="submit" :disabled="processing">
+                <Button variant="secondary" :disabled="processing" type="submit" class="cursor-pointer">
                     <RefreshCw /> Regenerate Codes
                 </Button>
             </Form>

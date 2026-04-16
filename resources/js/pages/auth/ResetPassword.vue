@@ -138,7 +138,7 @@ function submit() {
                         </Field>
                         <Field>
                             <Button :disabled="form.processing || hasClientErrors" type="submit"
-                                class="bg-green-500 hover:bg-green-400 dark:text-white">
+                                class="bg-green-500 hover:bg-green-400 dark:text-white cursor-pointer">
                                 <Spinner v-if="form.processing" class="mr-2" />
                                 Reset password
                             </Button>

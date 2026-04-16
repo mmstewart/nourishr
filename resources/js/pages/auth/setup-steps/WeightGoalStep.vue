@@ -207,11 +207,14 @@ const handleContinue = () => {
                             </Field>
                         </template>
                         <Field orientation="horizontal">
-                            <Button v-if="step > 1" variant="outline" type="button" @click="prevStep">Back</Button>
+                            <Button v-if="step > 1" @click="prevStep" variant="outline" type="button"
+                                class="cursor-pointer">
+                                Back
+                            </Button>
                             <Button type="submit" :disabled="form.processing || isValidating"
-                                class="bg-green-500 hover:bg-green-400 dark:text-white">
+                                class="bg-green-500 hover:bg-green-400 dark:text-white cursor-pointer">
                                 <Spinner v-if="form.processing || isValidating" class="mr-2" />
-                                {{ step === totalSteps ? 'Finish' : 'Continue' }}
+                                {{ step === totalSteps ? 'Submit' : 'Next' }}
                             </Button>
                         </Field>
                     </FieldGroup>

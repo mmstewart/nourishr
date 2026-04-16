@@ -262,7 +262,7 @@ function submit() {
                         <FieldDescription v-if="mustVerifyEmail && !user.email_verified_at">
                             <p class="-mt-4 text-sm text-muted-foreground">
                                 Your email address is unverified.
-                                <Button :href="send().url" method="post" variant="link" class="p-0!">
+                                <Button :href="send().url" method="post" variant="link" class="p-0! cursor-pointer">
                                     Click here to resend the verification email.
                                 </Button>
                             </p>
@@ -315,7 +315,7 @@ function submit() {
                                                 : "Pick a date" }}
                                         </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent class="w-96.25 p-0" align="start">
+                                    <PopoverContent class="w-70.25 p-0" align="start">
                                         <Calendar v-model="form.dob" :default-placeholder="defaultPlaceholder"
                                             layout="month-and-year" calendar-label="Date of birth"
                                             :max-value="defaultPlaceholder" @update:model-value="close"
@@ -445,7 +445,7 @@ function submit() {
                         </Field>
                         <Field class="flex items-center gap-4">
                             <Button :disabled="form.processing || hasClientErrors" type="submit"
-                                class="inline-flex items-start w-auto! self-start bg-green-500 hover:bg-green-400 dark:text-white">
+                                class="inline-flex items-start w-auto! self-start bg-green-500 hover:bg-green-400 dark:text-white cursor-pointer">
                                 <Spinner v-if="form.processing" class="mr-2" />
                                 Save
                             </Button>

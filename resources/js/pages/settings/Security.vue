@@ -69,13 +69,13 @@ onUnmounted(() => {
                         </div>
                         <div>
                             <Button v-if="hasSetupData" @click="showSetupModal = true"
-                                class="bg-green-500 hover:bg-green-400 dark:text-white">
+                                class="bg-green-500 hover:bg-green-400 dark:text-white cursor-pointer">
                                 Continue Setup
                             </Button>
                             <Form v-else v-bind="enable.form()" @success="showSetupModal = true"
                                 #default="{ processing }">
                                 <Button :disabled="processing" type="submit"
-                                    class="bg-green-500 hover:bg-green-400 dark:text-white">
+                                    class="bg-green-500 hover:bg-green-400 dark:text-white cursor-pointer">
                                     Enable 2FA
                                 </Button>
                             </Form>
@@ -98,7 +98,8 @@ onUnmounted(() => {
                         </div>
                         <div class="relative inline">
                             <Form v-bind="disable.form()" #default="{ processing }">
-                                <Button variant="destructive" type="submit" :disabled="processing">
+                                <Button variant="destructive" :disabled="processing" type="submit"
+                                    class="cursor-pointer">
                                     Disable 2FA
                                 </Button>
                             </Form>

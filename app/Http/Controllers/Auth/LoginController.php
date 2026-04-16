@@ -16,12 +16,22 @@ class LoginController extends Controller
 
     public function store(StoreLoginRequest $request)
     {
-        if (Auth::attempt($request->validated())) {
-            $request->session()->regenerate();
-
-            return redirect()->intended(route('dashboard'));
+        if (!Auth::attempt($request->only('email', 'password'))) {
+            return back()->withErrors(['email' => __('auth.failed')]);
         }
 
-        return back()->withErrors(['email' => __('auth.failed'),])->onlyInput('email');
+        $user = Auth::user();
+
+        if ($user->two_factor_secret && $user->two_factor_confirmed_at) {
+            Auth::logout();
+
+            $request->session()->put('login.id', $user->id);
+
+            return redirect()->route('two-factor.login');
+        }
+
+        $request->session()->regenerate();
+
+        return redirect()->intended(route('dashboard'));
     }
 }

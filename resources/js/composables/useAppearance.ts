@@ -54,21 +54,39 @@ const handleSystemThemeChange = () => {
     updateTheme(currentAppearance || 'system');
 };
 
-// passes auth state so guests always get light mode on instead of blindly reading localStorage
+let systemListenerAttached = false;
+
+function ensureSystemListener() {
+    if (systemListenerAttached) return;
+
+    mediaQuery()?.addEventListener('change', handleSystemThemeChange);
+
+    systemListenerAttached = true;
+}
+
+function removeSystemListener() {
+    if (!systemListenerAttached) return;
+
+    mediaQuery()?.removeEventListener('change', handleSystemThemeChange);
+
+    systemListenerAttached = false;
+}
+
 export function initializeTheme(isAuthenticated = true) {
     if (typeof window === 'undefined') return;
 
     if (!isAuthenticated) {
-        localStorage.removeItem('appearance');
-        updateTheme('light');
-        mediaQuery()?.addEventListener('change', handleSystemThemeChange);
+        // Force light, no system listener needed (it would fight us)
+        removeSystemListener();
+        document.documentElement.classList.remove('dark');
         return;
     }
 
     const savedAppearance = getStoredAppearance();
     updateTheme(savedAppearance || 'system');
 
-    mediaQuery()?.addEventListener('change', handleSystemThemeChange);
+    // Only attach system listener once for authenticated users who may use 'system' mode
+    ensureSystemListener();
 }
 
 const appearance = ref<Appearance>('system');
