@@ -18,7 +18,6 @@ Route::middleware('setup.complete')->group(function () {
     Route::post('login', [LoginController::class, 'store'])->middleware('throttle:login')->name('login.store');
 
     Route::get('register', [RegisterController::class, 'create'])->name('register');
-    Route::post('register', [RegisterController::class, 'store'])->middleware('throttle:register')->name('register.store');
 
     Route::get('setup', SetupController::class)->name('setup');
     Route::post('setup-account', SetupAccountController::class)->middleware('handlePrecognition')->name('setup.account');

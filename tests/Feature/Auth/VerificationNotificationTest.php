@@ -29,7 +29,7 @@ class VerificationNotificationTest extends TestCase
     {
         Notification::fake();
 
-        $user = User::factory()->create();
+        $user = User::factory()->verified()->create();
 
         $this->actingAs($user)
             ->post(route('verification.send'))

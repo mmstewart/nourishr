@@ -4,6 +4,7 @@ namespace Tests\Feature\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Fortify\Features;
 use Tests\TestCase;
@@ -29,28 +30,20 @@ class TwoFactorChallengeTest extends TestCase
             $this->markTestSkipped('Two-factor authentication is not enabled.');
         }
 
-        Features::twoFactorAuthentication([
-            'confirm' => true,
-            'confirmPassword' => true,
+        $user = User::factory()->withTwoFactor()->create([
+            'password' => Hash::make('Password123!'),
         ]);
-
-        $user = User::factory()->create();
-
-        $user->forceFill([
-            'two_factor_secret' => encrypt('test-secret'),
-            'two_factor_recovery_codes' => encrypt(json_encode(['code1', 'code2'])),
-            'two_factor_confirmed_at' => now(),
-        ])->save();
 
         $this->post(route('login'), [
             'email' => $user->email,
-            'password' => 'password',
+            'password' => 'Password123!',
         ]);
 
         $this->get(route('two-factor.login'))
             ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page
-                ->component('auth/TwoFactorChallenge')
+            ->assertInertia(
+                fn(Assert $page) => $page
+                    ->component('auth/TwoFactorChallenge')
             );
     }
 }

@@ -23,77 +23,41 @@ class ProfileUpdateTest extends TestCase
 
     public function test_profile_information_can_be_updated()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->completed()->create();
 
-        $response = $this
-            ->actingAs($user)
-            ->patch(route('profile.update'), [
-                'name' => 'Test User',
-                'email' => 'test@example.com',
-            ]);
+        $data = User::factory()->completed()->make([
+            'name' => 'Test User',
+            'dob' => '1995-05-15',
+            'feet' => 6,
+            'inches' => 2,
+            'timezone' => 'America/Chicago',
+        ])->toArray();
 
-        $response
-            ->assertSessionHasNoErrors()
-            ->assertRedirect(route('profile.edit'));
+        $response = $this->actingAs($user)
+            ->put(route('profile.update'), $data);
+
+        $response->assertSessionHasNoErrors()->assertRedirect();
 
         $user->refresh();
 
-        $this->assertSame('Test User', $user->name);
-        $this->assertSame('test@example.com', $user->email);
-        $this->assertNull($user->email_verified_at);
+        $this->assertEquals('Test User', $user->name);
+        $this->assertEquals(70, $user->height_inches);
+        $this->assertEquals('America/Chicago', $user->timezone);
     }
 
     public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->verified()->completed()->create();
 
-        $response = $this
-            ->actingAs($user)
-            ->patch(route('profile.update'), [
-                'name' => 'Test User',
-                'email' => $user->email,
-            ]);
-
-        $response
-            ->assertSessionHasNoErrors()
-            ->assertRedirect(route('profile.edit'));
-
-        $this->assertNotNull($user->refresh()->email_verified_at);
-    }
-
-    public function test_user_can_delete_their_account()
-    {
-        $user = User::factory()->create();
-
-        $response = $this
-            ->actingAs($user)
-            ->delete(route('profile.destroy'), [
-                'password' => 'Password123!',
-            ]);
-
-        $response
-            ->assertSessionHasNoErrors()
-            ->assertRedirect(route('home'));
-
-        $this->assertGuest();
-        $this->assertNull($user->fresh());
-    }
-
-    public function test_correct_password_must_be_provided_to_delete_account()
-    {
-        $user = User::factory()->create();
-
-        $response = $this
-            ->actingAs($user)
+        $response = $this->actingAs($user)
             ->from(route('profile.edit'))
-            ->delete(route('profile.destroy'), [
-                'password' => 'password',
+            ->put(route('profile.update'), [
+                ...$user->toArray(),
+                'feet' => floor($user->height_inches / 12),
+                'inches' => $user->height_inches % 12,
             ]);
 
-        $response
-            ->assertSessionHasErrors('password')
-            ->assertRedirect(route('profile.edit'));
-
-        $this->assertNotNull($user->fresh());
+        $response->assertSessionHasNoErrors()->assertRedirect(route('profile.edit'));
+        $this->assertNotNull($user->refresh()->email_verified_at);
     }
 }

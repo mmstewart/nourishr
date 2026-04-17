@@ -33,9 +33,9 @@ router.on('navigate', (event) => {
     const { props, component } = event.detail.page;
     const isAuthenticated = !!props.auth?.user;
 
-    const alwaysLight = new Set(['Welcome', 'Privacy', 'Terms', 'auth/Login', 'auth/Register', 'auth/ForgotPassword', 'auth/ResetPassword', 'auth/TwoFactorChallenge']);
+    const alwaysLight = new Set(['Welcome', 'Privacy', 'Terms', 'auth/Login', 'auth/Register', 'auth/ForgotPassword', 'auth/Setup', 'auth/ResetPassword', 'auth/TwoFactorChallenge']);
 
-    const guestOnlyLight = new Set(['Contact', 'auth/Setup', 'auth/VerifyEmail']);
+    const guestOnlyLight = new Set(['Contact', 'auth/VerifyEmail']);
 
     let shouldBeDark = isAuthenticated;
 

@@ -12,10 +12,6 @@ use Laravel\Fortify\Features;
 use OpenFoodFacts\Laravel\Facades\OpenFoodFacts;
 
 Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect()->route('dashboard');
-    }
-
     return Inertia::render('Welcome', [
         'canRegister' => Features::enabled(Features::registration()),
         'isLoggedIn' => auth()->check(),
