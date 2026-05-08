@@ -1,9 +1,22 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { VisAxis, VisLine, VisXYContainer } from "@unovis/vue"
-import { CurveType } from "@unovis/ts"
+import { Line } from 'vue-chartjs';
+import {
+    type ChartOptions,
+    type ChartData,
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend
+} from 'chart.js';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChartContainer, ChartCrosshair, ChartTooltip, ChartTooltipContent, componentToString } from "@/components/ui/chart"
+
+// Register Chart.js components
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const props = defineProps<{
     title: string;
@@ -14,69 +27,92 @@ const props = defineProps<{
     class?: string;
 }>();
 
-const getX = (d: any, i: number) => i;
-const getY = (d: any) => Number(d[props.dataKey]);
+const chartColor = props.config[props.dataKey]?.color || '#2563eb';
 
-const chartColor = props.config[props.dataKey]?.color;
+// Chart.js Data Object
+const chartData = computed<ChartData<'line'>>(() => ({
+    labels: props.data.map(d => d.date),
+    datasets: [{
+        label: ' ' + props.title,
+        data: props.data.map(d => Number(d[props.dataKey])),
+        clip: false,
+        borderColor: chartColor,
+        backgroundColor: chartColor,
+        pointRadius: 4,
+        pointBackgroundColor: chartColor,
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointHoverRadius: 6,
+        pointHoverBorderWidth: 3,
+    }]
+}));
 
-const xTickValues = computed(() => {
-    const total = props.data.length;
-    if (total <= 1) return [0];
-
-    const targetTicks = 7; // Exactly what you asked for
-
-    // Calculate the gap between indices to get exactly 7 points
-    // For 17 points, this would be 16 / 6 = ~2.66
-    const step = (total - 1) / (targetTicks - 1);
-
-    return Array.from({ length: targetTicks }, (_, i) => Math.round(i * step));
-});
-
-const yTickValues = computed(() => {
-    const [start, end] = yDomain.value;
-    const range = end - start;
-
-    const rawStep = range / 6;
-
-    const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
-    const step = Math.ceil(rawStep / magnitude) * magnitude;
-
-    const ticks = [];
-    for (let i = start; i <= end; i += step) {
-        ticks.push(i);
-    }
-
-    return ticks;
-});
-
-const xDomain = computed(() => {
-    if (props.data.length === 0) return [0, 0];
-
-    return [0, props.data.length - 1];
-});
-
-const yDomain = computed(() => {
+// Chart.js Options
+const chartOptions = computed<ChartOptions<'line'>>(() => {
     const values = props.data.map(d => Number(d[props.dataKey]));
+    let yMin = 0;
+    let yMax = 100;
 
-    if (values.length === 0) return [0, 100];
+    if (values.length > 0) {
+        const min = Math.min(...values);
+        const max = Math.max(...values);
 
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-
-    if (props.dataKey === 'weight') {
-        // Round down min to nearest 20, subtract 20 for padding
-        const floor = Math.floor((min - 20) / 20) * 20;
-
-        // Round up max to nearest 20, add 20 for padding
-        const ceil = Math.ceil((max + 20) / 20) * 20;
-
-        return [floor, ceil];
+        if (props.dataKey === 'weight') {
+            yMin = Math.floor((min - 20) / 20) * 20;
+            yMax = Math.ceil((max + 20) / 20) * 20;
+        } else {
+            // Calories logic
+            yMin = 0;
+            yMax = Math.ceil((max + 100) / 20) * 20;
+        }
     }
 
-    // For Calories, start at 0 and go to a multiple of 20
-    const calMax = Math.ceil((max + 100) / 20) * 20;
-
-    return [0, calMax];
+    return {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+            mode: 'index',
+            intersect: false,
+        },
+        plugins: {
+            legend: { display: false },
+        },
+        scales: {
+            x: {
+                display: true,
+                grid: {
+                    display: true,
+                    drawOnChartArea: false,
+                    drawTicks: false,
+                    color: getComputedStyle(document.documentElement).getPropertyValue('--border') || '#e2e8f0',
+                },
+                min: 0,
+                max: props.data.length <= 1 ? 6 : props.data.length - 1,
+                ticks: {
+                    display: true,
+                    align: 'center',
+                    padding: 12,
+                }
+            },
+            y: {
+                display: true,
+                min: yMin,
+                max: yMax,
+                beginAtZero: props.dataKey !== 'weight',
+                grid: {
+                    display: true,
+                    drawTicks: false,
+                    color: getComputedStyle(document.documentElement).getPropertyValue('--border') || '#e2e8f0',
+                },
+                ticks: {
+                    padding: 12,
+                    callback: function (value) {
+                        return value.toLocaleString();
+                    }
+                }
+            }
+        }
+    };
 });
 </script>
 
@@ -89,31 +125,8 @@ const yDomain = computed(() => {
             </div>
             <slot />
         </CardHeader>
-        <CardContent class="relative flex-1 min-h-0 p-0">
-            <ChartContainer :config="config" class="absolute inset-0 h-full w-full aspect-auto">
-                <VisXYContainer :data="data" :x-domain="xDomain" :y-domain="yDomain" :margin="{ left: 20, right: 20 }">
-                    <VisLine :x="getX" :y="getY" :color="chartColor" :line-width="3" :curve-type="CurveType.Linear" />
-                    <VisAxis type="x" :duration="0" :x="getX" :tick-line="false" :domain-line="false" :grid-line="false"
-                        :tick-values="xTickValues" :tick-format="(d: number) => data[d]?.date" />
-                    <VisAxis type="y" :duration="0" :tick-values="yTickValues" :tick-line="false" :domain-line="false"
-                        :tick-format="(v: number) => v.toLocaleString()" />
-                    <ChartTooltip />
-                    <ChartCrosshair :color="chartColor" :template="componentToString(config, ChartTooltipContent, {
-                        labelFormatter: (d: number | Date) => {
-                            const index = Math.round(Number(d));
-                            const record = props.data[index];
-
-                            if (record.date) {
-                                const year = new Date().getFullYear();
-
-                                return record.date.includes(year.toString()) ? record.date : `${record.date}, ${year}`;
-                            }
-
-                            return '';
-                        }
-                    })" />
-                </VisXYContainer>
-            </ChartContainer>
+        <CardContent class="p-6 h-75 w-full">
+            <Line :data="chartData" :options="chartOptions" />
         </CardContent>
     </Card>
 </template>

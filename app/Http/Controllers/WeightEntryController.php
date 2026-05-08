@@ -15,7 +15,7 @@ class WeightEntryController extends Controller
         $range = request()->query('range', '7');
         $userNow = now()->inUserTimezone()->startOfDay();
 
-        $weightGoal = WeightGoal::where('user_id', auth()->id())->firstOrFail();
+        $weightGoal = WeightGoal::whereUserId(auth()->id())->firstOrFail();
 
         $journeyStart = now()->parse($weightGoal->start_date, $userNow->timezone)->startOfDay();
 
@@ -27,12 +27,12 @@ class WeightEntryController extends Controller
         $chartStart = $requestedStart->lt($journeyStart) ? $journeyStart->copy() : $requestedStart;
 
         // 2. Fetch data
-        $chartEntries = WeightEntry::where('user_id', auth()->id())
+        $chartEntries = WeightEntry::whereUserId(auth()->id())
             ->where('date', '>=', $chartStart->format('Y-m-d'))
             ->get()
             ->keyBy('date');
 
-        $lastWeight = WeightEntry::where('user_id', auth()->id())
+        $lastWeight = WeightEntry::whereUserId(auth()->id())
             ->where('date', '<', $chartStart->format('Y-m-d'))
             ->latest('date')
             ->value('weight') ?? $weightGoal->start_weight;
@@ -70,7 +70,7 @@ class WeightEntryController extends Controller
         ];
 
         // 5. Cleanup variables for return
-        $weightEntries = WeightEntry::where('user_id', auth()->id())
+        $weightEntries = WeightEntry::whereUserId(auth()->id())
             ->latest('date')
             ->take(50)
             ->get()

@@ -67,11 +67,14 @@ export interface NutritionEntry {
     id: number;
     date: string;
     date_raw: string;
-    calories: number;
+    meal_type: string;
     food_item: string;
+    calories: number;
     protein: number;
     carbohydrates: number;
     fats: number;
+    quantity: number;
+    serving_size: number;
     created_at: string;
     updated_at: string;
 }

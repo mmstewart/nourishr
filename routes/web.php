@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use OpenFoodFacts\Laravel\Facades\OpenFoodFacts;
+use Illuminate\Support\Facades\Http;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -33,7 +34,7 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-Route::middleware('auth', 'setup.incomplete', 'verified')->group(function () {
+Route::middleware(['auth', 'setup.incomplete', 'verified'])->group(function () {
     // todo: make work
     Route::get('api/foodfacts', function () {
         $food_item = request()->query('food_item');
@@ -45,20 +46,24 @@ Route::middleware('auth', 'setup.incomplete', 'verified')->group(function () {
 
         try {
             if ($type === 'barcode') {
-                $result = OpenFoodFacts::barcode($food_item);
-                return response()->json($result);
+                // $response = Http::withHeaders([
+                //     'User-Agent' => 'Nourishr/1.0 (mmsstewart20@gmail.com)',
+                // ])->get("https://world.openfoodfacts.org/api/v2/product/{$food_item}", [
+                //     'fields' => 'product_name,nutriments,brands,image_url',
+                // ]);
+
+                // return response()->json($response->json()['product'] ?? []);
             }
 
-            $collection = OpenFoodFacts::find($food_item);
-            return response()->json([
-                'products' => $collection->values()->toArray()
+            $response = Http::get('https://api.nal.usda.gov/fdc/v1/foods/search', [
+                'query'    => $food_item,
+                'pageSize' => 20,
+                'api_key'  => env('USDA_API_SECRET'),
             ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => $e->getMessage(),
-                'line' => $e->getLine(),
-                'file' => $e->getFile(),
-            ], 500);
+
+            return response()->json($response->json());
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     });
 

@@ -14,7 +14,7 @@ class NutritionEntryController extends Controller
         $range = request()->query('range', '7');
         $userNow = now()->inUserTimezone()->startOfDay();
 
-        $firstEntry = NutritionEntry::where('user_id', auth()->id())
+        $firstEntry = NutritionEntry::whereUserId(auth()->id())
             ->oldest('date')
             ->value('date');
 
@@ -30,7 +30,7 @@ class NutritionEntryController extends Controller
         $chartStart = $requestedStart->lt($journeyStart) ? $journeyStart->copy() : $requestedStart;
 
         // 2. Fetch and aggregate entries by date (sum calories per day)
-        $chartEntries = NutritionEntry::where('user_id', auth()->id())
+        $chartEntries = NutritionEntry::whereUserId(auth()->id())
             ->where('date', '>=', $chartStart->format('Y-m-d'))
             ->get()
             ->groupBy('date')
@@ -63,7 +63,7 @@ class NutritionEntryController extends Controller
         ];
 
         // 4. Entries list (most recent 50, grouped by meal)
-        $nutritionEntries = NutritionEntry::where('user_id', auth()->id())
+        $nutritionEntries = NutritionEntry::whereUserId(auth()->id())
             ->latest('date')
             ->take(50)
             ->get()

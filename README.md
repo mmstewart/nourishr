@@ -23,14 +23,14 @@
 - [Motion](https://motion.dev)
 - [Lucide](https://lucide.dev)
 - [Iconify](https://iconify.design)
-- [Unovis](https://unovis.dev)
+- [vue-chartjs](vue-chartjs.org)
 
 ## 💜 Acknowledgments
 
 - [Laravel](https://laravel.com)
 - [Vue](https://vuejs.org)
 - [Inertia.js](https://inertiajs.com)
-      <!-- -   [Netlify](https://www.netlify.com) -->
+    <!-- -   [Netlify](https://www.netlify.com) -->
 
 ## 📝 License
 

@@ -17,6 +17,7 @@ class NutritionEntry extends Model
         'food_item',
         'meal_type',
         'protein',
+        'quantity',
         'serving_size',
         'user_id',
     ];

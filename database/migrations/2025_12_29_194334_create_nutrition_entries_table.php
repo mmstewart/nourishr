@@ -15,12 +15,14 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->date('date');
+            $table->string('meal_type');
             $table->string('food_item');
             $table->integer('calories');
             $table->integer('protein');
             $table->integer('carbohydrates');
             $table->integer('fats');
             $table->string('serving_size')->nullable();
+            $table->decimal('quantity', 5, 2)->default(1);
             $table->timestamps();
         });
     }
