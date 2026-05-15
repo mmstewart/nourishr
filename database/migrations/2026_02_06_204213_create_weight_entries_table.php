@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->date('date');
-            $table->float('weight');
+            $table->decimal('weight', 5, 2);
             $table->timestamps();
         });
     }

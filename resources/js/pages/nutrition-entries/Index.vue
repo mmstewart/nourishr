@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref, watch, computed, type HTMLAttributes } from 'vue'
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, type NutritionGroup } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
-import { type NutritionEntry } from '@/types';
 
 import {
     Card,
@@ -18,9 +17,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible'
 import { Button } from '@/components/ui/button';
 import ChartArea from '../../components/ChartArea.vue';
-import { CirclePlus, ChevronRight } from 'lucide-vue-next';
+import { CirclePlus, ChevronRight, ChevronsUpDown } from 'lucide-vue-next';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -31,7 +35,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const props = defineProps<{
     class?: HTMLAttributes["class"],
-    nutritionEntries: NutritionEntry[];
+    nutritionEntries: NutritionGroup[]
     chartData: any[];
     filters: { range: string };
     today: string;
@@ -56,9 +60,9 @@ const calorieConfig = {
 }
 
 const todayCalories = computed(() => {
-    return props.nutritionEntries
-        .filter(e => e.date_raw === props.today)
-        .reduce((sum, e) => sum + e.calories, 0);
+    const todayGroup = props.nutritionEntries.find(group => group.date_raw === props.today);
+
+    return todayGroup ? todayGroup.total_calories : 0;
 });
 
 const avgCalories = computed(() => {
@@ -112,14 +116,14 @@ watch(timeRange, (newRange) => {
                 </Card>
             </div>
             <ChartArea title="Calories" :description="chartDescription" :data="chartData" :config="calorieConfig"
-                dataKey="calories" class="h-75 md:h-100">
+                dataKey="calories" abbreviation="(kcal)" class="h-75 md:h-100">
                 <Select v-model="timeRange">
-                    <SelectTrigger class="hidden w-40 rounded-lg sm:ml-auto sm:flex">
+                    <SelectTrigger class="hidden w-40 rounded-md sm:ml-auto sm:flex">
                         <SelectValue :placeholder="timeRangeOptions.find(o => o.value === timeRange)?.label" />
                     </SelectTrigger>
-                    <SelectContent class="rounded-xl">
+                    <SelectContent class="rounded-md w-40.25">
                         <SelectItem v-for="option in timeRangeOptions" :key="option.value" :value="option.value"
-                            class="rounded-lg">
+                            class="rounded-md">
                             {{ option.label }}
                         </SelectItem>
                     </SelectContent>
@@ -137,34 +141,116 @@ watch(timeRange, (newRange) => {
                             </li>
                         </template>
                         <template v-else>
-                            <li v-for="entry in nutritionEntries" :key="entry.id">
-                                <a :href="`/nutrition-entries/${entry.id}/edit`"
-                                    class="flex items-start justify-between gap-x-6 px-6 py-5 hover:bg-muted/50 dark:hover:bg-white/5 transition-colors">
-                                    <div class="min-w-0">
-                                        <p class="text-sm/6 font-semibold capitalize">
-                                            {{ entry.food_item }}
-                                        </p>
-                                        <p class="mt-1 truncate text-xs/5 text-gray-400">
-                                            {{ entry.date }}
-                                        </p>
-                                    </div>
-                                    <div class="flex items-start gap-x-6 shrink-0">
-                                        <div class="hidden sm:block text-right">
-                                            <p class="text-sm/6">{{ entry.calories }} calories</p>
-                                            <details class="mt-1">
-                                                <summary class="text-xs/5 text-gray-400 cursor-pointer">
-                                                    Macros
-                                                </summary>
-                                                <div class="flex flex-col gap-1 mt-3 text-xs/5">
-                                                    <p>Protein: {{ entry.protein }}g</p>
-                                                    <p>Carbohydrates: {{ entry.carbohydrates }}g</p>
-                                                    <p>Fat: {{ entry.fats }}g</p>
+                            <li v-for="group in nutritionEntries" :key="group.date_raw">
+                                <ul class="divide-y dark:divide-white/5">
+                                    <li>
+                                        <Collapsible>
+                                            <div
+                                                class="flex items-center justify-between gap-x-6 px-6 py-4 transition-colors">
+                                                <div class="min-w-0">
+                                                    <p class="text-sm/6 font-semibold capitalize">{{ group.date }}</p>
+                                                    <p class="mt-1 text-xs/5 text-muted-foreground capitalize">
+                                                        {{ group.entries.length }}
+                                                        {{ group.entries.length === 1 ? 'entry' : 'entries' }}
+                                                    </p>
                                                 </div>
-                                            </details>
-                                        </div>
-                                        <ChevronRight class="size-5 text-gray-500 shrink-0 self-center" />
-                                    </div>
-                                </a>
+                                                <div class="flex items-center gap-x-6 shrink-0">
+                                                    <div class="flex items-center gap-2">
+                                                        <div
+                                                            class="hidden sm:flex items-center justify-end gap-2 text-right text-xs text-muted-foreground">
+                                                            <span
+                                                                class="inline-flex items-center rounded-full bg-blue-400/10 px-2 py-1 text-xs font-medium text-blue-400 inset-ring inset-ring-blue-400/30">
+                                                                {{ group.total_calories }} kcal
+                                                            </span>
+                                                            <span
+                                                                class="inline-flex items-center rounded-full bg-indigo-400/10 px-2 py-1 text-xs font-medium text-indigo-400 inset-ring inset-ring-indigo-400/30">
+                                                                {{group.entries.reduce((s, e) => s + Number(e.protein),
+                                                                    0).toFixed(2)}}g
+                                                                <span class="ml-1 sm:hidden">P</span>
+                                                                <span class="ml-1 hidden sm:inline">Protein</span>
+                                                            </span>
+                                                            <span
+                                                                class="inline-flex items-center rounded-full bg-red-400/10 px-2 py-1 text-xs font-medium text-red-400 inset-ring inset-ring-red-400/20">
+                                                                {{group.entries.reduce((s, e) => s +
+                                                                    Number(e.carbohydrates),
+                                                                    0).toFixed(2)}}g
+                                                                <span class="ml-1 sm:hidden">C</span>
+                                                                <span class="ml-1 hidden sm:inline">Carbohydrates</span>
+                                                            </span>
+                                                            <span
+                                                                class="inline-flex items-center rounded-full bg-yellow-400/10 px-2 py-1 text-xs font-medium text-yellow-500 inset-ring inset-ring-yellow-400/20">
+                                                                {{group.entries.reduce((s, e) => s +
+                                                                    Number(e.fats),
+                                                                    0).toFixed(2)}}g
+                                                                <span class="ml-1 sm:hidden">F</span>
+                                                                <span class="ml-1 hidden sm:inline">Fats</span>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <CollapsibleTrigger as-child>
+                                                        <ChevronsUpDown
+                                                            class="size-5 cursor-pointer text-gray-500 shrink-0 self-center" />
+                                                        <span class="sr-only">Toggle</span>
+                                                    </CollapsibleTrigger>
+                                                </div>
+                                            </div>
+                                            <!-- Entries -->
+                                            <CollapsibleContent>
+                                                <ul class="divide-y dark:divide-white/5 border-t">
+                                                    <li v-for="entry in group.entries" :key="entry.id">
+                                                        <a :href="`/nutrition-entries/${entry.id}`"
+                                                            class="flex items-start justify-between gap-x-6 px-6 py-4 hover:bg-muted/50 dark:hover:bg-white/5 transition-colors">
+                                                            <div class="min-w-0">
+                                                                <p class="text-sm/6 font-semibold">
+                                                                    {{ entry.food_item }}
+                                                                </p>
+                                                                <p class="mt-1 flex items-center gap-2">
+                                                                    <span
+                                                                        class="inline-flex items-center rounded-full bg-blue-400/10 px-2 py-1 text-xs font-medium text-blue-400 inset-ring inset-ring-blue-400/30">
+                                                                        {{ entry.calories }} kcal
+                                                                    </span>
+                                                                    <span
+                                                                        class="inline-flex items-center rounded-full bg-indigo-400/10 px-2 py-1 text-xs font-medium text-indigo-400 inset-ring inset-ring-indigo-400/30">
+                                                                        {{ entry.protein }}g
+                                                                        <span class="ml-1 sm:hidden">P</span>
+                                                                        <span
+                                                                            class="ml-1 hidden sm:inline">Protein</span>
+                                                                    </span>
+                                                                    <span
+                                                                        class="inline-flex items-center rounded-full bg-red-400/10 px-2 py-1 text-xs font-medium text-red-400 inset-ring inset-ring-red-400/20">
+                                                                        {{ entry.carbohydrates }}g
+                                                                        <span class="ml-1 sm:hidden">C</span>
+                                                                        <span
+                                                                            class="ml-1 hidden sm:inline">Carbohydrates</span>
+                                                                    </span>
+                                                                    <span
+                                                                        class="inline-flex items-center rounded-full bg-yellow-400/10 px-2 py-1 text-xs font-medium text-yellow-500 inset-ring inset-ring-yellow-400/20">
+                                                                        {{ entry.fats }}g
+                                                                        <span class="ml-1 sm:hidden">F</span>
+                                                                        <span class="ml-1 hidden sm:inline">Fats</span>
+                                                                    </span>
+                                                                </p>
+                                                            </div>
+                                                            <div class="flex items-start gap-x-6 shrink-0">
+                                                                <div
+                                                                    class="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
+                                                                    <p class="text-sm/6 text-white capitalize">
+                                                                        {{ entry.meal_type }}
+                                                                    </p>
+                                                                    <p class="mt-1 text-xs/5 text-gray-400">
+                                                                        {{ entry.time }}
+                                                                    </p>
+                                                                </div>
+                                                                <ChevronRight
+                                                                    class="size-5 text-gray-500 shrink-0 self-center" />
+                                                            </div>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </CollapsibleContent>
+                                        </Collapsible>
+                                    </li>
+                                </ul>
                             </li>
                         </template>
                     </ul>

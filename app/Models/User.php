@@ -33,6 +33,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $appends = [
         'has_password',
+        'has_weight_goal',
     ];
 
     public $rememberTokenName = false;
@@ -70,6 +71,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getHasPasswordAttribute()
     {
         return !is_null($this->password);
+    }
+
+    public function getHasWeightGoalAttribute()
+    {
+        return $this->weightGoal()->exists();
     }
 
     public function hasCompletedProfile()

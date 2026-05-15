@@ -34,7 +34,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="rounded-lg border p-4 bg-linear-to-tl from-primary/5 to-default">
+    <div class="rounded-md border p-4 bg-linear-to-tl from-primary/5 to-default">
         <div class="relative space-y-0.5">
             <div class="flex items-center gap-2">
                 <p class="font-medium">Two-Factor Authentication Recovery Codes</p>
@@ -66,7 +66,7 @@ onMounted(async () => {
                 <AlertError :errors="errors" />
             </div>
             <div v-else class="mt-3 space-y-3">
-                <div ref="recoveryCodeSectionRef" class="grid gap-1 rounded-lg bg-muted p-4 font-mono text-sm">
+                <div ref="recoveryCodeSectionRef" class="grid gap-1 rounded-md bg-muted p-4 font-mono text-sm">
                     <div v-if="!recoveryCodesList.length" class="space-y-2">
                         <div v-for="n in 8" :key="n" class="h-4 animate-pulse rounded bg-muted-foreground/20"></div>
                     </div>

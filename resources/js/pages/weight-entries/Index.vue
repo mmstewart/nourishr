@@ -66,7 +66,7 @@ const totalLost = computed(() => {
     const startWeight = props.chartData[0].weight;
     const diff = startWeight - currentWeight.value;
 
-    return diff.toFixed(1);
+    return diff.toFixed(2);
 });
 
 watch(timeRange, (newRange) => {
@@ -112,14 +112,14 @@ watch(timeRange, (newRange) => {
                 </Card>
             </div>
             <ChartArea title="Weight" :description="chartDescription" :data="chartData" :config="weightConfig"
-                dataKey="weight" class="h-75 md:h-100">
+                dataKey="weight" abbreviation="(lbs)" class="h-75 md:h-100">
                 <Select v-model="timeRange">
-                    <SelectTrigger class="hidden w-40 rounded-lg sm:ml-auto sm:flex">
+                    <SelectTrigger class="hidden w-40 rounded-md sm:ml-auto sm:flex">
                         <SelectValue :placeholder="timeRangeOptions.find(o => o.value === timeRange)?.label" />
                     </SelectTrigger>
-                    <SelectContent class="rounded-xl">
+                    <SelectContent class="rounded-md w-40.25">
                         <SelectItem v-for="option in timeRangeOptions" :key="option.value" :value="option.value"
-                            class="rounded-lg">
+                            class="rounded-md">
                             {{ option.label }}
                         </SelectItem>
                     </SelectContent>

@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->integer('user_id');
             $table->date('start_date');
-            $table->float('start_weight');
-            $table->float('current_weight');
-            $table->float('goal_weight');
+            $table->decimal('start_weight', 5, 2);
+            $table->decimal('current_weight', 5, 2);
+            $table->decimal('goal_weight', 5, 2);
             $table->unsignedBigInteger('weekly_goal_id');
             $table->unsignedBigInteger('activity_level_id');
             $table->timestamps();

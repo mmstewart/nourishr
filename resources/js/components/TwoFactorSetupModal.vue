@@ -147,14 +147,14 @@ watch(isOpen, async (val) => {
                     <template v-else>
                         <div class="relative mx-auto flex max-w-md items-center overflow-hidden">
                             <div
-                                class="relative mx-auto aspect-square w-64 overflow-hidden rounded-lg border border-border">
+                                class="relative mx-auto aspect-square w-64 overflow-hidden rounded-md border border-border">
                                 <div v-if="!qrCodeSvg"
                                     class="absolute inset-0 z-10 flex aspect-square h-auto w-full animate-pulse items-center justify-center bg-background">
                                     <Spinner class="size-6" />
                                 </div>
                                 <div v-else class="relative z-10 overflow-hidden p-5">
                                     <div v-html="qrCodeSvg"
-                                        class="aspect-square w-full justify-center rounded-lg bg-white p-2 [&_svg]:size-full" />
+                                        class="aspect-square w-full justify-center rounded-md bg-white p-2 [&_svg]:size-full" />
                                 </div>
                             </div>
                         </div>

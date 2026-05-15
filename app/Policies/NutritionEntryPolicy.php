@@ -29,7 +29,7 @@ class NutritionEntryPolicy
 
     public function delete(User $user, NutritionEntry $nutritionEntry)
     {
-        //
+        return $user->id === $nutritionEntry->user_id;
     }
 
     public function restore(User $user, NutritionEntry $nutritionEntry)

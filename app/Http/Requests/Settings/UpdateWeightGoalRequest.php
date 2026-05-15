@@ -11,8 +11,8 @@ class UpdateWeightGoalRequest extends FormRequest
         return [
             'weekly_goal_id' => ['required', 'integer'],
             'activity_level_id' => ['required', 'integer'],
-            'current_weight' => ['required', 'decimal:0,1', 'min:30', 'max:999'],
-            'goal_weight' => ['required', 'decimal:0,1', 'min:30', 'max:999'],
+            'current_weight' => ['required', 'decimal:0,2', 'min:30', 'max:999'],
+            'goal_weight' => ['required', 'decimal:0,2', 'min:30', 'max:999'],
         ];
     }
 }

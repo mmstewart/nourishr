@@ -58,7 +58,7 @@ function submit() {
 
 <template>
     <div class="space-y-6">
-        <div class="space-y-4 rounded-lg border p-4 bg-linear-to-tl from-red-500/5 to-default">
+        <div class="space-y-4 rounded-md border p-4 bg-linear-to-tl from-red-500/5 to-default">
             <div class="relative space-y-0.5 text-red-600 dark:text-red-100">
                 <p class="font-medium">Account</p>
                 <p class="text-sm">
@@ -96,7 +96,7 @@ function submit() {
                         <DialogFooter class="gap-2">
                             <DialogClose as-child>
                                 <Button @mousedown="isClosing = true" @click="form.reset()" variant="secondary"
-                                    class="cursor-pointer" type="button">
+                                    class="cursor-pointer">
                                     Cancel
                                 </Button>
                             </DialogClose>

@@ -16,7 +16,7 @@ class WeightEntryRequest extends FormRequest
                 'before_or_equal:today',
                 Rule::unique('weight_entries')->ignore($this->route('weight_entry')),
             ],
-            'weight' => ['required', 'decimal:0,1', 'min:30', 'max:999'],
+            'weight' => ['required', 'decimal:0,2', 'min:30', 'max:999'],
         ];
     }
 }

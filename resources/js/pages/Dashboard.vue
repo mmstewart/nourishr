@@ -13,6 +13,7 @@ import {
     AlertDescription,
     AlertTitle,
 } from '@/components/ui/alert'
+
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -78,7 +79,7 @@ const weightStats = computed(() => {
         progressValue = Math.min(Math.max(rawProgress, 0), 100);
     }
 
-    const lbsToGoal = Math.abs(current - goal).toFixed(1);
+    const lbsToGoal = Math.abs(current - goal).toFixed(2);
 
     let label = '';
 
@@ -127,22 +128,20 @@ const kcalRemaining = computed(() => {
     );
 });
 
-const totalProtein = computed(() =>
-    todayEntries.value.reduce(
-        (total, entry) => total + (entry.protein || 0),
-        0,
-    ),
-);
+const formatMacro = (key: 'protein' | 'carbohydrates' | 'fats') => {
+    const total = todayEntries.value.reduce(
+        (total, entry) => total + Number(entry[key] || 0),
+        0
+    );
+    return parseFloat(total.toFixed(2));
+};
+
+const totalProtein = computed(() => formatMacro('protein'));
+const totalCarbohydrates = computed(() => formatMacro('carbohydrates'));
+const totalFats = computed(() => formatMacro('fats'));
 
 const proteinProgress = computed(() =>
     Math.min((totalProtein.value / user.weight_goal.protein_grams) * 100, 100),
-);
-
-const totalCarbohydrates = computed(() =>
-    todayEntries.value.reduce(
-        (total, entry) => total + (entry.carbohydrates || 0),
-        0,
-    ),
 );
 
 const carbohydratesProgress = computed(() =>
@@ -150,10 +149,6 @@ const carbohydratesProgress = computed(() =>
         (totalCarbohydrates.value / user.weight_goal.carb_grams) * 100,
         100,
     ),
-);
-
-const totalFats = computed(() =>
-    todayEntries.value.reduce((total, entry) => total + (entry.fats || 0), 0),
 );
 
 const fatsProgress = computed(() =>
@@ -210,7 +205,7 @@ watch(() => page.props.flash.success, (newMessage) => {
                 </AlertDescription>
             </Alert>
         </div>
-        <div class="flex h-full flex-1 flex-col justify-center gap-4 overflow-x-auto rounded-xl p-4">
+        <div class="flex h-full flex-1 flex-col justify-center gap-4 overflow-x-auto rounded-md p-4">
             <div
                 class="grid auto-rows-min gap-4 *:data-[slot=card]:bg-linear-to-tl *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:grid-cols-3 dark:*:data-[slot=card]:bg-card">
                 <Card class="@container/card justify-between">
@@ -254,9 +249,10 @@ watch(() => page.props.flash.success, (newMessage) => {
                             <div>
                                 <div class="mb-2 flex justify-between">
                                     <span class="text-sm text-muted-foreground">Protein</span>
-                                    <span class="text-sm font-medium tabular-nums">{{ totalProtein }} /
-                                        {{ user.weight_goal.protein_grams }}
-                                        g</span>
+                                    <span class="text-sm font-medium tabular-nums">
+                                        {{ totalProtein }} /
+                                        {{ user.weight_goal.protein_grams }}g
+                                    </span>
                                 </div>
                                 <Progress :model-value="proteinProgress" class="w-full" :class="{
                                     '[&>div]:hidden': proteinProgress <= 0,
@@ -265,9 +261,10 @@ watch(() => page.props.flash.success, (newMessage) => {
                             <div>
                                 <div class="mb-2 flex justify-between">
                                     <span class="text-sm text-muted-foreground">Carbohydrates</span>
-                                    <span class="text-sm font-medium tabular-nums">{{ totalCarbohydrates }} /
-                                        {{ user.weight_goal.carb_grams }}
-                                        g</span>
+                                    <span class="text-sm font-medium tabular-nums">
+                                        {{ totalCarbohydrates }} /
+                                        {{ user.weight_goal.carb_grams }}g
+                                    </span>
                                 </div>
                                 <Progress :model-value="carbohydratesProgress" class="w-full" :class="{
                                     '[&>div]:hidden':
@@ -277,8 +274,10 @@ watch(() => page.props.flash.success, (newMessage) => {
                             <div>
                                 <div class="mb-2 flex justify-between">
                                     <span class="text-sm text-muted-foreground">Fat</span>
-                                    <span class="text-sm font-medium tabular-nums">{{ totalFats }} /
-                                        {{ user.weight_goal.fat_grams }} g</span>
+                                    <span class="text-sm font-medium tabular-nums">
+                                        {{ totalFats }} /
+                                        {{ user.weight_goal.fat_grams }}g
+                                    </span>
                                 </div>
                                 <Progress :model-value="fatsProgress" class="w-full" :class="{
                                     '[&>div]:hidden': fatsProgress <= 0,
@@ -315,8 +314,10 @@ watch(() => page.props.flash.success, (newMessage) => {
                             <TrendingDown v-if="weightStats.isLosing" class="size-4.5 text-blue-500" />
                             <TrendingUp v-else-if="weightStats.isGaining" class="size-4.5 text-green-500" />
                             <BicepsFlexed v-else class="size-4.5 text-purple-500" />
-                            <span>{{ weightStats.lbsToGoal }} lbs
-                                {{ weightStats.statusLabel }}</span>
+                            <span>
+                                {{ weightStats.lbsToGoal }} lbs
+                                {{ weightStats.statusLabel }}
+                            </span>
                         </div>
                     </CardFooter>
                 </Card>

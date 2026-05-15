@@ -18,9 +18,9 @@ return new class extends Migration
             $table->string('meal_type');
             $table->string('food_item');
             $table->integer('calories');
-            $table->integer('protein');
-            $table->integer('carbohydrates');
-            $table->integer('fats');
+            $table->decimal('protein', 5, 2);
+            $table->decimal('carbohydrates', 5, 2);
+            $table->decimal('fats', 5, 2);
             $table->string('serving_size')->nullable();
             $table->decimal('quantity', 5, 2)->default(1);
             $table->timestamps();

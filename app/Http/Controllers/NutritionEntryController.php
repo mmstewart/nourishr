@@ -67,16 +67,23 @@ class NutritionEntryController extends Controller
             ->latest('date')
             ->take(50)
             ->get()
-            ->map(fn($entry) => [
-                'id' => $entry->id,
-                'date' => now()->parse($entry->date)->format('F jS, Y'),
-                'date_raw' => $entry->date,
-                'food_item' => $entry->food_item,
-                'calories' => $entry->calories,
-                'protein' => $entry->protein,
-                'carbohydrates' => $entry->carbohydrates,
-                'fats' => $entry->fats,
-            ]);
+            ->groupBy('date')
+            ->map(fn($entries, $date) => [
+                'date' => now()->parse($date)->format('F jS, Y'),
+                'date_raw' => $date,
+                'entries' => $entries->map(fn($entry) => [
+                    'id' => $entry->id,
+                    'meal_type' => $entry->meal_type,
+                    'food_item' => ucfirst(strtolower($entry->food_item)),
+                    'calories' => $entry->calories,
+                    'protein' => $entry->protein,
+                    'carbohydrates' => $entry->carbohydrates,
+                    'fats' => $entry->fats,
+                    'time' => $entry->created_at->inUserTimezone()->format('g:i A'),
+                ])->values(),
+                'total_calories' => $entries->sum('calories'),
+            ])
+            ->values();
 
         return Inertia::render('nutrition-entries/Index', [
             'chartData' => $chartData,
@@ -95,7 +102,17 @@ class NutritionEntryController extends Controller
     {
         $validated = $request->validated();
 
-        $request->user()->nutritionEntries()->create($validated);
+        $now = now();
+
+        $request->user()->nutritionEntries()->insert(
+            collect($validated['entries'])->map(fn($entry) => [
+                ...$entry,
+                'date'       => $validated['date'],
+                'user_id'    => $request->user()->id,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ])->toArray()
+        );
 
         return to_route('nutrition-entries.index');
     }
@@ -104,8 +121,22 @@ class NutritionEntryController extends Controller
     {
         $this->authorize('view', $nutritionEntry);
 
+        $formattedEntry = [
+            'id' => $nutritionEntry->id,
+            'meal_type' => $nutritionEntry->meal_type,
+            'food_item' => ucfirst(strtolower($nutritionEntry->food_item)),
+            'calories' => $nutritionEntry->calories,
+            'protein' => $nutritionEntry->protein,
+            'carbohydrates' => $nutritionEntry->carbohydrates,
+            'fats' => $nutritionEntry->fats,
+            'serving_size' => $nutritionEntry->serving_size,
+            'quantity' => $nutritionEntry->quantity,
+            'date' => now()->parse($nutritionEntry->date)->inUserTimezone()->format('F jS, Y'),
+            'time' => $nutritionEntry->created_at->inUserTimezone()->format('g:i A'),
+        ];
+
         return Inertia::render('nutrition-entries/Show', [
-            'nutritionEntry' => $nutritionEntry,
+            'nutritionEntry' => $formattedEntry,
         ]);
     }
 
@@ -125,6 +156,15 @@ class NutritionEntryController extends Controller
         $validated = $request->validated();
 
         $nutritionEntry->update($validated);
+
+        return to_route('nutrition-entries.index');
+    }
+
+    public function destroy(NutritionEntry $nutritionEntry)
+    {
+        $this->authorize('delete', $nutritionEntry);
+
+        $nutritionEntry->delete();
 
         return to_route('nutrition-entries.index');
     }

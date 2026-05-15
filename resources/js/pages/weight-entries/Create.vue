@@ -59,10 +59,15 @@ const validateWeight = (value: string | number | null, isTouched: boolean, label
 
     const num = Number(value)
 
+    if (isNaN(num)) return `${label} must be a number.`
+
     if (num < 30 || num > 999) return `${label} must be between 30 and 999 lbs.`
 
+    const decimalParts = String(value).split('.')
+    if (decimalParts[1] && decimalParts[1].length > 2) return `${label} can only have up to 2 decimal places.`
+
     return ''
-};
+}
 
 const weightError = computed(() =>
     validateWeight(form.weight, touchedWeight.value, 'Weight')
@@ -140,8 +145,9 @@ function submit() {
                                         Weight
                                     </FieldLabel>
                                     <InputGroup :class="{ 'border-red-500': weightError || form.errors.weight }">
-                                        <InputGroupInput v-model="form.weight" @blur="touchedWeight = true" step="0.1"
-                                            inputmode="decimal" id="weight" name="weight" type="number" />
+                                        <InputGroupInput v-model="form.weight"
+                                            @blur="() => { touchedWeight = true; if (form.weight) form.weight = parseFloat(String(form.weight)).toFixed(2) }"
+                                            step="0.01" inputmode="decimal" id="weight" name="weight" type="number" />
                                         <InputGroupAddon align="inline-end">
                                             <InputGroupText>lbs</InputGroupText>
                                         </InputGroupAddon>

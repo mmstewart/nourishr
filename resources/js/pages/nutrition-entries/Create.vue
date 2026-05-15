@@ -2,9 +2,9 @@
 import { ref, watch, computed, onUnmounted, type HTMLAttributes } from 'vue'
 import { Head, useForm } from '@inertiajs/vue3';
 import axios from 'axios';
+import { motion } from "motion-v";
 
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import {
     Field,
     FieldDescription,
@@ -18,7 +18,15 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupText, InputGroupTextarea } from '@/components/ui/input-group'
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover'
+import { Calendar } from '@/components/ui/calendar'
+import { CalendarIcon } from 'lucide-vue-next'
+import { today, getLocalTimeZone, type DateValue } from '@internationalized/date'
 import { Spinner } from '@/components/ui/spinner'
 import { BrowserMultiFormatReader } from '@zxing/library'
 import { useDebounceFn } from '@vueuse/core'
@@ -39,9 +47,8 @@ defineProps<{
 }>()
 
 const form = useForm({
-    meal_type: '',
     date: '',
-    items: [] as any[],
+    entries: [] as any[],
 })
 
 
@@ -50,7 +57,7 @@ const tabs = [
     { value: 'scan', Icon: ScanBarcode, label: 'Scan' },
 ] as const
 
-const nutritionEntries = ref<Pick<NutritionEntry, 'food_item' | 'calories' | 'protein' | 'carbohydrates' | 'fats' | 'quantity' | 'serving_size' | 'meal_type'>[]>([])
+const nutritionEntries = ref<Pick<NutritionEntry, 'fdc_id' | 'food_item' | 'calories' | 'protein' | 'carbohydrates' | 'fats' | 'quantity' | 'serving_size' | 'meal_type'>[]>([])
 
 const mealTypes = ['breakfast', 'lunch', 'dinner', 'snack'] as const
 
@@ -59,6 +66,7 @@ const searchResults = ref<any[]>([])
 const isSearching = ref(false)
 const mode = ref<'text' | 'scan'>('text')
 const mealType = ref<typeof mealTypes[number]>('breakfast')
+const entryDate = ref<any>(today(getLocalTimeZone()))
 const touchedSearch = ref(false)
 
 // Pending product for serving size picker
@@ -149,18 +157,20 @@ async function lookupBarcode(barcode: string) {
             params: { food_item: barcode, type: 'barcode' }
         })
 
+
         if (response.data && Object.keys(response.data).length) {
             const product = response.data
             const nutriments = product.nutriments ?? {}
 
             nutritionEntries.value.push({
+                fdc_id: product.fdcId,
                 food_item: product.product_name,
                 calories: nutriments['energy-kcal_100g'] ?? 0,
                 protein: nutriments.proteins_100g ?? 0,
                 carbohydrates: nutriments.carbohydrates_100g ?? 0,
                 fats: nutriments.fat_100g ?? 0,
                 quantity: 1,
-                serving_size: 100,
+                serving_size: '100g',
                 meal_type: mealType.value,
             })
 
@@ -216,13 +226,14 @@ function addNutritionEntry() {
         pendingProduct.value.foodNutrients?.find((n: any) => n.nutrientName === name)?.value ?? 0
 
     nutritionEntries.value.push({
+        fdc_id: pendingProduct.value.fdcId,
         food_item: pendingProduct.value.description,
         calories: Math.round(getNutrient('Energy') * factor),
-        protein: parseFloat((getNutrient('Protein') * factor).toFixed(1)),
-        carbohydrates: parseFloat((getNutrient('Carbohydrate, by difference') * factor).toFixed(1)),
-        fats: parseFloat((getNutrient('Total lipid (fat)') * factor).toFixed(1)),
+        protein: parseFloat((getNutrient('Protein') * factor).toFixed(2)),
+        carbohydrates: parseFloat((getNutrient('Carbohydrate, by difference') * factor).toFixed(2)),
+        fats: parseFloat((getNutrient('Total lipid (fat)') * factor).toFixed(2)),
         quantity: parseFloat(pendingQuantity.value),
-        serving_size: selectedServing.value.gramWeight,
+        serving_size: selectedServing.value.label + ' (' + selectedServing.value.gramWeight + 'g)',
         meal_type: mealType.value,
     })
 
@@ -246,9 +257,9 @@ const pendingNutrients = computed(() => {
 
     return {
         calories: Math.round(get('Energy') * factor),
-        protein: (get('Protein') * factor).toFixed(1),
-        carbohydrates: (get('Carbohydrate, by difference') * factor).toFixed(1),
-        fats: (get('Total lipid (fat)') * factor).toFixed(1),
+        protein: (get('Protein') * factor).toFixed(2),
+        carbohydrates: (get('Carbohydrate, by difference') * factor).toFixed(2),
+        fats: (get('Total lipid (fat)') * factor).toFixed(2),
     }
 })
 
@@ -256,16 +267,17 @@ function submit() {
     if (!nutritionEntries.value.length) return
 
     useForm({
-        meal_type: mealType.value,
-        date: new Date().toISOString().split('T')[0],
+        date: entryDate.value.toString(),
         entries: nutritionEntries.value.map(entry => ({
+            fdc_id: entry.fdc_id,
             food_item: entry.food_item,
             calories: Math.round(entry.calories * entry.quantity),
-            protein: Math.round(entry.protein * entry.quantity),
-            carbohydrates: Math.round(entry.carbohydrates * entry.quantity),
-            fats: Math.round(entry.fats * entry.quantity),
+            protein: parseFloat((entry.protein * entry.quantity).toFixed(2)),
+            carbohydrates: parseFloat((entry.carbohydrates * entry.quantity).toFixed(2)),
+            fats: parseFloat((entry.fats * entry.quantity).toFixed(2)),
             serving_size: entry.serving_size,
             quantity: entry.quantity,
+            meal_type: mealType.value,
         }))
     }).post('/nutrition-entries')
 }
@@ -276,7 +288,7 @@ function submit() {
     <Head title="Create Nutrition Entry" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex-1 md:max-w-4xl">
+        <div class="flex-1 md:max-w-5xl">
             <section class="max-w-7xl space-y-12">
                 <div class="flex flex-1 flex-col gap-4 p-4">
                     <div class="space-y-6">
@@ -291,7 +303,7 @@ function submit() {
                                         Create your nutrition entry to track your progress towards your nutrition goals.
                                     </FieldDescription>
                                 </div>
-                                <div class="w-fit! inline-flex gap-1 rounded-lg bg-neutral-100 p-1 dark:bg-neutral-800">
+                                <div class="w-fit! inline-flex gap-1 rounded-md bg-neutral-100 p-1 dark:bg-neutral-800">
                                     <button v-for="{ value, Icon, label } in tabs" :key="value" type="button"
                                         @click="mode = value" :class="[
                                             'flex items-center rounded-md px-3.5 py-1.5 transition-colors',
@@ -310,7 +322,7 @@ function submit() {
                                                 <FieldLabel for="search">Search</FieldLabel>
                                                 <InputGroup>
                                                     <InputGroupInput v-model="search" @blur="touchedSearch = true"
-                                                        id="search" name="search" placeholder="Search..."
+                                                        id="search" name="search" placeholder="Search"
                                                         autocomplete="off" :disabled="isSearching" />
                                                     <InputGroupAddon v-if="!isSearching">
                                                         <Search class="size-4 text-muted-foreground" />
@@ -321,22 +333,22 @@ function submit() {
                                                 </InputGroup>
                                             </Field>
                                             <ul v-if="searchResults.length"
-                                                class="mt-2 divide-y rounded-lg border h-64 overflow-y-auto">
+                                                class="mt-2 divide-y divide-input rounded-md border border-input max-h-56 overflow-y-auto">
                                                 <li v-for="product in searchResults"
                                                     :key="product.fdcId ?? product.product_name"
                                                     class="flex items-center gap-3 px-4 py-3 hover:bg-muted cursor-pointer transition-colors group"
                                                     @click="selectProduct(product)">
                                                     <div class="flex-1 min-w-0">
-                                                        <p class="text-sm font-medium capitalize truncate">
+                                                        <p class="text-sm font-medium capitalize">
                                                             {{ (product.description ??
                                                                 product.product_name).toLowerCase() }}
                                                         </p>
                                                         <div
-                                                            class="flex items-center gap-1.5 text-xs text-muted-foreground flex-wrap">
+                                                            class="flex items-center gap-1 text-xs text-muted-foreground flex-wrap">
                                                             <span v-if="product?.brandName" class="capitalize">{{
                                                                 product.brandName.toLowerCase() }}</span>
-                                                            <span v-if="product?.brandName"
-                                                                class="text-muted-foreground/40">·</span>
+                                                            <div v-if="product?.brandName"
+                                                                class="size-0.5 rounded-full bg-gray-500"></div>
                                                             <span>{{product.foodNutrients?.find((n: any) =>
                                                                 n.nutrientName ===
                                                                 'Energy')?.value ?? 0}} kcal</span>
@@ -344,7 +356,7 @@ function submit() {
                                                     </div>
                                                     <div
                                                         class="shrink-0 text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        Add +
+                                                        + Add
                                                     </div>
                                                 </li>
                                             </ul>
@@ -353,7 +365,7 @@ function submit() {
                                                 No results found.
                                             </p>
                                             <div v-if="pendingProduct"
-                                                class="space-y-4 rounded-lg border p-4 bg-linear-to-tl from-primary/5 to-default mt-2">
+                                                class="space-y-4 rounded-md border border-input p-4 bg-linear-to-tl from-primary/5 to-default mt-2">
                                                 <div class="flex items-start justify-between">
                                                     <div>
                                                         <p class="text-sm font-medium capitalize">
@@ -376,7 +388,7 @@ function submit() {
                                                             <SelectTrigger class="w-full">
                                                                 <SelectValue />
                                                             </SelectTrigger>
-                                                            <SelectContent>
+                                                            <SelectContent class="w-111.25">
                                                                 <SelectItem v-for="meal in mealTypes" :key="meal"
                                                                     :value="meal">
                                                                     {{ meal.charAt(0).toUpperCase() + meal.slice(1) }}
@@ -392,7 +404,7 @@ function submit() {
                                                                 <SelectTrigger class="w-full">
                                                                     <SelectValue />
                                                                 </SelectTrigger>
-                                                                <SelectContent>
+                                                                <SelectContent class="w-53.75">
                                                                     <SelectItem value="0.25">¼</SelectItem>
                                                                     <SelectItem value="0.5">½</SelectItem>
                                                                     <SelectItem value="0.75">¾</SelectItem>
@@ -409,7 +421,7 @@ function submit() {
                                                                 <SelectTrigger class="w-full">
                                                                     <SelectValue />
                                                                 </SelectTrigger>
-                                                                <SelectContent>
+                                                                <SelectContent class="w-53.75">
                                                                     <SelectItem
                                                                         v-for="option in pendingProduct.servingOptions"
                                                                         :key="option.label" :value="option.label">
@@ -420,23 +432,32 @@ function submit() {
                                                         </Field>
                                                     </Field>
                                                     <div v-if="selectedServing"
-                                                        class="grid grid-cols-4 gap-2 text-center text-xs">
-                                                        <div>
-                                                            <p class="font-medium">{{ pendingNutrients.calories }}</p>
-                                                            <p class="text-muted-foreground">kcal</p>
-                                                        </div>
-                                                        <div>
-                                                            <p class="font-medium">{{ pendingNutrients.protein }}g</p>
-                                                            <p class="text-muted-foreground">protein</p>
-                                                        </div>
-                                                        <div>
-                                                            <p class="font-medium">{{ pendingNutrients.carbohydrates }}g
-                                                            </p>
-                                                            <p class="text-muted-foreground">carbs</p>
-                                                        </div>
-                                                        <div>
-                                                            <p class="font-medium">{{ pendingNutrients.fats }}g</p>
-                                                            <p class="text-muted-foreground">fat</p>
+                                                        class="rounded-md border border-input px-4 py-3 space-y-2 bg-background">
+                                                        <div class="grid grid-cols-4 gap-2 text-center">
+                                                            <div>
+                                                                <p class="text-sm font-medium">
+                                                                    {{ pendingNutrients.calories }}
+                                                                </p>
+                                                                <p class="text-xs text-muted-foreground">Calories</p>
+                                                            </div>
+                                                            <div>
+                                                                <p class="text-sm font-medium">
+                                                                    {{ pendingNutrients.protein }}g
+                                                                </p>
+                                                                <p class="text-xs text-muted-foreground">Protein</p>
+                                                            </div>
+                                                            <div>
+                                                                <p class="text-sm font-medium">
+                                                                    {{ pendingNutrients.carbohydrates }}g
+                                                                </p>
+                                                                <p class="text-xs text-muted-foreground">Carbs</p>
+                                                            </div>
+                                                            <div>
+                                                                <p class="text-sm font-medium">
+                                                                    {{ pendingNutrients.fats }}g
+                                                                </p>
+                                                                <p class="text-xs text-muted-foreground">Fat</p>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <Button @click="addNutritionEntry" class="cursor-pointer">
@@ -446,83 +467,129 @@ function submit() {
                                             </div>
                                         </div>
                                         <!-- Barcode scan -->
-                                        <div v-else class="space-y-3">
-                                            <div class="relative overflow-hidden rounded-lg bg-black aspect-video">
-                                                <video ref="videoEl" class="w-full h-full object-cover" />
-                                                <!-- scanning line animation -->
+                                        <div v-else>
+                                            <Field>
+                                                <FieldLabel for="search">Scan</FieldLabel>
                                                 <div
-                                                    class="absolute inset-x-0 h-0.5 bg-red-500 animate-bounce top-1/2" />
-                                            </div>
-                                            <p class="text-sm text-muted-foreground text-center">
-                                                Point your camera at a barcode
-                                            </p>
-                                            <p v-if="scanError" class="text-sm text-red-500 text-center">{{ scanError }}
-                                            </p>
-                                            <p v-if="scanSuccess" class="text-sm text-green-500 text-center">{{
-                                                scanSuccess
-                                                }}</p>
+                                                    class="relative overflow-hidden rounded-md dark:bg-input/30 bg-transparent aspect-video border border-input">
+                                                    <motion.div class="absolute inset-x-0 h-0.5 bg-red-500"
+                                                        :animate="{ top: ['0%', '100%', '0%'] }"
+                                                        :transition="{ duration: 5, repeat: Infinity, ease: 'linear' }" />
+                                                </div>
+                                                <p class="text-sm text-muted-foreground text-center">
+                                                    Point your camera at a barcode
+                                                </p>
+                                                <p v-if="scanError" class="text-sm text-red-500 text-center">
+                                                    {{ scanError }}
+                                                </p>
+                                                <p v-if="scanSuccess" class="text-sm text-green-500 text-center">
+                                                    {{ scanSuccess }}
+                                                </p>
+                                            </Field>
                                         </div>
                                     </div>
-                                    <div v-if="nutritionEntries.length" class="space-y-2">
+                                    <div v-if="nutritionEntries.length" class="space-y-3">
                                         <h4 class="text-sm font-medium">Added Entries</h4>
-
                                         <div
-                                            class="space-y-4 rounded-lg border p-4 bg-linear-to-tl from-primary/5 to-default">
-                                            <ul>
-                                                <li v-for="(entry, index) in nutritionEntries" :key="index"
-                                                    class="flex items-center justify-between py-3">
-                                                    <div class="flex-1 min-w-0 mr-4">
-                                                        <p class="text-sm font-medium truncate capitalize">{{
-                                                            entry.food_item.toLowerCase() }}</p>
-                                                        <p class="text-xs text-muted-foreground">
-                                                            <span class="capitalize">{{ entry.meal_type }}</span>
-                                                            <span class="text-muted-foreground/40 mx-1">·</span>
-                                                            {{ Math.round(entry.calories * entry.quantity) }} kcal
+                                            class="space-y-4 rounded-md border border-input p-4 bg-linear-to-tl from-primary/5 to-default">
+                                            <div>
+                                                <ul>
+                                                    <li v-for="(entry, index) in nutritionEntries" :key="index"
+                                                        class="flex items-center justify-between py-3">
+                                                        <div class="flex-1 min-w-0 mr-4">
+                                                            <p class="text-sm font-medium capitalize">
+                                                                {{ entry.food_item }}
+                                                            </p>
+                                                            <div
+                                                                class="flex items-center gap-1 text-xs text-muted-foreground flex-wrap">
+                                                                <div class="capitalize">{{ entry.meal_type }}</div>
+                                                                <div class="size-0.5 rounded-full bg-gray-500"></div>
+                                                                <div>{{ entry.serving_size }}</div>
+                                                                <div class="size-0.5 rounded-full bg-gray-500"></div>
+                                                                {{ Math.round(entry.calories * entry.quantity) }} kcal
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-center gap-2 shrink-0">
+                                                            <span class="text-xs text-muted-foreground">Qty:</span>
+                                                            <Select :model-value="String(entry.quantity ?? 1)"
+                                                                @update:model-value="(val) => entry.quantity = parseFloat(val as string)">
+                                                                <SelectTrigger class="w-16">
+                                                                    <SelectValue />
+                                                                </SelectTrigger>
+                                                                <SelectContent class="w-10">
+                                                                    <SelectItem value="0.25">¼</SelectItem>
+                                                                    <SelectItem value="0.5">½</SelectItem>
+                                                                    <SelectItem value="0.75">¾</SelectItem>
+                                                                    <SelectItem v-for="n in 10" :key="n"
+                                                                        :value="String(n)">
+                                                                        {{ n }}
+                                                                    </SelectItem>
+                                                                </SelectContent>
+                                                            </Select>
+                                                            <Button size="icon" @click="removeNutritionEntry(index)"
+                                                                class="cursor-pointer size-5">
+                                                                <X />
+                                                            </Button>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div
+                                                class="rounded-md border border-input px-4 py-3 space-y-2 bg-background">
+                                                <div class="grid grid-cols-4 gap-2 text-center">
+                                                    <div>
+                                                        <p class="text-sm font-medium">
+                                                            {{ Math.round(totals.calories) }}
                                                         </p>
+                                                        <p class="text-xs text-muted-foreground">Calories</p>
                                                     </div>
-                                                    <div class="flex items-center gap-2 shrink-0">
-                                                        <span class="text-xs text-muted-foreground">Qty:</span>
-                                                        <Input type="number" min="0.5" step="0.5"
-                                                            v-model.number="entry.quantity"
-                                                            class="h-8 w-16 text-center" />
-                                                        <Button size="icon" @click="removeNutritionEntry(index)"
-                                                            class="cursor-pointer size-5">
-                                                            <X />
-                                                        </Button>
+                                                    <div>
+                                                        <p class="text-sm font-medium">
+                                                            {{ totals.protein }}g
+                                                        </p>
+                                                        <p class="text-xs text-muted-foreground">Protein</p>
                                                     </div>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <div class="rounded-lg border px-4 py-3 space-y-2">
-                                            <h4 class="text-sm font-medium">Totals</h4>
-                                            <div class="grid grid-cols-4 gap-2 text-center">
-                                                <div>
-                                                    <p class="text-sm font-medium">{{ Math.round(totals.calories) }}
-                                                    </p>
-                                                    <p class="text-xs text-muted-foreground">Calories</p>
-                                                </div>
-                                                <div>
-                                                    <p class="text-sm font-medium">{{ totals.protein.toFixed(1) }}g
-                                                    </p>
-                                                    <p class="text-xs text-muted-foreground">Protein</p>
-                                                </div>
-                                                <div>
-                                                    <p class="text-sm font-medium">{{
-                                                        totals.carbohydrates.toFixed(1) }}g
-                                                    </p>
-                                                    <p class="text-xs text-muted-foreground">Carbs</p>
-                                                </div>
-                                                <div>
-                                                    <p class="text-sm font-medium">{{ totals.fats.toFixed(1) }}g</p>
-                                                    <p class="text-xs text-muted-foreground">Fat</p>
+                                                    <div>
+                                                        <p class="text-sm font-medium">
+                                                            {{ totals.carbohydrates }}g
+                                                        </p>
+                                                        <p class="text-xs text-muted-foreground">Carbs</p>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-sm font-medium">
+                                                            {{ totals.fats }}g
+                                                        </p>
+                                                        <p class="text-xs text-muted-foreground">Fat</p>
+                                                    </div>
                                                 </div>
                                             </div>
+                                            <Field>
+                                                <FieldLabel class="text-xs font-medium">Date</FieldLabel>
+                                                <Popover v-slot="{ close }">
+                                                    <PopoverTrigger as-child>
+                                                        <Button variant="outline"
+                                                            class="w-full justify-start text-left font-normal">
+                                                            <CalendarIcon class="mr-2 h-4 w-4" />
+                                                            {{ entryDate ?
+                                                                entryDate.toDate(getLocalTimeZone()).toLocaleDateString() :
+                                                                'Pick a date' }}
+                                                        </Button>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent class="w-auto p-0" align="start">
+                                                        <Calendar :model-value="entryDate"
+                                                            :max-value="today(getLocalTimeZone())"
+                                                            @update:model-value="(val) => { entryDate = val as DateValue; close() }"
+                                                            initial-focus />
+                                                    </PopoverContent>
+                                                </Popover>
+                                            </Field>
+                                            <Button type="submit"
+                                                :disabled="!nutritionEntries.length || form.processing"
+                                                class="bg-green-500 hover:bg-green-400 dark:text-white cursor-pointer">
+                                                <Spinner v-if="form.processing" class="mr-2 h-4 w-4" />
+                                                Save
+                                            </Button>
                                         </div>
-                                        <Button type="submit" :disabled="!nutritionEntries.length || form.processing"
-                                            class="bg-green-500 hover:bg-green-400 dark:text-white cursor-pointer">
-                                            <Spinner v-if="form.processing" class="mr-2 h-4 w-4" />
-                                            Save
-                                        </Button>
                                     </div>
                                 </div>
                             </FieldGroup>

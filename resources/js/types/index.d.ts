@@ -28,6 +28,7 @@ export type AppPageProps<
 
 export interface User {
     id: number;
+    is_admin: number;
     name: string;
     dob:string;
     height_inches: number;
@@ -37,6 +38,7 @@ export interface User {
     email: string;
     email_verified_at: string | null;
     has_password: boolean;
+    has_weight_goal: boolean;
     weight_goal: WeightGoal;
     nutrition_entries: NutritionEntry[];
     weight_entries: WeightEntry[];
@@ -67,6 +69,7 @@ export interface NutritionEntry {
     id: number;
     date: string;
     date_raw: string;
+    fdc_id: number;
     meal_type: string;
     food_item: string;
     calories: number;
@@ -74,9 +77,17 @@ export interface NutritionEntry {
     carbohydrates: number;
     fats: number;
     quantity: number;
-    serving_size: number;
+    serving_size: string;
+    time: string;
     created_at: string;
     updated_at: string;
+}
+
+export interface NutritionGroup {
+    date: string;
+    date_raw: string;
+    total_calories: number;
+    entries: NutritionEntry[];
 }
 
 export interface WeightEntry {

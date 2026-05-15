@@ -55,23 +55,22 @@ withDefaults(
             </nav>
         </div>
         <div class="flex items-center gap-2.5 z-10">
-            <template v-if="$page.props.auth.user">
+            <template v-if="!$page.props.auth.user">
+                <Button variant="outline" size="lg" as-child>
+                    <Link :href="login()">Login</Link>
+                </Button>
+                <Button size="lg" v-if="canRegister" class="bg-green-500 hover:bg-green-400 dark:text-white" as-child>
+                    <Link :href="register()">Register</Link>
+                </Button>
+            </template>
+            <template v-else-if="!$page.props.auth.user.has_weight_goal">
                 <Button size="lg" class="bg-green-500 hover:bg-green-400 dark:text-white" as-child>
-                    <a href="/setup">
-                        Continue Setup
-                    </a>
+                    <a href="/setup">Continue Setup</a>
                 </Button>
             </template>
             <template v-else>
-                <Button variant="outline" size="lg" as-child>
-                    <Link :href="login()">
-                        Login
-                    </Link>
-                </Button>
-                <Button size="lg" v-if="canRegister" class="bg-green-500 hover:bg-green-400 dark:text-white" as-child>
-                    <Link :href="register()">
-                        Register
-                    </Link>
+                <Button size="lg" class="bg-green-500 hover:bg-green-400 dark:text-white" as-child>
+                    <a href="/dashboard">Dashboard</a>
                 </Button>
             </template>
         </div>

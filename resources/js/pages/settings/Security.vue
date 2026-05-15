@@ -54,7 +54,7 @@ onUnmounted(() => {
                     </FieldDescription>
                 </div>
                 <div v-if="!twoFactorEnabled" class="flex flex-col items-start justify-start space-y-4">
-                    <div class="space-y-4 rounded-lg border p-4 bg-linear-to-tl from-primary/5 to-default">
+                    <div class="space-y-4 rounded-md border p-4 bg-linear-to-tl from-primary/5 to-default">
                         <div class="relative space-y-0.5">
                             <div class="flex items-center gap-2">
                                 <p class="font-medium">Two-Factor Authentication</p>
@@ -83,7 +83,7 @@ onUnmounted(() => {
                     </div>
                 </div>
                 <div v-else class="flex flex-col items-start justify-start space-y-4">
-                    <div class="space-y-4 rounded-lg border p-4 bg-linear-to-tl from-primary/5 to-default">
+                    <div class="space-y-4 rounded-md border p-4 bg-linear-to-tl from-primary/5 to-default">
                         <div class="relative space-y-0.5">
                             <div class="flex items-center gap-2">
                                 <p class="font-medium">Two-Factor Authentication</p>

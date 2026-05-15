@@ -20,6 +20,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 const props = defineProps<{
     title: string;
+    abbreviation: string;
     description: string;
     data: any[];
     config: any;
@@ -33,7 +34,7 @@ const chartColor = props.config[props.dataKey]?.color || '#2563eb';
 const chartData = computed<ChartData<'line'>>(() => ({
     labels: props.data.map(d => d.date),
     datasets: [{
-        label: ' ' + props.title,
+        label: ' ' + props.title + ' ' + props.abbreviation,
         data: props.data.map(d => Number(d[props.dataKey])),
         clip: false,
         borderColor: chartColor,

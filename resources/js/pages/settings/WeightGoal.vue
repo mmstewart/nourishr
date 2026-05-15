@@ -45,8 +45,8 @@ defineProps<{
 const form = useForm({
     weekly_goal_id: user.weight_goal.weekly_goal_id,
     activity_level_id: user.weight_goal.activity_level_id,
-    current_weight: user.weight_goal.current_weight,
-    goal_weight: user.weight_goal.goal_weight,
+    current_weight: String(user.weight_goal.current_weight),
+    goal_weight: String(user.weight_goal.goal_weight),
 })
 
 // Touch tracking so we don't show errors before the user interacts
@@ -66,13 +66,18 @@ const activityLevelError = computed(() => {
 })
 
 const validateWeight = (value: string | number | null, isTouched: boolean, label: string) => {
-    if (!isTouched) return '';
+    if (!isTouched) return ''
 
-    if (value === null || value === '') return `${label} weight is required.`
+    if (value === null || value === '') return `${label} is required.`
 
     const num = Number(value)
 
-    if (num < 30 || num > 999) return `${label} weight must be between 30 and 999 lbs.`
+    if (isNaN(num)) return `${label} must be a number.`
+
+    if (num < 30 || num > 999) return `${label} must be between 30 and 999 lbs.`
+
+    const decimalParts = String(value).split('.')
+    if (decimalParts[1] && decimalParts[1].length > 2) return `${label} can only have up to 2 decimal places.`
 
     return ''
 }
@@ -175,8 +180,9 @@ function submit() {
                                 What is your current weight?
                             </FieldLabel>
                             <InputGroup :class="{ 'border-red-500': currentWeightError || form.errors.current_weight }">
-                                <InputGroupInput v-model="form.current_weight" @blur="touchedCurrentWeight = true"
-                                    step="0.1" inputmode="decimal" id="current_weight" name="current_weight"
+                                <InputGroupInput v-model="form.current_weight"
+                                    @blur="() => { touchedCurrentWeight = true; if (form.current_weight) form.current_weight = parseFloat(String(form.current_weight)).toFixed(2) }"
+                                    step="0.01" inputmode="decimal" id="current_weight" name="current_weight"
                                     type="number" />
                                 <InputGroupAddon align="inline-end">
                                     <InputGroupText>lbs</InputGroupText>
@@ -191,8 +197,9 @@ function submit() {
                                 What is your goal weight?
                             </FieldLabel>
                             <InputGroup :class="{ 'border-red-500': goalWeightError || form.errors.goal_weight }">
-                                <InputGroupInput v-model="form.goal_weight" @blur="touchedGoalWeight = true" step="0.1"
-                                    inputmode="decimal" id="goal_weight" name="goal_weight" type="number" />
+                                <InputGroupInput v-model="form.goal_weight"
+                                    @blur="() => { touchedGoalWeight = true; if (form.goal_weight) form.goal_weight = parseFloat(String(form.goal_weight)).toFixed(2) }"
+                                    step="0.01" inputmode="decimal" id="goal_weight" name="goal_weight" type="number" />
                                 <InputGroupAddon align="inline-end">
                                     <InputGroupText>lbs</InputGroupText>
                                 </InputGroupAddon>

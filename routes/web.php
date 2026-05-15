@@ -32,6 +32,14 @@ Route::middleware('auth')->group(function () {
 
         return response()->json(LocationService::getTimezonesForCountry($country));
     });
+
+    Route::get('impersonate/{user}', function ($user) {
+        abort_unless(auth()->user()?->is_admin, 403);
+
+        auth()->loginUsingId($user);
+
+        return redirect()->route('dashboard');
+    })->name('impersonate');
 });
 
 Route::middleware(['auth', 'setup.incomplete', 'verified'])->group(function () {
@@ -74,7 +82,7 @@ Route::middleware(['auth', 'setup.incomplete', 'verified'])->group(function () {
 
     Route::resource('nutrition-entries', NutritionEntryController::class)->except('destroy');
 
-    Route::resource('weight-entries', WeightEntryController::class)->except('show', 'destroy');
+    Route::resource('weight-entries', WeightEntryController::class);
 });
 
 require __DIR__ . '/settings.php';

@@ -177,7 +177,7 @@ const handleContinue = () => {
                                 </FieldLabel>
                                 <InputGroup :class="{ 'border-red-500': form.errors.current_weight }">
                                     <InputGroupInput v-model="form.current_weight"
-                                        @change="form.validate('current_weight')" step="0.1" inputmode="decimal"
+                                        @change="form.validate('current_weight')" step="0.01" inputmode="decimal"
                                         id="current_weight" name="current_weight" type="number" />
                                     <InputGroupAddon align="inline-end">
                                         <InputGroupText>lbs</InputGroupText>
@@ -195,7 +195,7 @@ const handleContinue = () => {
                                 </FieldLabel>
                                 <InputGroup :class="{ 'border-red-500': form.errors.goal_weight }">
                                     <InputGroupInput v-model="form.goal_weight" @change="form.validate('goal_weight')"
-                                        step="0.1" inputmode="decimal" id="goal_weight" name="goal_weight"
+                                        step="0.01" inputmode="decimal" id="goal_weight" name="goal_weight"
                                         type="number" />
                                     <InputGroupAddon align="inline-end">
                                         <InputGroupText>lbs</InputGroupText>
