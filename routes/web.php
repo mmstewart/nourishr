@@ -80,7 +80,7 @@ Route::middleware(['auth', 'setup.incomplete', 'verified'])->group(function () {
     Route::get('feedback', fn() => Inertia::render('Feedback'))->name('feedback');
     Route::post('feedback', FeedbackController::class)->middleware('throttle:6,1')->name('feedback.store');
 
-    Route::resource('nutrition-entries', NutritionEntryController::class)->except('destroy');
+    Route::resource('nutrition-entries', NutritionEntryController::class);
 
     Route::resource('weight-entries', WeightEntryController::class);
 });

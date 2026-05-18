@@ -41,4 +41,8 @@ return [
         'redirect' => env('APP_URL') . '/auth/google/callback',
     ],
 
+    'usda' => [
+        'key' => env('USDA_API_SECRET'),
+    ],
+
 ];

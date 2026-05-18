@@ -133,6 +133,7 @@ const formatMacro = (key: 'protein' | 'carbohydrates' | 'fats') => {
         (total, entry) => total + Number(entry[key] || 0),
         0
     );
+
     return parseFloat(total.toFixed(2));
 };
 

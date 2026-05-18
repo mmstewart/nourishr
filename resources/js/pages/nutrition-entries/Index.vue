@@ -84,7 +84,7 @@ watch(timeRange, (newRange) => {
 
 <template>
 
-    <Head title="Weight Entries" />
+    <Head title="Nutrition Entries" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <template #actions>

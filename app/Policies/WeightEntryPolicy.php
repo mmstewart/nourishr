@@ -9,7 +9,7 @@ class WeightEntryPolicy
 {
     public function viewAny(User $user)
     {
-        //
+        return true;
     }
 
     public function view(User $user, WeightEntry $weightEntry)
@@ -19,7 +19,7 @@ class WeightEntryPolicy
 
     public function create(User $user)
     {
-        //
+        return true;
     }
 
     public function update(User $user, WeightEntry $weightEntry)

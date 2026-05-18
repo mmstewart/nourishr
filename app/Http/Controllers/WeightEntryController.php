@@ -12,6 +12,8 @@ class WeightEntryController extends Controller
 {
     public function index()
     {
+        $this->authorize('viewAny', WeightEntry::class);
+
         $range = request()->query('range', '7');
         $userNow = now()->inUserTimezone()->startOfDay();
 
@@ -89,11 +91,15 @@ class WeightEntryController extends Controller
 
     public function create()
     {
+        $this->authorize('create', WeightEntry::class);
+
         return Inertia::render('weight-entries/Create');
     }
 
     public function store(WeightEntryRequest $request)
     {
+        $this->authorize('create', WeightEntry::class);
+
         $validated = $request->validated();
 
         $request->user()->weightEntries()->create($validated);

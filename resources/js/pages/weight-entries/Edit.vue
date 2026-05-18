@@ -106,12 +106,12 @@ function submit() {
                         <form @submit.prevent="submit">
                             <FieldGroup>
                                 <div class="flex flex-col items-start text-left">
-                                    <span class="sr-only">Weight Goals</span>
+                                    <span class="sr-only">Edit Weight Entry</span>
                                     <h3 class="text-base font-medium mb-0.5">
-                                        Weight Entries
+                                        Edit Weight Entry
                                     </h3>
                                     <FieldDescription>
-                                        Create your weight entry to track your progress towards your weight goal.
+                                        Update your weight entry to track your progress towards your weight goal.
                                     </FieldDescription>
                                 </div>
                                 <Field>
@@ -160,7 +160,7 @@ function submit() {
                                 </Field>
                                 <Field class="flex items-center gap-4">
                                     <Button :disabled="form.processing || hasClientErrors" type="submit"
-                                        class="inline-flex items-start w-auto! self-start">
+                                        class="inline-flex items-start w-auto! self-start bg-green-500 hover:bg-green-400 dark:text-white cursor-pointer">
                                         <Spinner v-if="form.processing" class="mr-2" />
                                         Save
                                     </Button>

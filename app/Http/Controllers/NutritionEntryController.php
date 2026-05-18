@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\NutritionEntryRequest;
+use App\Http\Requests\StoreNutritionEntryRequest;
+use App\Http\Requests\UpdateNutritionEntryRequest;
 use App\Models\NutritionEntry;
 use Inertia\Inertia;
 
@@ -11,6 +12,8 @@ class NutritionEntryController extends Controller
 {
     public function index()
     {
+        $this->authorize('viewAny', NutritionEntry::class);
+
         $range = request()->query('range', '7');
         $userNow = now()->inUserTimezone()->startOfDay();
 
@@ -95,11 +98,15 @@ class NutritionEntryController extends Controller
 
     public function create()
     {
+        $this->authorize('create', NutritionEntry::class);
+
         return Inertia::render('nutrition-entries/Create');
     }
 
-    public function store(NutritionEntryRequest $request)
+    public function store(StoreNutritionEntryRequest $request)
     {
+        $this->authorize('create', NutritionEntry::class);
+
         $validated = $request->validated();
 
         $now = now();
@@ -144,12 +151,15 @@ class NutritionEntryController extends Controller
     {
         $this->authorize('update', $nutritionEntry);
 
+        $servingOptions = $nutritionEntry->getServingOptions();
+
         return Inertia::render('nutrition-entries/Edit', [
             'nutritionEntry' => $nutritionEntry,
+            'servingOptions' => $servingOptions,
         ]);
     }
 
-    public function update(NutritionEntryRequest $request, NutritionEntry $nutritionEntry)
+    public function update(UpdateNutritionEntryRequest $request, NutritionEntry $nutritionEntry)
     {
         $this->authorize('update', $nutritionEntry);
 
@@ -157,7 +167,7 @@ class NutritionEntryController extends Controller
 
         $nutritionEntry->update($validated);
 
-        return to_route('nutrition-entries.index');
+        return to_route('nutrition-entries.show', $nutritionEntry);
     }
 
     public function destroy(NutritionEntry $nutritionEntry)

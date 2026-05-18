@@ -8,15 +8,18 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function urlIsActive(
-  urlToCheck: NonNullable<InertiaLinkProps['href']>,
-  currentUrl: string,
+    urlToCheck: NonNullable<InertiaLinkProps['href']>,
+    currentUrl: string,
 ) {
-  if (toUrl(urlToCheck) === currentUrl) return true;
+    const cleanPath = (url: string) => url.split('?')[0];
+    
+    const normalizedCheck = cleanPath(toUrl(urlToCheck));
+    const normalizedCurrent = cleanPath(currentUrl);
 
-  // Remove query strings from both paths for comparison
-  const cleanPath = (url: string) => url.split('?')[0];
+    if (normalizedCheck === normalizedCurrent) return true;
+    if (normalizedCheck !== '/' && normalizedCurrent.startsWith(normalizedCheck + '/')) return true;
 
-  return cleanPath(toUrl(urlToCheck)) === cleanPath(currentUrl);
+    return false;
 }
 
 export function toUrl(href: NonNullable<InertiaLinkProps['href']>) {

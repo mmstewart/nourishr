@@ -9,7 +9,7 @@ class NutritionEntryPolicy
 {
     public function viewAny(User $user)
     {
-        //
+        return true;
     }
 
     public function view(User $user, NutritionEntry $nutritionEntry)
@@ -19,7 +19,7 @@ class NutritionEntryPolicy
 
     public function create(User $user)
     {
-        //
+        return true;
     }
 
     public function update(User $user, NutritionEntry $nutritionEntry)

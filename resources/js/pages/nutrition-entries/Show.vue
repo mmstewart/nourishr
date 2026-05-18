@@ -40,7 +40,7 @@ function submit() {
 
 <template>
 
-    <Head title="Nutrition Entries" />
+    <Head title="Nutrition Entry" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <template #actions>
