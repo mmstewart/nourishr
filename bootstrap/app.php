@@ -34,18 +34,18 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        if (app()->isProduction()) {
-            $exceptions->reportable(function (Throwable $e) {
-                ErrorLog::create([
-                    'user_id' => auth()->id(),
-                    'url' => request()->fullUrl(),
-                    'method' => request()->method(),
-                    'exception' => get_class($e),
-                    'message' => $e->getMessage(),
-                    'input' => request()->except(['password', 'password_confirmation']),
-                    'stack_trace' => collect($e->getTrace())->take(10),
-                    'ip' => request()->ip(),
-                ]);
-            });
-        }
+        // if (app()->isProduction()) {
+        //     $exceptions->reportable(function (Throwable $e) {
+        //         ErrorLog::create([
+        //             'user_id' => auth()->id(),
+        //             'url' => request()->fullUrl(),
+        //             'method' => request()->method(),
+        //             'exception' => get_class($e),
+        //             'message' => $e->getMessage(),
+        //             'input' => request()->except(['password', 'password_confirmation']),
+        //             'stack_trace' => collect($e->getTrace())->take(10),
+        //             'ip' => request()->ip(),
+        //         ]);
+        //     });
+        // }
     })->create();
