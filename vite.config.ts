@@ -4,8 +4,8 @@ import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
 
-export default defineConfig({
-    plugins: [
+export default defineConfig(({ command, mode }) => {
+    const plugins = [
         laravel({
             input: ['resources/js/app.ts'],
             ssr: 'resources/js/ssr.ts',
@@ -14,7 +14,6 @@ export default defineConfig({
         tailwindcss(),
         wayfinder({
             formVariants: true,
-            generateOnBuild: command === 'serve',
         }),
         vue({
             template: {
@@ -24,5 +23,17 @@ export default defineConfig({
                 },
             },
         }),
-    ],
+    ];
+
+    if (command === 'serve') {
+        plugins.push(
+            wayfinder({
+                // Add any specific wayfinder arguments here if required
+            })
+        );
+    }
+
+    return {
+        plugins: plugins,
+    };
 });
