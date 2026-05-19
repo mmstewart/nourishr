@@ -2,6 +2,7 @@ import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
+import { wayfinder } from '@laravel/vite-plugin-wayfinder';
 
 export default defineConfig(({ command }) => {
     const plugins = [
@@ -19,17 +20,8 @@ export default defineConfig(({ command }) => {
                 },
             },
         }),
+        ...(command === 'serve' ? [wayfinder({ formVariants: true })] : []),
     ];
-
-    if (command === 'serve') {
-        const { wayfinder } = await import('@laravel/vite-plugin-wayfinder');
-
-        plugins.push(
-            wayfinder({
-                formVariants: true,
-            }),
-        );
-    }
 
     return {
         plugins: plugins,
