@@ -26,7 +26,7 @@ import { Calendar } from '@/components/ui/calendar'
 import { CalendarIcon } from 'lucide-vue-next'
 import { today, getLocalTimeZone, type DateValue } from '@internationalized/date'
 import { Spinner } from '@/components/ui/spinner'
-import { BrowserMultiFormatReader } from '@zxing/library'
+import { BrowserMultiFormatReader, DecodeHintType, BarcodeFormat } from '@zxing/library'
 import { useDebounceFn } from '@vueuse/core'
 
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -123,15 +123,44 @@ async function startScanner() {
     scanError.value = ''
     scanSuccess.value = ''
 
+    if (!codeReader) {
+        const hints = new Map()
+
+        hints.set(DecodeHintType.TRY_HARDER, true)
+
+        hints.set(DecodeHintType.POSSIBLE_FORMATS, [
+            BarcodeFormat.UPC_A,
+            BarcodeFormat.UPC_E,
+            BarcodeFormat.EAN_13,
+            BarcodeFormat.EAN_8,
+        ])
+
+        codeReader = new BrowserMultiFormatReader(hints)
+    }
+
     codeReader = new BrowserMultiFormatReader()
 
     try {
-        await codeReader.decodeFromVideoDevice(null, videoEl.value!, async (result) => {
+        if (!videoEl.value) {
+            scanError.value = 'Camera display not found.'
+            return
+        }
+
+        const constraints: MediaStreamConstraints = {
+            video: {
+                facingMode: { ideal: 'environment' },
+                width: { min: 640, ideal: 1280 },
+                height: { min: 480, ideal: 720 },
+            }
+        }
+
+        await codeReader.decodeFromConstraints(constraints, videoEl.value, async (result, error) => {
             if (result) {
                 codeReader?.reset()
-
-                await lookupBarcode(result.getText())
+                await lookupNutritionLabel(result.getText())
             }
+
+            if (error) { }
         })
     } catch (e) {
         scanError.value = 'Could not access camera. Please check permissions.'
@@ -143,14 +172,14 @@ function stopScanner() {
     codeReader = null
 }
 
-async function lookupBarcode(barcode: string) {
+async function lookupNutritionLabel(label: string) {
     isSearching.value = true
+    scanError.value = ''
 
     try {
         const response = await axios.get(`/api/foodfacts`, {
-            params: { food_item: barcode, type: 'barcode' }
+            params: { food_item: label, type: 'scan' }
         })
-
 
         if (response.data && Object.keys(response.data).length) {
             const product = response.data
@@ -169,12 +198,17 @@ async function lookupBarcode(barcode: string) {
             })
 
             scanSuccess.value = `Added: ${product.product_name}`
-            mode.value = 'text'
+
+            mode.value = 'scan'
         } else {
-            scanError.value = 'Product not found for this barcode.'
+            scanError.value = 'Product not found for this nutrition label.'
+
+            setTimeout(() => { if (mode.value === 'scan') startScanner() }, 2000)
         }
     } catch (e) {
         scanError.value = 'Failed to look up product.'
+
+        setTimeout(() => { if (mode.value === 'scan') startScanner() }, 2000)
     } finally {
         isSearching.value = false
     }
@@ -183,11 +217,21 @@ async function lookupBarcode(barcode: string) {
 watch(mode, (newMode) => {
     if (newMode === 'scan') {
         // Wait for video element to mount
-        setTimeout(() => startScanner(), 100)
+        setTimeout(() => startScanner(), 50)
     } else {
         stopScanner()
     }
 })
+
+// watch(mode, async (newMode) => {
+//     if (newMode === 'scan') {
+//         // Wait until Vue updates the DOM and mounts the <video> element
+//         await nextTick()
+//         startScanner()
+//     } else {
+//         stopScanner()
+//     }
+// })
 
 onUnmounted(() => stopScanner())
 

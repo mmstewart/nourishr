@@ -234,7 +234,7 @@ watch(timeRange, (newRange) => {
                                                             <div class="flex items-start gap-x-6 shrink-0">
                                                                 <div
                                                                     class="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-                                                                    <p class="text-sm/6 text-white capitalize">
+                                                                    <p class="text-sm/6 capitalize">
                                                                         {{ entry.meal_type }}
                                                                     </p>
                                                                     <p class="mt-1 text-xs/5 text-gray-400">

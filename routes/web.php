@@ -53,14 +53,20 @@ Route::middleware(['auth', 'setup.incomplete', 'verified'])->group(function () {
         }
 
         try {
-            if ($type === 'barcode') {
-                // $response = Http::withHeaders([
-                //     'User-Agent' => 'Nourishr/1.0 (mmsstewart20@gmail.com)',
-                // ])->get("https://world.openfoodfacts.org/api/v2/product/{$food_item}", [
-                //     'fields' => 'product_name,nutriments,brands,image_url',
-                // ]);
+            if ($type === 'scan') {
+                $response = Http::withHeaders([
+                    'User-Agent' => 'Nourishr/1.0 (mmsstewart20@gmail.com)',
+                ])->get("https://world.openfoodfacts.org/api/v2/product/{$food_item}", [
+                    'fields' => 'product_name,nutriments',
+                ]);
 
-                // return response()->json($response->json()['product'] ?? []);
+                $data = $response->json();
+
+                if (($data['status'] ?? 0) === 1) {
+                    return response()->json($data['product']);
+                }
+
+                return response()->json([], 404);
             }
 
             $response = Http::get('https://api.nal.usda.gov/fdc/v1/foods/search', [
