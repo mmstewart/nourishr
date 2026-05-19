@@ -1,0 +1,6 @@
+[security]
+ignore_paths = [
+    ".env.example",
+    "node_modules/**",
+    ".netlify/**"
+]
