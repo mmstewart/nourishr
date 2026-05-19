@@ -1,3 +1,7 @@
+[build]
+command = "npm run build"
+publish = "public/build"
+
 [security]
 ignore_paths = [
     ".env.example",
