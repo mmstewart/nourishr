@@ -27,7 +27,7 @@ export default defineConfig(({ command }) => {
         plugins: plugins,
         resolve: {
             alias: {
-                '@': path.resolve(__dirname, './resources/js'),
+                '@': '/resources/js',
             },
         },
     };
