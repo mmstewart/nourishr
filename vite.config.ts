@@ -1,10 +1,9 @@
-import { wayfinder } from '@laravel/vite-plugin-wayfinder';
 import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
 
-export default defineConfig(({ command, mode }) => {
+export default defineConfig(({ command }) => {
     const plugins = [
         laravel({
             input: ['resources/js/app.ts'],
@@ -12,9 +11,6 @@ export default defineConfig(({ command, mode }) => {
             refresh: true,
         }),
         tailwindcss(),
-        wayfinder({
-            formVariants: true,
-        }),
         vue({
             template: {
                 transformAssetUrls: {
@@ -26,10 +22,12 @@ export default defineConfig(({ command, mode }) => {
     ];
 
     if (command === 'serve') {
+        const { wayfinder } = await import('@laravel/vite-plugin-wayfinder');
+
         plugins.push(
             wayfinder({
-                // Add any specific wayfinder arguments here if required
-            })
+                formVariants: true,
+            }),
         );
     }
 
