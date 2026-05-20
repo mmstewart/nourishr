@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Contracts\LogoutResponse;
 
@@ -25,5 +26,9 @@ class AppServiceProvider extends ServiceProvider
         CarbonImmutable::macro('inUserTimezone', function () {
             return $this->tz(auth()->user()?->timezone ?? config('app.timezone_display'));
         });
+
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
     }
 }
