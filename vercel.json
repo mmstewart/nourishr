@@ -5,6 +5,9 @@
         { "src": "/public/**", "use": "@vercel/static" }
     ],
     "routes": [
+        {   "src": "/(.*)\\.(jpg|jpeg|png|gif|ico|svg|css|js)$", 
+            "dest": "/public/$1.$2" 
+        },
         {
             "src": "/build/(.*)",
             "dest": "/public/build/$1"
