@@ -5,17 +5,11 @@
         { "src": "/public/**", "use": "@vercel/static" }
     ],
     "routes": [
-        {   "src": "/(.*)\\.(jpg|jpeg|png|gif|ico|svg|css|js)$", 
-            "dest": "/public/$1.$2" 
-        },
-        {
-            "src": "/build/(.*)",
-            "dest": "/public/build/$1"
-        },
-        {
-            "src": "/(.*)",
-            "dest": "/api/index.php"
-        }
+        { "src": "/favicon.png", "dest": "/public/favicon.png" },
+        { "src": "/favicon.svg", "dest": "/public/favicon.svg" },
+        { "src": "/(.*)\\.(jpg|jpeg|png|gif|svg)$", "dest": "/public/$1.$2" },
+        { "src": "/build/(.*)", "dest": "/public/build/$1" },
+        { "src": "/(.*)", "dest": "/api/index.php" }
     ],
     "env": {
         "APP_NAME": "Nourishr",

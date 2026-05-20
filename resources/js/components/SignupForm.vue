@@ -54,11 +54,11 @@ const props = defineProps<{
         </FieldGroup>
         <!-- todo -->
         <FieldDescription class="flex justify-center text-center space-x-4">
-            <a href="#">
+            <a href="/terms-of-use">
                 Terms of Use
             </a>
             <Separator orientation="vertical" class="h-auto!" />
-            <a href="#">
+            <a href="/privacy-policy">
                 Privacy Policy
             </a>
         </FieldDescription>
