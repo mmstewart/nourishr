@@ -1,7 +1,7 @@
 <h1 align=center>🖥️</h1>
 <h1 align=center>Nourishr</h1>
 
-<!-- <p align=center> See <a href="https://www.marcusstewart.me/">https://www.marcusstewart.me/</a>. Made with Laravel. ❤️ </p> -->
+<p align=center> See <a href="https://nourishr-app.vercel.app">https://nourishr-app.vercel.app</a>. Made with Laravel and Vue. ❤️</p>
 
 <!-- <p align="center">
   <a href="https://www.marcusstewart.me/">
@@ -24,13 +24,14 @@
 - [Lucide](https://lucide.dev)
 - [Iconify](https://iconify.design)
 - [vue-chartjs](vue-chartjs.org)
+- [Termly](https://app.termly.io)
 
 ## 💜 Acknowledgments
 
 - [Laravel](https://laravel.com)
 - [Vue](https://vuejs.org)
 - [Inertia.js](https://inertiajs.com)
-    <!-- -   [Netlify](https://www.netlify.com) -->
+- [Vercel](https://vercel.com)
 
 ## 📝 License
 
