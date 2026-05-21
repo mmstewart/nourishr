@@ -4,7 +4,7 @@ import AuthContact from './contact/auth/AuthContact.vue';
 
 defineProps<{
     isLoggedIn: boolean;
-}>()
+}>();
 </script>
 
 <template>

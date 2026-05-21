@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { motion } from "motion-v";
-import { login, register } from '@/routes';
-import AppLogo from './../AppLogo.vue';
 import { Button } from '@/components/ui/button';
+import { login, register } from '@/routes';
 import { Link } from '@inertiajs/vue3';
+import { motion } from 'motion-v';
+import AppLogo from './../AppLogo.vue';
 
 interface NavItem {
     label: string;
@@ -39,22 +39,26 @@ withDefaults(
 
 <template>
     <motion.header
-        class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 h-16 backdrop-blur-md border-b"
-        :initial="{ opacity: 0, y: -10 }" :animate="{ opacity: 1, y: 0 }"
+        class="fixed top-0 right-0 left-0 z-50 flex h-16 items-center justify-between border-b px-6 backdrop-blur-md md:px-12"
+        :initial="{ opacity: 0, y: -10 }"
+        :animate="{ opacity: 1, y: 0 }"
         :transition="{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }">
-        <a @click="scrollTo('#hero')" class="flex items-center gap-1 group cursor-pointer focus:outline-none z-10">
+        <a @click="scrollTo('#hero')" class="group z-10 flex cursor-pointer items-center gap-1 focus:outline-none">
             <AppLogo />
         </a>
-        <div class="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center">
+        <div class="absolute left-1/2 hidden -translate-x-1/2 items-center md:flex">
             <nav class="flex items-center gap-8" aria-label="Main navigation">
-                <a v-for="item in navItems" :key="item.label" :href="item.href" @click.prevent="scrollTo(item.href)"
-                    class="text-[11px] font-space cursor-pointer uppercase tracking-[0.25em] text-muted-foreground
-                hover:text-neutral-900 transition-colors duration-200 focus:outline-none">
+                <a
+                    v-for="item in navItems"
+                    :key="item.label"
+                    :href="item.href"
+                    @click.prevent="scrollTo(item.href)"
+                    class="font-space cursor-pointer text-[11px] tracking-[0.25em] text-muted-foreground uppercase transition-colors duration-200 hover:text-neutral-900 focus:outline-none">
                     {{ item.label }}
                 </a>
             </nav>
         </div>
-        <div class="flex items-center gap-2.5 z-10">
+        <div class="z-10 flex items-center gap-2.5">
             <template v-if="!$page.props.auth.user">
                 <Button variant="outline" size="lg" as-child>
                     <Link :href="login()">Login</Link>

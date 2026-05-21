@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
 import { logout } from '@/routes';
 import { send } from '@/routes/verification';
+import { Form, Head } from '@inertiajs/vue3';
 
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
@@ -14,23 +14,21 @@ defineProps<{
 </script>
 
 <template>
-    <AuthLayout title="Verify email"
+    <AuthLayout
+        title="Verify email"
         description="Please verify your email address by clicking on the link we just emailed to you.">
-
         <Head title="Email verification" />
         <div v-if="status === 'verification-link-sent'" class="mb-4 text-center text-sm font-medium text-green-600">
-            A new verification link has been sent to the email address you
-            provided during registration.
+            A new verification link has been sent to the email address you provided during registration.
         </div>
         <Form v-bind="send.form()" class="space-y-3 text-center" v-slot="{ processing }">
-            <Button :disabled="processing"
-                class="bg-green-500 hover:bg-green-400 dark:text-white w-full cursor-pointer">
+            <Button
+                :disabled="processing"
+                class="w-full cursor-pointer bg-green-500 hover:bg-green-400 dark:text-white">
                 <Spinner v-if="processing" />
                 Resend verification email
             </Button>
-            <TextLink :href="logout()" as="button" class="mx-auto block text-sm cursor-pointer">
-                Log out
-            </TextLink>
+            <TextLink :href="logout()" as="button" class="mx-auto block cursor-pointer text-sm">Log out</TextLink>
         </Form>
     </AuthLayout>
 </template>

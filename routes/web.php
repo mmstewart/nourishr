@@ -6,11 +6,10 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\NutritionEntryController;
 use App\Http\Controllers\WeightEntryController;
 use App\Services\LocationService;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
-use OpenFoodFacts\Laravel\Facades\OpenFoodFacts;
-use Illuminate\Support\Facades\Http;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -25,6 +24,10 @@ Route::get('contact', function () {
     ]);
 })->name('contact');
 Route::post('contact', ContactController::class)->middleware('throttle:6,1')->name('contact.store');
+
+Route::get('privacy-policy', fn() => Inertia::render('PrivacyPolicy'))->name('privacy-policy');
+
+Route::get('terms-of-use',   fn() => Inertia::render('TermsOfUse'))->name('terms-of-use');
 
 Route::middleware('auth')->group(function () {
     Route::get('api/countries/{country}/timezones', function ($country) {

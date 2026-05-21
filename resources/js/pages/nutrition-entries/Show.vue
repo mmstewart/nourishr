@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type NutritionEntry } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
+import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogClose,
@@ -14,7 +15,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Pencil, Trash } from 'lucide-vue-next';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -25,21 +25,20 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const props = defineProps<{
-    nutritionEntry: NutritionEntry,
-}>()
+    nutritionEntry: NutritionEntry;
+}>();
 
-const open = ref(false)
-const form = useForm({})
+const open = ref(false);
+const form = useForm({});
 
 function submit() {
     form.delete(`/nutrition-entries/${props.nutritionEntry.id}`, {
-        onSuccess: () => open.value = false,
+        onSuccess: () => (open.value = false),
     });
 }
 </script>
 
 <template>
-
     <Head title="Nutrition Entry" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
@@ -63,17 +62,18 @@ function submit() {
                             <DialogHeader>
                                 <DialogTitle>Delete Nutrition Entry</DialogTitle>
                                 <DialogDescription>
-                                    Are you sure you want to delete {{ props.nutritionEntry.food_item }}?
-                                    This action cannot be undone.
+                                    Are you sure you want to delete {{ props.nutritionEntry.food_item }}? This action
+                                    cannot be undone.
                                 </DialogDescription>
                             </DialogHeader>
                             <DialogFooter class="gap-2">
                                 <DialogClose as-child>
-                                    <Button variant="secondary" class="cursor-pointer">
-                                        Cancel
-                                    </Button>
+                                    <Button variant="secondary" class="cursor-pointer">Cancel</Button>
                                 </DialogClose>
-                                <Button :disabled="form.processing" variant="destructive" type="submit"
+                                <Button
+                                    :disabled="form.processing"
+                                    variant="destructive"
+                                    type="submit"
                                     class="cursor-pointer">
                                     <span v-if="form.processing">Deleting...</span>
                                     <span v-else>Delete entry</span>

@@ -19,7 +19,7 @@ class ContactController extends Controller
 
         $contact = Contact::create($validated);
 
-        Mail::to(env('NOURISHR_EMAIL'))->send(new ContactReceived($contact));
+        Mail::to(env('VITE_NOURISHR_EMAIL'))->send(new ContactReceived($contact));
 
         return to_route('home')->with('success', 'Message received. Thanks for reaching out! We’ve got your details and someone from our team will get back to you within 24 hours.');
     }

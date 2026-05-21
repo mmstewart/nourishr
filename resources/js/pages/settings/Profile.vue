@@ -1,19 +1,18 @@
 <script setup lang="ts">
 import { edit } from '@/routes/profile';
 import { send } from '@/routes/verification';
-import { Head, usePage, useForm } from '@inertiajs/vue3';
-import { ref, computed, watch } from 'vue'
+import { Head, useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
+import { computed, ref, watch } from 'vue';
 
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import {
-    Field,
-    FieldDescription,
-    FieldGroup,
-    FieldLabel,
-    FieldLegend,
-} from '@/components/ui/field'
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
     Select,
     SelectContent,
@@ -22,31 +21,15 @@ import {
     SelectLabel,
     SelectTrigger,
     SelectValue,
-} from '@/components/ui/select'
-import { Input } from '@/components/ui/input'
-import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group'
+} from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover'
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList
-} from '@/components/ui/command'
-import { Calendar } from '@/components/ui/calendar'
-import { Badge } from '@/components/ui/badge'
-import { ChevronsUpDown, Check, CalendarIcon } from 'lucide-vue-next';
+import { cn } from '@/lib/utils';
+import { CalendarIcon, Check, ChevronsUpDown } from 'lucide-vue-next';
 
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { today, getLocalTimeZone, parseDate } from '@internationalized/date'
+import { getLocalTimeZone, parseDate, today } from '@internationalized/date';
 
 const props = defineProps<{
     mustVerifyEmail: boolean;
@@ -76,105 +59,118 @@ const form = useForm({
     email: user.email,
     country_code: user.country_code,
     timezone: user.timezone,
-})
+});
 
 // Touch tracking so we don't show errors before the user interacts
-const touchedName = ref(false)
-const touchedDob = ref(false)
-const touchedGender = ref(false)
-const touchedFeet = ref(false)
-const touchedInches = ref(false)
-const touchedEmail = ref(false)
-const touchedCountryCode = ref(false)
-const touchedTimezone = ref(false)
+const touchedName = ref(false);
+const touchedDob = ref(false);
+const touchedGender = ref(false);
+const touchedFeet = ref(false);
+const touchedInches = ref(false);
+const touchedEmail = ref(false);
+const touchedCountryCode = ref(false);
+const touchedTimezone = ref(false);
 
-const timezoneOpen = ref(false)
-const countryOpen = ref(false)
+const timezoneOpen = ref(false);
+const countryOpen = ref(false);
 const timezones = ref([]);
 const loadingTimezones = ref(false);
 
-const defaultPlaceholder = today(getLocalTimeZone())
+const defaultPlaceholder = today(getLocalTimeZone());
 
 function validateEmail(value: string): boolean {
     // https://medium.com/@python-javascript-php-html-css/the-best-regular-expression-for-email-address-verification-42bf83ba2885
-    return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)
+    return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value);
 }
 
 const nameError = computed(() => {
-    if (!form.name && touchedName.value) return 'Name is required.'
-    return ''
-})
+    if (!form.name && touchedName.value) return 'Name is required.';
+    return '';
+});
 
 const dobError = computed(() => {
-    if (!form.dob && touchedDob.value) return 'Please select a date.'
-    return ''
-})
+    if (!form.dob && touchedDob.value) return 'Please select a date.';
+    return '';
+});
 
 const genderError = computed(() => {
-    if (!form.gender && touchedGender.value) return 'Gender is required.'
-    return ''
-})
+    if (!form.gender && touchedGender.value) return 'Gender is required.';
+    return '';
+});
 
 const inchesError = computed(() => {
-    if (!form.inches && touchedInches.value) return 'Inches is required.'
+    if (!form.inches && touchedInches.value) return 'Inches is required.';
     if (form.inches) {
-        const inchesNum = Number(form.inches)
-        if (isNaN(inchesNum) || inchesNum < 0 || inchesNum >= 12) return 'Inches must be a number between 0 and 11.'
+        const inchesNum = Number(form.inches);
+        if (isNaN(inchesNum) || inchesNum < 0 || inchesNum >= 12) return 'Inches must be a number between 0 and 11.';
     }
-    return ''
-})
+    return '';
+});
 
 const feetError = computed(() => {
-    if (!form.feet && touchedFeet.value) return 'Feet is required.'
+    if (!form.feet && touchedFeet.value) return 'Feet is required.';
     if (form.feet) {
-        const feetNum = Number(form.feet)
-        if (isNaN(feetNum) || feetNum < 1 || feetNum > 8) return 'Feet must be a number between 1 and 8.'
+        const feetNum = Number(form.feet);
+        if (isNaN(feetNum) || feetNum < 1 || feetNum > 8) return 'Feet must be a number between 1 and 8.';
     }
-    return ''
-})
+    return '';
+});
 
 const emailError = computed(() => {
-    if (!form.email && touchedEmail.value) return 'Email is required.'
-    if (form.email && !validateEmail(form.email) && touchedEmail.value) return 'Email is not valid.'
-    return ''
-})
+    if (!form.email && touchedEmail.value) return 'Email is required.';
+    if (form.email && !validateEmail(form.email) && touchedEmail.value) return 'Email is not valid.';
+    return '';
+});
 
 const countryCodeError = computed(() => {
-    if (!form.country_code && touchedCountryCode.value) return 'Country is required.'
-    return ''
-})
+    if (!form.country_code && touchedCountryCode.value) return 'Country is required.';
+    return '';
+});
 
 const timezoneError = computed(() => {
-    if (!form.timezone && touchedTimezone.value) return 'Timezone is required.'
-    return ''
-})
+    if (!form.timezone && touchedTimezone.value) return 'Timezone is required.';
+    return '';
+});
 
 const hasClientErrors = computed(() => {
-    return !!(nameError.value || dobError.value || genderError.value || inchesError.value || feetError.value || emailError.value || countryCodeError.value || timezoneError.value)
-})
+    return !!(
+        nameError.value ||
+        dobError.value ||
+        genderError.value ||
+        inchesError.value ||
+        feetError.value ||
+        emailError.value ||
+        countryCodeError.value ||
+        timezoneError.value
+    );
+});
 
-watch(() => form.country_code, async (countryCode, oldCountryCode) => {
-    if (oldCountryCode !== undefined) {
-        form.timezone = '';
-    }
+watch(
+    () => form.country_code,
+    async (countryCode, oldCountryCode) => {
+        if (oldCountryCode !== undefined) {
+            form.timezone = '';
+        }
 
-    if (!countryCode) {
-        timezones.value = [];
-        return;
-    }
+        if (!countryCode) {
+            timezones.value = [];
+            return;
+        }
 
-    loadingTimezones.value = true;
+        loadingTimezones.value = true;
 
-    try {
-        const response = await axios.get(`/api/countries/${countryCode}/timezones`);
+        try {
+            const response = await axios.get(`/api/countries/${countryCode}/timezones`);
 
-        timezones.value = response.data;
-    } catch (error) {
-        console.error("Failed to load timezones", error);
-    } finally {
-        loadingTimezones.value = false;
-    }
-}, { immediate: true });
+            timezones.value = response.data;
+        } catch (error) {
+            console.error('Failed to load timezones', error);
+        } finally {
+            loadingTimezones.value = false;
+        }
+    },
+    { immediate: true },
+);
 
 const age = computed(() => {
     if (!form.dob) return null;
@@ -193,37 +189,35 @@ const age = computed(() => {
 });
 
 const selectedCountryLabel = computed(() => {
-    return props.countries[form.country_code] || 'Select a country'
-})
+    return props.countries[form.country_code] || 'Select a country';
+});
 
 const selectedTimezoneLabel = computed(() => {
-    return form.timezone ? form.timezone : 'Select a timezone'
-})
+    return form.timezone ? form.timezone : 'Select a timezone';
+});
 
 function submit() {
-    touchedName.value = true
-    touchedDob.value = true
-    touchedGender.value = true
-    touchedInches.value = true
-    touchedFeet.value = true
-    touchedEmail.value = true
-    touchedCountryCode.value = true
-    touchedTimezone.value = true
+    touchedName.value = true;
+    touchedDob.value = true;
+    touchedGender.value = true;
+    touchedInches.value = true;
+    touchedFeet.value = true;
+    touchedEmail.value = true;
+    touchedCountryCode.value = true;
+    touchedTimezone.value = true;
 
-    if (hasClientErrors.value) return
+    if (hasClientErrors.value) return;
 
-    form.transform(data => ({
+    form.transform((data) => ({
         ...data,
         dob: data.dob ? data.dob.toString() : null,
         height_inches: Number(data.feet) * 12 + Number(data.inches),
-    }))
-        .put('/settings/profile');
+    })).put('/settings/profile');
 }
 </script>
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbItems">
-
         <Head title="Profile settings" />
 
         <SettingsLayout>
@@ -232,56 +226,63 @@ function submit() {
                     <FieldGroup>
                         <div class="flex flex-col items-start text-left">
                             <span class="sr-only">Profile information</span>
-                            <h3 class="text-base font-medium mb-0.5">
-                                Profile information
-                            </h3>
+                            <h3 class="mb-0.5 text-base font-medium">Profile information</h3>
                             <FieldDescription>
                                 Manage your personal details, physical metrics, and regional settings
                             </FieldDescription>
                         </div>
                         <Field>
-                            <FieldLabel for="name">
-                                Name
-                            </FieldLabel>
-                            <Input v-model="form.name" @blur="touchedName = true" id="name" name="name" type=""
+                            <FieldLabel for="name">Name</FieldLabel>
+                            <Input
+                                v-model="form.name"
+                                @blur="touchedName = true"
+                                id="name"
+                                name="name"
+                                type=""
                                 :class="{ 'border-red-500': nameError || form.errors.name }" />
-                            <div v-if="nameError || form.errors.name" class="text-red-500 text-sm">
+                            <div v-if="nameError || form.errors.name" class="text-sm text-red-500">
                                 {{ nameError || form.errors.name }}
                             </div>
                         </Field>
                         <Field>
-                            <FieldLabel for="email">
-                                Email
-                            </FieldLabel>
-                            <Input v-model="form.email" @blur="touchedEmail = true" id="email" name="email" type="email"
+                            <FieldLabel for="email">Email</FieldLabel>
+                            <Input
+                                v-model="form.email"
+                                @blur="touchedEmail = true"
+                                id="email"
+                                name="email"
+                                type="email"
                                 :class="{ 'border-red-500': emailError || form.errors.email }" />
-                            <div v-if="emailError || form.errors.email" class="text-red-500 text-sm">
+                            <div v-if="emailError || form.errors.email" class="text-sm text-red-500">
                                 {{ emailError || form.errors.email }}
                             </div>
                         </Field>
                         <FieldDescription v-if="mustVerifyEmail && !user.email_verified_at">
                             <p class="-mt-4 text-sm text-muted-foreground">
                                 Your email address is unverified.
-                                <Button :href="send().url" method="post" variant="link" class="p-0! cursor-pointer">
+                                <Button :href="send().url" method="post" variant="link" class="cursor-pointer p-0!">
                                     Click here to resend the verification email.
                                 </Button>
                             </p>
-                            <div v-if="status === 'verification-link-sent'"
+                            <div
+                                v-if="status === 'verification-link-sent'"
                                 class="mt-2 text-sm font-medium text-green-600">
-                                A new verification link has been sent to your email
-                                address.
+                                A new verification link has been sent to your email address.
                             </div>
                         </FieldDescription>
                         <Field class="grid grid-cols-2 gap-4">
                             <Field>
-                                <FieldLabel for="gender">
-                                    Gender
-                                </FieldLabel>
+                                <FieldLabel for="gender">Gender</FieldLabel>
                                 <Select v-model="form.gender" @blur="touchedGender = true">
-                                    <SelectTrigger id="gender" name="gender" :class="cn(
-                                        'w-full dark:bg-input/30',
-                                        (genderError || form.errors.gender) && 'border-red-500 ring-red-500'
-                                    )">
+                                    <SelectTrigger
+                                        id="gender"
+                                        name="gender"
+                                        :class="
+                                            cn(
+                                                'w-full dark:bg-input/30',
+                                                (genderError || form.errors.gender) && 'border-red-500 ring-red-500',
+                                            )
+                                        ">
                                         <SelectValue placeholder="Select your gender" />
                                     </SelectTrigger>
                                     <SelectContent class="w-70.25">
@@ -292,37 +293,49 @@ function submit() {
                                         </SelectGroup>
                                     </SelectContent>
                                 </Select>
-                                <div v-if="genderError || form.errors.gender" class="text-red-500 text-sm">
+                                <div v-if="genderError || form.errors.gender" class="text-sm text-red-500">
                                     {{ genderError || form.errors.gender }}
                                 </div>
                             </Field>
                             <Field class="flex flex-col">
-                                <div class="flex justify-between items-center">
+                                <div class="flex items-center justify-between">
                                     <FieldLabel for="dob">Date of birth</FieldLabel>
-                                    <Badge v-if="age !== null" variant="secondary">
-                                        {{ age }} years old
-                                    </Badge>
+                                    <Badge v-if="age !== null" variant="secondary">{{ age }} years old</Badge>
                                 </div>
                                 <Popover v-slot="{ close }">
                                     <PopoverTrigger as-child>
-                                        <Button id="dob" name="dob" variant="outline" :class="cn(
-                                            'w-70 justify-start text-left font-normal',
-                                            !form.dob && 'text-muted-foreground',
-                                            { 'border-red-500!': form.errors.dob }
-                                        )">
+                                        <Button
+                                            id="dob"
+                                            name="dob"
+                                            variant="outline"
+                                            :class="
+                                                cn(
+                                                    'w-70 justify-start text-left font-normal',
+                                                    !form.dob && 'text-muted-foreground',
+                                                    { 'border-red-500!': form.errors.dob },
+                                                )
+                                            ">
                                             <CalendarIcon class="mr-2 h-4 w-4" />
-                                            {{ form.dob ? form.dob.toDate(getLocalTimeZone()).toLocaleDateString()
-                                                : "Pick a date" }}
+                                            {{
+                                                form.dob
+                                                    ? form.dob.toDate(getLocalTimeZone()).toLocaleDateString()
+                                                    : 'Pick a date'
+                                            }}
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent class="w-70.25 p-0" align="start">
-                                        <Calendar v-model="form.dob" :default-placeholder="defaultPlaceholder"
-                                            layout="month-and-year" calendar-label="Date of birth"
-                                            :max-value="defaultPlaceholder" @update:model-value="close"
-                                            disable-days-outside-current-view initial-focus />
+                                        <Calendar
+                                            v-model="form.dob"
+                                            :default-placeholder="defaultPlaceholder"
+                                            layout="month-and-year"
+                                            calendar-label="Date of birth"
+                                            :max-value="defaultPlaceholder"
+                                            @update:model-value="close"
+                                            disable-days-outside-current-view
+                                            initial-focus />
                                     </PopoverContent>
                                 </Popover>
-                                <div v-if="dobError || form.errors.dob" class="text-red-500 text-sm">
+                                <div v-if="dobError || form.errors.dob" class="text-sm text-red-500">
                                     {{ dobError || form.errors.dob }}
                                 </div>
                             </Field>
@@ -331,32 +344,36 @@ function submit() {
                             <FieldLegend>Height</FieldLegend>
                             <Field class="grid grid-cols-2 gap-4">
                                 <Field class="flex flex-col">
-                                    <FieldLabel for="feet">
-                                        Feet
-                                    </FieldLabel>
+                                    <FieldLabel for="feet">Feet</FieldLabel>
                                     <InputGroup :class="{ 'border-red-500': feetError || form.errors.feet }">
-                                        <InputGroupInput v-model="form.feet" @blur="touchedFeet = true" id="feet"
-                                            name="feet" type="number" />
+                                        <InputGroupInput
+                                            v-model="form.feet"
+                                            @blur="touchedFeet = true"
+                                            id="feet"
+                                            name="feet"
+                                            type="number" />
                                         <InputGroupAddon align="inline-end">
                                             <InputGroupText>ft</InputGroupText>
                                         </InputGroupAddon>
                                     </InputGroup>
-                                    <div v-if="feetError || form.errors.feet" class="text-red-500 text-sm">
+                                    <div v-if="feetError || form.errors.feet" class="text-sm text-red-500">
                                         {{ feetError || form.errors.feet }}
                                     </div>
                                 </Field>
                                 <Field class="flex flex-col">
-                                    <FieldLabel for="inches">
-                                        Inches
-                                    </FieldLabel>
+                                    <FieldLabel for="inches">Inches</FieldLabel>
                                     <InputGroup :class="{ 'border-red-500': inchesError || form.errors.inches }">
-                                        <InputGroupInput v-model="form.inches" @blur="touchedInches = true" id="inches"
-                                            name="inches" type="number" />
+                                        <InputGroupInput
+                                            v-model="form.inches"
+                                            @blur="touchedInches = true"
+                                            id="inches"
+                                            name="inches"
+                                            type="number" />
                                         <InputGroupAddon align="inline-end">
                                             <InputGroupText>in</InputGroupText>
                                         </InputGroupAddon>
                                     </InputGroup>
-                                    <div v-if="inchesError || form.errors.inches" class="text-red-500 text-sm">
+                                    <div v-if="inchesError || form.errors.inches" class="text-sm text-red-500">
                                         {{ inchesError || form.errors.inches }}
                                     </div>
                                 </Field>
@@ -367,10 +384,15 @@ function submit() {
                                 <FieldLabel for="country_code">Country</FieldLabel>
                                 <Popover v-model:open="countryOpen">
                                     <PopoverTrigger as-child>
-                                        <Button id="country_code" name="country_code" variant="outline" role="combobox"
-                                            :aria-expanded="countryOpen" :class="[
+                                        <Button
+                                            id="country_code"
+                                            name="country_code"
+                                            variant="outline"
+                                            role="combobox"
+                                            :aria-expanded="countryOpen"
+                                            :class="[
                                                 'w-full justify-between',
-                                                { 'border-red-500!': countryCodeError || form.errors.country_code }
+                                                { 'border-red-500!': countryCodeError || form.errors.country_code },
                                             ]">
                                             {{ selectedCountryLabel }}
                                             <ChevronsUpDown class="opacity-50" />
@@ -382,16 +404,26 @@ function submit() {
                                             <CommandList>
                                                 <CommandEmpty>No country found.</CommandEmpty>
                                                 <CommandGroup>
-                                                    <CommandItem v-for="(name, code) in countries" :key="code"
-                                                        :value="name" @select="() => {
-                                                            form.country_code = code as string
-                                                            countryOpen = false
-                                                            touchedCountryCode = true
-                                                        }">
-                                                        <Check :class="cn(
-                                                            'mr-2 h-4 w-4',
-                                                            form.country_code === code ? 'opacity-100' : 'opacity-0'
-                                                        )" />
+                                                    <CommandItem
+                                                        v-for="(name, code) in countries"
+                                                        :key="code"
+                                                        :value="name"
+                                                        @select="
+                                                            () => {
+                                                                form.country_code = code as string;
+                                                                countryOpen = false;
+                                                                touchedCountryCode = true;
+                                                            }
+                                                        ">
+                                                        <Check
+                                                            :class="
+                                                                cn(
+                                                                    'mr-2 h-4 w-4',
+                                                                    form.country_code === code
+                                                                        ? 'opacity-100'
+                                                                        : 'opacity-0',
+                                                                )
+                                                            " />
                                                         {{ name }}
                                                     </CommandItem>
                                                 </CommandGroup>
@@ -399,18 +431,26 @@ function submit() {
                                         </Command>
                                     </PopoverContent>
                                 </Popover>
-                                <div v-if="countryCodeError || form.errors.country_code" class="text-red-500 text-sm">{{
-                                    countryCodeError || form.errors.country_code }}
+                                <div v-if="countryCodeError || form.errors.country_code" class="text-sm text-red-500">
+                                    {{ countryCodeError || form.errors.country_code }}
                                 </div>
                             </Field>
                             <Field>
                                 <FieldLabel for="timezone">Timezone</FieldLabel>
                                 <Popover v-model:open="timezoneOpen">
                                     <PopoverTrigger as-child>
-                                        <Button id="timezone" name="timezone" variant="outline" role="combobox"
-                                            :aria-expanded="timezoneOpen" :class="[
+                                        <Button
+                                            id="timezone"
+                                            name="timezone"
+                                            variant="outline"
+                                            role="combobox"
+                                            :aria-expanded="timezoneOpen"
+                                            :class="[
                                                 'w-full justify-between',
-                                                { 'border-red-500! ring-red-500/50': timezoneError || form.errors.timezone }
+                                                {
+                                                    'border-red-500! ring-red-500/50':
+                                                        timezoneError || form.errors.timezone,
+                                                },
                                             ]">
                                             {{ selectedTimezoneLabel }}
                                             <ChevronsUpDown class="opacity-50" />
@@ -422,15 +462,24 @@ function submit() {
                                             <CommandList>
                                                 <CommandEmpty>No timezone found.</CommandEmpty>
                                                 <CommandGroup>
-                                                    <CommandItem v-for="tz in timezones" :key="tz" :value="tz" @select="() => {
-                                                        form.timezone = tz
-                                                        timezoneOpen = false
-                                                        touchedTimezone = true
-                                                    }">
-                                                        <Check :class="cn(
-                                                            'mr-2 h-4 w-4',
-                                                            form.timezone === tz ? 'opacity-100' : 'opacity-0'
-                                                        )" />
+                                                    <CommandItem
+                                                        v-for="tz in timezones"
+                                                        :key="tz"
+                                                        :value="tz"
+                                                        @select="
+                                                            () => {
+                                                                form.timezone = tz;
+                                                                timezoneOpen = false;
+                                                                touchedTimezone = true;
+                                                            }
+                                                        ">
+                                                        <Check
+                                                            :class="
+                                                                cn(
+                                                                    'mr-2 h-4 w-4',
+                                                                    form.timezone === tz ? 'opacity-100' : 'opacity-0',
+                                                                )
+                                                            " />
                                                         {{ tz }}
                                                     </CommandItem>
                                                 </CommandGroup>
@@ -438,19 +487,24 @@ function submit() {
                                         </Command>
                                     </PopoverContent>
                                 </Popover>
-                                <div v-if="timezoneError || form.errors.timezone" class="text-red-500 text-sm">{{
-                                    timezoneError || form.errors.timezone }}
+                                <div v-if="timezoneError || form.errors.timezone" class="text-sm text-red-500">
+                                    {{ timezoneError || form.errors.timezone }}
                                 </div>
                             </Field>
                         </Field>
                         <Field class="flex items-center gap-4">
-                            <Button :disabled="form.processing || hasClientErrors" type="submit"
-                                class="inline-flex items-start w-auto! self-start bg-green-500 hover:bg-green-400 dark:text-white cursor-pointer">
+                            <Button
+                                :disabled="form.processing || hasClientErrors"
+                                type="submit"
+                                class="inline-flex w-auto! cursor-pointer items-start self-start bg-green-500 hover:bg-green-400 dark:text-white">
                                 <Spinner v-if="form.processing" class="mr-2" />
                                 Save
                             </Button>
-                            <Transition enter-active-class="transition ease-in-out" enter-from-class="opacity-0"
-                                leave-active-class="transition ease-in-out" leave-to-class="opacity-0">
+                            <Transition
+                                enter-active-class="transition ease-in-out"
+                                enter-from-class="opacity-0"
+                                leave-active-class="transition ease-in-out"
+                                leave-to-class="opacity-0">
                                 <p v-show="form.recentlySuccessful" class="text-sm text-neutral-600">
                                     Profile updated.
                                 </p>

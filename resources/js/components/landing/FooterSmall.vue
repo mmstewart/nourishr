@@ -1,6 +1,6 @@
 <template>
-    <footer class="bg-green-500 px-6 md:px-12 py-6 border-t">
-        <p class="text-xs text-gray-800/85 justify-self-center">
+    <footer class="border-t bg-green-500 px-6 py-6 md:px-12">
+        <p class="justify-self-center text-xs text-gray-800/85">
             © {{ new Date().getFullYear() }} Nourishr. All rights reserved.
         </p>
     </footer>

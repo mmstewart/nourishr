@@ -1,26 +1,14 @@
 <script setup lang="ts">
-import { ref, watch, computed, type HTMLAttributes } from 'vue'
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, type WeightEntry } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
-import { type WeightEntry } from '@/types';
+import { computed, ref, watch, type HTMLAttributes } from 'vue';
 
-import {
-    Card,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
 import { Button } from '@/components/ui/button';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ChevronRight, CirclePlus } from 'lucide-vue-next';
 import ChartArea from '../../components/ChartArea.vue';
-import { CirclePlus, ChevronRight } from 'lucide-vue-next';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -30,11 +18,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const props = defineProps<{
-    class?: HTMLAttributes["class"],
+    class?: HTMLAttributes['class'];
     weightEntries: WeightEntry[];
     chartData: any[];
     filters: { range: string };
-}>()
+}>();
 
 const timeRange = ref(props.filters.range || '7');
 
@@ -46,18 +34,16 @@ const timeRangeOptions = [
     { value: '7', label: 'Last 7 days' },
 ];
 
-const chartDescription = computed(() =>
-    timeRangeOptions.find(tro => tro.value === timeRange.value)?.label || 'Last 7 days'
+const chartDescription = computed(
+    () => timeRangeOptions.find((tro) => tro.value === timeRange.value)?.label || 'Last 7 days',
 );
 
 const weightConfig = {
-    weight: { label: "Weight", color: "#00c951" }
-}
+    weight: { label: 'Weight', color: '#00c951' },
+};
 
 const currentWeight = computed(() => {
-    return props.weightEntries.length > 0
-        ? props.weightEntries[0].weight
-        : null;
+    return props.weightEntries.length > 0 ? props.weightEntries[0].weight : null;
 });
 
 const totalLost = computed(() => {
@@ -70,16 +56,19 @@ const totalLost = computed(() => {
 });
 
 watch(timeRange, (newRange) => {
-    router.get('/weight-entries', { range: newRange }, {
-        preserveState: false,
-        preserveScroll: true,
-        only: ['chartData', 'filters', 'weightEntries']
-    })
+    router.get(
+        '/weight-entries',
+        { range: newRange },
+        {
+            preserveState: false,
+            preserveScroll: true,
+            only: ['chartData', 'filters', 'weightEntries'],
+        },
+    );
 });
 </script>
 
 <template>
-
     <Head title="Weight Entries" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
@@ -111,14 +100,23 @@ watch(timeRange, (newRange) => {
                     </CardHeader>
                 </Card>
             </div>
-            <ChartArea title="Weight" :description="chartDescription" :data="chartData" :config="weightConfig"
-                dataKey="weight" abbreviation="(lbs)" class="h-75 md:h-100">
+            <ChartArea
+                title="Weight"
+                :description="chartDescription"
+                :data="chartData"
+                :config="weightConfig"
+                dataKey="weight"
+                abbreviation="(lbs)"
+                class="h-75 md:h-100">
                 <Select v-model="timeRange">
                     <SelectTrigger class="hidden w-40 rounded-md sm:ml-auto sm:flex">
-                        <SelectValue :placeholder="timeRangeOptions.find(o => o.value === timeRange)?.label" />
+                        <SelectValue :placeholder="timeRangeOptions.find((o) => o.value === timeRange)?.label" />
                     </SelectTrigger>
-                    <SelectContent class="rounded-md w-40.25">
-                        <SelectItem v-for="option in timeRangeOptions" :key="option.value" :value="option.value"
+                    <SelectContent class="w-40.25 rounded-md">
+                        <SelectItem
+                            v-for="option in timeRangeOptions"
+                            :key="option.value"
+                            :value="option.value"
                             class="rounded-md">
                             {{ option.label }}
                         </SelectItem>
@@ -126,25 +124,24 @@ watch(timeRange, (newRange) => {
                 </Select>
             </ChartArea>
             <div class="min-h-0">
-                <Card class="@container/card py-0! gap-0!">
-                    <CardHeader class="flex justify-between items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
+                <Card class="@container/card gap-0! py-0!">
+                    <CardHeader class="flex items-center justify-between gap-2 space-y-0 border-b py-5 sm:flex-row">
                         <CardTitle>Weight Entries</CardTitle>
                     </CardHeader>
                     <ul role="list" class="divide-y dark:divide-white/5">
                         <template v-if="!weightEntries.length">
-                            <li class="text-center py-10">
-                                No weight entries logged yet.
-                            </li>
+                            <li class="py-10 text-center">No weight entries logged yet.</li>
                         </template>
                         <template v-else>
                             <li v-for="entry in weightEntries" :key="entry.id">
-                                <a :href="`/weight-entries/${entry.id}/edit`"
-                                    class="flex items-center justify-between gap-x-6 px-6 py-5 hover:bg-muted/50 dark:hover:dark:bg-white/5 transition-colors">
+                                <a
+                                    :href="`/weight-entries/${entry.id}/edit`"
+                                    class="flex items-center justify-between gap-x-6 px-6 py-5 transition-colors hover:bg-muted/50 dark:hover:dark:bg-white/5">
                                     <div class="min-w-0">
                                         <p class="text-sm/6 font-semibold">{{ entry.weight }} lbs</p>
-                                        <p class="mt-1 text-xs/5 text-gray-400 truncate">{{ entry.date }}</p>
+                                        <p class="mt-1 truncate text-xs/5 text-gray-400">{{ entry.date }}</p>
                                     </div>
-                                    <ChevronRight class="size-5 text-gray-500 shrink-0" />
+                                    <ChevronRight class="size-5 shrink-0 text-gray-500" />
                                 </a>
                             </li>
                         </template>

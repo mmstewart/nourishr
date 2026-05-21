@@ -8,8 +8,8 @@ const props = defineProps<{
     email?: string | null;
     step: string;
     countries?: Record<string, string>;
-    activityLevels?: Array<{ id: number, name: string }>;
-    weeklyGoals?: Array<{ id: number, name: string }>;
+    activityLevels?: Array<{ id: number; name: string }>;
+    weeklyGoals?: Array<{ id: number; name: string }>;
 }>();
 
 const phaseOrder = ['account', 'profile', 'weightGoal'];
@@ -23,20 +23,22 @@ const isCompleted = (currentIterationStep: string) => {
 </script>
 
 <template>
-    <div class="fixed top-0 left-0 w-full bg-white border-b z-50 px-6 py-4">
-        <div class="max-w-xl mx-auto">
+    <div class="fixed top-0 left-0 z-50 w-full border-b bg-white px-6 py-4">
+        <div class="mx-auto max-w-xl">
             <div class="flex items-center gap-4">
-                <div v-for="s in ['account', 'profile', 'weightGoal']" :key="s" class="flex-1 group">
-                    <div :class="[
-                        'h-1.5 w-full rounded-full transition-all duration-700',
-                        step === s ? 'bg-green-500 shadow-xs shadow-green-500/50' : '',
-                        isCompleted(s) ? 'bg-green-600/50' : '',
-                        (!isCompleted(s) && step !== s) ? 'bg-gray-200' : ''
-                    ]"></div>
-                    <span :class="[
-                        'text-[10px] mt-1.5 block font-bold uppercase tracking-widest text-center transition-colors',
-                        step === s ? 'text-green-500' : 'text-muted-foreground/40'
-                    ]">
+                <div v-for="s in ['account', 'profile', 'weightGoal']" :key="s" class="group flex-1">
+                    <div
+                        :class="[
+                            'h-1.5 w-full rounded-full transition-all duration-700',
+                            step === s ? 'bg-green-500 shadow-xs shadow-green-500/50' : '',
+                            isCompleted(s) ? 'bg-green-600/50' : '',
+                            !isCompleted(s) && step !== s ? 'bg-gray-200' : '',
+                        ]"></div>
+                    <span
+                        :class="[
+                            'mt-1.5 block text-center text-[10px] font-bold tracking-widest uppercase transition-colors',
+                            step === s ? 'text-green-500' : 'text-muted-foreground/40',
+                        ]">
                         {{ s === 'weightGoal' ? 'weight goals' : s }}
                     </span>
                 </div>

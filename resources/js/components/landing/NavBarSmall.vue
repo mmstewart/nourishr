@@ -2,12 +2,12 @@
 import AppLogo from './../AppLogo.vue';
 
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-vue-next'
+import { ArrowLeft } from 'lucide-vue-next';
 </script>
 
 <template>
-    <header class="flex items-center justify-between px-6 md:px-12 h-16 border-b">
-        <a href="/" class="flex items-center gap-1 group cursor-pointer focus:outline-none z-10">
+    <header class="flex h-16 items-center justify-between border-b px-6 md:px-12">
+        <a href="/" class="group z-10 flex cursor-pointer items-center gap-1 focus:outline-none">
             <AppLogo />
         </a>
         <Button variant="link" size="lg" as-child>

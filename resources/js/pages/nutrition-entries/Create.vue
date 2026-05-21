@@ -1,38 +1,24 @@
 <script setup lang="ts">
-import { ref, watch, computed, onUnmounted, type HTMLAttributes } from 'vue'
 import { Head, useForm } from '@inertiajs/vue3';
 import axios from 'axios';
+import { computed, onUnmounted, ref, watch, type HTMLAttributes } from 'vue';
 
-import { Button } from '@/components/ui/button'
-import {
-    Field,
-    FieldDescription,
-    FieldLabel,
-} from '@/components/ui/field'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover'
-import { Calendar } from '@/components/ui/calendar'
-import { CalendarIcon } from 'lucide-vue-next'
-import { today, getLocalTimeZone, type DateValue } from '@internationalized/date'
-import { Spinner } from '@/components/ui/spinner'
-import { BrowserMultiFormatReader, DecodeHintType, BarcodeFormat } from '@zxing/library'
-import { useDebounceFn } from '@vueuse/core'
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Field, FieldDescription, FieldLabel } from '@/components/ui/field';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Spinner } from '@/components/ui/spinner';
+import { getLocalTimeZone, today, type DateValue } from '@internationalized/date';
+import { useDebounceFn } from '@vueuse/core';
+import { BarcodeFormat, BrowserMultiFormatReader, DecodeHintType } from '@zxing/library';
+import { CalendarIcon } from 'lucide-vue-next';
 
+import NutrientGrid from '@/components/NutrientGrid.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { NutritionEntry, BreadcrumbItem } from '@/types';
-import { Search, ScanBarcode, X, Plus } from 'lucide-vue-next'
-import NutrientGrid from '@/components/NutrientGrid.vue'
+import { BreadcrumbItem, NutritionEntry } from '@/types';
+import { Plus, ScanBarcode, Search, X } from 'lucide-vue-next';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -42,108 +28,124 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 defineProps<{
-    class?: HTMLAttributes["class"],
-}>()
+    class?: HTMLAttributes['class'];
+}>();
 
-const form = useForm({ date: '', entries: [] as any[] })
+const form = useForm({ date: '', entries: [] as any[] });
 
-const mode = ref<'text' | 'scan'>('text')
-const mealTypes = ['breakfast', 'lunch', 'dinner', 'snack'] as const
-const mealType = ref<typeof mealTypes[number]>('breakfast')
-const entryDate = ref<any>(today(getLocalTimeZone()))
+const mode = ref<'text' | 'scan'>('text');
+const mealTypes = ['breakfast', 'lunch', 'dinner', 'snack'] as const;
+const mealType = ref<(typeof mealTypes)[number]>('breakfast');
+const entryDate = ref<any>(today(getLocalTimeZone()));
 
 const tabs = [
     { value: 'text', Icon: Search, label: 'Search' },
     { value: 'scan', Icon: ScanBarcode, label: 'Scan' },
-] as const
+] as const;
 
 // Search
-const search = ref('')
-const searchResults = ref<any[]>([])
-const isSearching = ref(false)
+const search = ref('');
+const searchResults = ref<any[]>([]);
+const isSearching = ref(false);
 
-const nutritionEntries = ref<Pick<NutritionEntry, 'fdc_id' | 'food_item' | 'calories' | 'protein' | 'carbohydrates' | 'fats' | 'quantity' | 'serving_size' | 'meal_type'>[]>([])
-const pendingProduct = ref<any>(null)
-const selectedServing = ref<any>(null)
-const selectedServingLabel = ref('')
-const pendingQuantity = ref('1')
+const nutritionEntries = ref<
+    Pick<
+        NutritionEntry,
+        | 'fdc_id'
+        | 'food_item'
+        | 'calories'
+        | 'protein'
+        | 'carbohydrates'
+        | 'fats'
+        | 'quantity'
+        | 'serving_size'
+        | 'meal_type'
+    >[]
+>([]);
+const pendingProduct = ref<any>(null);
+const selectedServing = ref<any>(null);
+const selectedServingLabel = ref('');
+const pendingQuantity = ref('1');
 
 // Scanner
-const videoEl = ref<HTMLVideoElement | null>(null)
-const scanError = ref('')
-const scanSuccess = ref('')
-let codeReader: BrowserMultiFormatReader | null = null
+const videoEl = ref<HTMLVideoElement | null>(null);
+const scanError = ref('');
+const scanSuccess = ref('');
+let codeReader: BrowserMultiFormatReader | null = null;
 
 function extractNutrient(product: any, standardName: string, factor: number): number {
-    const rawVal = product?.foodNutrients?.find((n: any) => n.nutrientName === standardName)?.value ?? 0
-    return rawVal * factor
+    const rawVal = product?.foodNutrients?.find((n: any) => n.nutrientName === standardName)?.value ?? 0;
+    return rawVal * factor;
 }
 
 const totals = computed(() => {
     const sum = (key: 'calories' | 'protein' | 'carbohydrates' | 'fats') =>
-        nutritionEntries.value.reduce((acc, item) => acc + (item[key] * item.quantity), 0)
+        nutritionEntries.value.reduce((acc, item) => acc + item[key] * item.quantity, 0);
     return {
         calories: sum('calories'),
         protein: sum('protein'),
         carbohydrates: sum('carbohydrates'),
         fats: sum('fats'),
-    }
-})
+    };
+});
 
 // Search
 watch(selectedServingLabel, (label) => {
-    selectedServing.value = pendingProduct.value?.servingOptions.find((o: any) => o.label === label) ?? null
-})
+    selectedServing.value = pendingProduct.value?.servingOptions.find((o: any) => o.label === label) ?? null;
+});
 
-watch(search, useDebounceFn(async (newQuery) => {
-    const query = newQuery.trim()
+watch(
+    search,
+    useDebounceFn(async (newQuery) => {
+        const query = newQuery.trim();
 
-    if (!query) {
-        searchResults.value = []
-        return
-    }
+        if (!query) {
+            searchResults.value = [];
+            return;
+        }
 
-    isSearching.value = true
+        isSearching.value = true;
 
-    try {
-        const response = await axios.get('/api/foodfacts', {
-            params: { food_item: query, type: 'search' }
-        })
+        try {
+            const response = await axios.get('/api/foodfacts', {
+                params: { food_item: query, type: 'search' },
+            });
 
-        searchResults.value = response.data.foods ?? []
-    } catch (error) {
-        console.error('Failed to load food facts', error)
-    } finally {
-        isSearching.value = false
-    }
-}, 700))
+            searchResults.value = response.data.foods ?? [];
+        } catch (error) {
+            console.error('Failed to load food facts', error);
+        } finally {
+            isSearching.value = false;
+        }
+    }, 700),
+);
 
 // Scanner
 async function startScanner() {
-    scanError.value = ''
-    scanSuccess.value = ''
+    scanError.value = '';
+    scanSuccess.value = '';
 
     if (!codeReader) {
-        const hints = new Map()
+        const hints = new Map();
 
-        hints.set(DecodeHintType.TRY_HARDER, true)
+        hints.set(DecodeHintType.TRY_HARDER, true);
 
         hints.set(DecodeHintType.POSSIBLE_FORMATS, [
             BarcodeFormat.UPC_A,
             BarcodeFormat.UPC_E,
             BarcodeFormat.EAN_13,
             BarcodeFormat.EAN_8,
-        ])
+        ]);
 
-        codeReader = new BrowserMultiFormatReader(hints)
+        codeReader = new BrowserMultiFormatReader(hints);
     }
 
-    codeReader = new BrowserMultiFormatReader()
+    codeReader = new BrowserMultiFormatReader();
 
     try {
         if (!videoEl.value) {
-            scanError.value = 'Camera display not found.'
-            return
+            scanError.value = 'Camera display not found.';
+            return;
         }
 
         const constraints: MediaStreamConstraints = {
@@ -151,39 +153,40 @@ async function startScanner() {
                 facingMode: { ideal: 'environment' },
                 width: { min: 640, ideal: 1280 },
                 height: { min: 480, ideal: 720 },
-            }
-        }
+            },
+        };
 
         await codeReader.decodeFromConstraints(constraints, videoEl.value, async (result, error) => {
             if (result) {
-                codeReader?.reset()
-                await lookupNutritionLabel(result.getText())
+                codeReader?.reset();
+                await lookupNutritionLabel(result.getText());
             }
 
-            if (error) { }
-        })
+            if (error) {
+            }
+        });
     } catch (e) {
-        scanError.value = 'Could not access camera. Please check permissions.'
+        scanError.value = 'Could not access camera. Please check permissions.';
     }
 }
 
 function stopScanner() {
-    codeReader?.reset()
-    codeReader = null
+    codeReader?.reset();
+    codeReader = null;
 }
 
 async function lookupNutritionLabel(label: string) {
-    isSearching.value = true
-    scanError.value = ''
+    isSearching.value = true;
+    scanError.value = '';
 
     try {
         const response = await axios.get(`/api/foodfacts`, {
-            params: { food_item: label, type: 'scan' }
-        })
+            params: { food_item: label, type: 'scan' },
+        });
 
         if (response.data && Object.keys(response.data).length) {
-            const product = response.data
-            const nutriments = product.nutriments ?? {}
+            const product = response.data;
+            const nutriments = product.nutriments ?? {};
 
             nutritionEntries.value.push({
                 fdc_id: product.fdcId,
@@ -195,33 +198,37 @@ async function lookupNutritionLabel(label: string) {
                 quantity: 1,
                 serving_size: '100g',
                 meal_type: mealType.value,
-            })
+            });
 
-            scanSuccess.value = `Added: ${product.product_name}`
+            scanSuccess.value = `Added: ${product.product_name}`;
 
-            mode.value = 'scan'
+            mode.value = 'scan';
         } else {
-            scanError.value = 'Product not found for this nutrition label.'
+            scanError.value = 'Product not found for this nutrition label.';
 
-            setTimeout(() => { if (mode.value === 'scan') startScanner() }, 2000)
+            setTimeout(() => {
+                if (mode.value === 'scan') startScanner();
+            }, 2000);
         }
     } catch (e) {
-        scanError.value = 'Failed to look up product.'
+        scanError.value = 'Failed to look up product.';
 
-        setTimeout(() => { if (mode.value === 'scan') startScanner() }, 2000)
+        setTimeout(() => {
+            if (mode.value === 'scan') startScanner();
+        }, 2000);
     } finally {
-        isSearching.value = false
+        isSearching.value = false;
     }
 }
 
 watch(mode, (newMode) => {
     if (newMode === 'scan') {
         // Wait for video element to mount
-        setTimeout(() => startScanner(), 50)
+        setTimeout(() => startScanner(), 50);
     } else {
-        stopScanner()
+        stopScanner();
     }
-})
+});
 
 // watch(mode, async (newMode) => {
 //     if (newMode === 'scan') {
@@ -233,36 +240,40 @@ watch(mode, (newMode) => {
 //     }
 // })
 
-onUnmounted(() => stopScanner())
+onUnmounted(() => stopScanner());
 
 // Called when user clicks a search result
 function selectProduct(product: any) {
     const options = [
         { label: '100g', gramWeight: 100 },
-        ...(product.servingSize && product.householdServingFullText ? [{
-            label: product.householdServingFullText.toLowerCase(),
-            gramWeight: product.servingSize,
-        }] : []),
+        ...(product.servingSize && product.householdServingFullText
+            ? [
+                  {
+                      label: product.householdServingFullText.toLowerCase(),
+                      gramWeight: product.servingSize,
+                  },
+              ]
+            : []),
         ...(product.foodMeasures ?? []).map((m: any) => ({
             label: m.disseminationText,
             gramWeight: m.gramWeight,
         })),
-    ]
+    ];
 
-    pendingProduct.value = { ...product, servingOptions: options }
-    const defaultOption = options[1] ?? options[0]
-    selectedServing.value = defaultOption
-    selectedServingLabel.value = defaultOption.label
+    pendingProduct.value = { ...product, servingOptions: options };
+    const defaultOption = options[1] ?? options[0];
+    selectedServing.value = defaultOption;
+    selectedServingLabel.value = defaultOption.label;
 }
 
 // Meal items
 function addNutritionEntry() {
     if (!pendingProduct.value || !selectedServing.value) {
-        return { calories: 0, protein: 0, carbohydrates: 0, fats: 0 }
+        return { calories: 0, protein: 0, carbohydrates: 0, fats: 0 };
     }
 
-    const factor = (selectedServing.value.gramWeight / 100) * parseFloat(pendingQuantity.value)
-    const prod = pendingProduct.value
+    const factor = (selectedServing.value.gramWeight / 100) * parseFloat(pendingQuantity.value);
+    const prod = pendingProduct.value;
 
     nutritionEntries.value.push({
         fdc_id: pendingProduct.value.fdcId,
@@ -274,41 +285,41 @@ function addNutritionEntry() {
         quantity: parseFloat(pendingQuantity.value),
         serving_size: selectedServing.value.label + ' (' + selectedServing.value.gramWeight + 'g)',
         meal_type: mealType.value,
-    })
+    });
 
-    pendingProduct.value = null
-    selectedServing.value = null
-    pendingQuantity.value = '1'
-    selectedServingLabel.value = ''
-    searchResults.value = []
-    search.value = ''
+    pendingProduct.value = null;
+    selectedServing.value = null;
+    pendingQuantity.value = '1';
+    selectedServingLabel.value = '';
+    searchResults.value = [];
+    search.value = '';
 }
 
 function removeNutritionEntry(index: number) {
-    nutritionEntries.value.splice(index, 1)
+    nutritionEntries.value.splice(index, 1);
 }
 
 const pendingNutrients = computed(() => {
     if (!pendingProduct.value || !selectedServing.value) {
-        return { calories: 0, protein: 0, carbohydrates: 0, fats: 0 }
+        return { calories: 0, protein: 0, carbohydrates: 0, fats: 0 };
     }
-    const factor = (selectedServing.value.gramWeight / 100) * parseFloat(pendingQuantity.value)
-    const prod = pendingProduct.value
+    const factor = (selectedServing.value.gramWeight / 100) * parseFloat(pendingQuantity.value);
+    const prod = pendingProduct.value;
 
     return {
         calories: Math.round(extractNutrient(prod, 'Energy', factor)),
         protein: parseFloat(extractNutrient(prod, 'Protein', factor).toFixed(2)),
         carbohydrates: parseFloat(extractNutrient(prod, 'Carbohydrate, by difference', factor).toFixed(2)),
         fats: parseFloat(extractNutrient(prod, 'Total lipid (fat)', factor).toFixed(2)),
-    }
-})
+    };
+});
 
 function submit() {
-    if (!nutritionEntries.value.length) return
+    if (!nutritionEntries.value.length) return;
 
     useForm({
         date: entryDate.value.toString(),
-        entries: nutritionEntries.value.map(entry => ({
+        entries: nutritionEntries.value.map((entry) => ({
             fdc_id: entry.fdc_id,
             food_item: entry.food_item,
             calories: Math.round(entry.calories * entry.quantity),
@@ -318,42 +329,50 @@ function submit() {
             serving_size: entry.serving_size,
             quantity: entry.quantity,
             meal_type: mealType.value,
-        }))
-    }).post('/nutrition-entries')
+        })),
+    }).post('/nutrition-entries');
 }
 </script>
 
 <template>
-
     <Head title="Create Nutrition Entry" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex flex-col gap-7 p-4 max-w-2xl">
+        <div class="flex max-w-2xl flex-col gap-7 p-4">
             <div class="space-y-6">
                 <div class="flex flex-col items-start text-left">
                     <span class="sr-only">Create Nutrition Entry</span>
-                    <h3 class="text-base font-medium mb-0.5">
-                        Create Nutrition Entry
-                    </h3>
+                    <h3 class="mb-0.5 text-base font-medium">Create Nutrition Entry</h3>
                     <FieldDescription>
                         Create your nutrition entry to track your progress towards your nutrition goals.
                     </FieldDescription>
                 </div>
             </div>
-            <div class="flex bg-muted p-1 rounded-lg gap-1">
-                <button v-for="tab in tabs" :key="tab.value" @click="mode = tab.value" :class="[
-                    'flex items-center justify-center gap-2 flex-1 py-1.5 text-sm font-medium rounded-md transition-all duration-200',
-                    mode === tab.value ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
-                ]">
-                    <component :is="tab.Icon" class="w-4 h-4" />
+            <div class="flex gap-1 rounded-lg bg-muted p-1">
+                <button
+                    v-for="tab in tabs"
+                    :key="tab.value"
+                    @click="mode = tab.value"
+                    :class="[
+                        'flex flex-1 items-center justify-center gap-2 rounded-md py-1.5 text-sm font-medium transition-all duration-200',
+                        mode === tab.value
+                            ? 'bg-background text-foreground shadow-sm'
+                            : 'text-muted-foreground hover:text-foreground',
+                    ]">
+                    <component :is="tab.Icon" class="h-4 w-4" />
                     {{ tab.label }}
                 </button>
             </div>
             <div v-if="mode === 'text'" class="space-y-4">
                 <div class="relative">
                     <InputGroup>
-                        <InputGroupInput v-model="search" id="search" name="search" placeholder="Search"
-                            autocomplete="off" :disabled="isSearching" />
+                        <InputGroupInput
+                            v-model="search"
+                            id="search"
+                            name="search"
+                            placeholder="Search"
+                            autocomplete="off"
+                            :disabled="isSearching" />
                         <InputGroupAddon v-if="!isSearching">
                             <Search class="size-4 text-muted-foreground" />
                         </InputGroupAddon>
@@ -362,41 +381,49 @@ function submit() {
                         </InputGroupAddon>
                     </InputGroup>
                 </div>
-                <div v-if="searchResults.length && !pendingProduct"
-                    class="border border-input rounded-md bg-background max-h-60 overflow-y-auto divide-y divide-border">
-                    <li v-for="product in searchResults" :key="product.fdcId ?? product.product_name"
+                <div
+                    v-if="searchResults.length && !pendingProduct"
+                    class="max-h-60 divide-y divide-border overflow-y-auto rounded-md border border-input bg-background">
+                    <li
+                        v-for="product in searchResults"
+                        :key="product.fdcId ?? product.product_name"
                         @click="selectProduct(product)"
-                        class="flex items-center gap-3 px-4 py-3 hover:bg-muted cursor-pointer transition-colors group">
-                        <div class="flex-1 min-w-0">
+                        class="group flex cursor-pointer items-center gap-3 px-4 py-3 transition-colors hover:bg-muted">
+                        <div class="min-w-0 flex-1">
                             <p class="text-sm font-medium capitalize">
                                 {{ (product.description ?? product.product_name).toLowerCase() }}
                             </p>
-                            <div class="flex items-center gap-1 text-xs text-muted-foreground flex-wrap">
+                            <div class="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
                                 <span v-if="product?.brandName" class="capitalize">
                                     {{ product.brandName.toLowerCase() }}
                                 </span>
                                 <div v-if="product?.brandName" class="size-0.5 rounded-full bg-gray-500"></div>
                                 <span>
-                                    {{product.foodNutrients?.find((n: any) =>
-                                        n.nutrientName ===
-                                        'Energy')?.value ?? 0}} kcal
+                                    {{
+                                        product.foodNutrients?.find((n: any) => n.nutrientName === 'Energy')?.value ?? 0
+                                    }}
+                                    kcal
                                 </span>
                             </div>
                         </div>
-                        <Button size="icon" variant="ghost"
-                            class="cursor-pointer gap-0! group-hover:flex hidden items-center">
+                        <Button
+                            size="icon"
+                            variant="ghost"
+                            class="hidden cursor-pointer items-center gap-0! group-hover:flex">
                             <Plus class="size-3" />
                             Add
                         </Button>
                     </li>
                 </div>
-                <p v-else-if="search && !searchResults.length && !isSearching"
-                    class="text-sm text-muted-foreground text-center py-2">
+                <p
+                    v-else-if="search && !searchResults.length && !isSearching"
+                    class="py-2 text-center text-sm text-muted-foreground">
                     No items found. Try a different search term.
                 </p>
-                <div v-if="pendingProduct"
-                    class="border border-input rounded-md p-4 bg-linear-to-tl from-primary/5 to-default space-y-4 relative">
-                    <div class="flex items-center gap-3 justify-between">
+                <div
+                    v-if="pendingProduct"
+                    class="to-default relative space-y-4 rounded-md border border-input bg-linear-to-tl from-primary/5 p-4">
+                    <div class="flex items-center justify-between gap-3">
                         <div>
                             <p class="text-sm font-medium capitalize">
                                 {{ (pendingProduct.description ?? pendingProduct.product_name).toLowerCase() }}
@@ -428,8 +455,11 @@ function submit() {
                                     <SelectValue :placeholder="selectedServingLabel" />
                                 </SelectTrigger>
                                 <SelectContent class="w-74">
-                                    <SelectItem v-for="option in pendingProduct.servingOptions" :key="option.label"
-                                        :value="option.label" class="text-sm">
+                                    <SelectItem
+                                        v-for="option in pendingProduct.servingOptions"
+                                        :key="option.label"
+                                        :value="option.label"
+                                        class="text-sm">
                                         {{ option.label }} ({{ option.gramWeight }}g)
                                     </SelectItem>
                                 </SelectContent>
@@ -461,15 +491,15 @@ function submit() {
             </div>
             <div v-if="mode === 'scan'" class="space-y-4">
                 <div
-                    class="relative aspect-video w-full overflow-hidden rounded-md dark:bg-input/30 border border-input flex items-center justify-center">
-                    <video ref="videoEl" class="w-full h-full object-cover"></video>
-                    <div v-if="isSearching" class="absolute inset-0 bg-background/50 flex items-center justify-center">
+                    class="relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-md border border-input dark:bg-input/30">
+                    <video ref="videoEl" class="h-full w-full object-cover"></video>
+                    <div v-if="isSearching" class="absolute inset-0 flex items-center justify-center bg-background/50">
                         <Spinner />
                     </div>
                 </div>
-                <p v-if="scanError" class="text-sm text-destructive text-center font-medium">{{ scanError }}</p>
-                <p v-if="scanSuccess" class="text-sm text-green-600 text-center font-medium">{{ scanSuccess }}</p>
-                <p class="text-xs text-muted-foreground text-center">
+                <p v-if="scanError" class="text-center text-sm font-medium text-destructive">{{ scanError }}</p>
+                <p v-if="scanSuccess" class="text-center text-sm font-medium text-green-600">{{ scanSuccess }}</p>
+                <p class="text-center text-xs text-muted-foreground">
                     Center the barcode inside the camera viewpoint to scan.
                 </p>
             </div>
@@ -480,9 +510,11 @@ function submit() {
                         <span class="text-xs text-muted-foreground">{{ nutritionEntries.length }} item(s)</span>
                     </div>
                     <div
-                        class="border border-input rounded-md p-4 bg-linear-to-tl from-primary/5 to-default space-y-4 relative">
+                        class="to-default relative space-y-4 rounded-md border border-input bg-linear-to-tl from-primary/5 p-4">
                         <ul v-if="nutritionEntries.length" class="divide-y divide-input">
-                            <li v-for="(entry, index) in nutritionEntries" :key="index"
+                            <li
+                                v-for="(entry, index) in nutritionEntries"
+                                :key="index"
                                 class="py-3 first:pt-0 last:pb-0">
                                 <div class="flex items-start justify-between gap-x-6 transition-colors">
                                     <div class="min-w-0">
@@ -491,13 +523,13 @@ function submit() {
                                         </p>
                                         <div class="mt-1 flex items-center gap-2">
                                             <div
-                                                class="mt-1 flex flex-col gap-1 text-xs text-muted-foreground flex-wrap">
+                                                class="mt-1 flex flex-col flex-wrap gap-1 text-xs text-muted-foreground">
                                                 <p>{{ entry.serving_size }}</p>
                                                 <p class="capitalize">{{ entry.meal_type }}</p>
                                                 <p>Protein: {{ (entry.protein * entry.quantity).toFixed(2) }}g</p>
                                                 <p>
-                                                    Carbohydrates: {{ (entry.carbohydrates * entry.quantity).toFixed(2)
-                                                    }}g
+                                                    Carbohydrates:
+                                                    {{ (entry.carbohydrates * entry.quantity).toFixed(2) }}g
                                                 </p>
                                                 <p>Fat: {{ (entry.fats * entry.quantity).toFixed(2) }}g</p>
                                             </div>
@@ -511,8 +543,9 @@ function submit() {
                                             {{ Math.round(entry.calories * entry.quantity) }} kcal
                                         </p>
                                     </div>
-                                    <Select :model-value="String(entry.quantity ?? 1)"
-                                        @update:model-value="(val) => entry.quantity = parseFloat(val as string)">
+                                    <Select
+                                        :model-value="String(entry.quantity ?? 1)"
+                                        @update:model-value="(val) => (entry.quantity = parseFloat(val as string))">
                                         <SelectTrigger class="w-16">
                                             <SelectValue />
                                         </SelectTrigger>
@@ -533,17 +566,27 @@ function submit() {
                             <FieldLabel class="text-xs font-medium">Date</FieldLabel>
                             <Popover v-slot="{ close }">
                                 <PopoverTrigger as-child>
-                                    <Button variant="outline"
-                                        class="w-full justify-start text-left font-normal bg-background!">
+                                    <Button
+                                        variant="outline"
+                                        class="w-full justify-start bg-background! text-left font-normal">
                                         <CalendarIcon class="mr-2 h-4 w-4" />
-                                        {{ entryDate ?
-                                            entryDate.toDate(getLocalTimeZone()).toLocaleDateString() :
-                                            'Pick a date' }}
+                                        {{
+                                            entryDate
+                                                ? entryDate.toDate(getLocalTimeZone()).toLocaleDateString()
+                                                : 'Pick a date'
+                                        }}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent class="w-auto p-0" align="start">
-                                    <Calendar :model-value="entryDate" :max-value="today(getLocalTimeZone())"
-                                        @update:model-value="(val) => { entryDate = val as DateValue; close() }"
+                                    <Calendar
+                                        :model-value="entryDate"
+                                        :max-value="today(getLocalTimeZone())"
+                                        @update:model-value="
+                                            (val) => {
+                                                entryDate = val as DateValue;
+                                                close();
+                                            }
+                                        "
                                         initial-focus />
                                 </PopoverContent>
                             </Popover>
@@ -553,8 +596,10 @@ function submit() {
                             <FieldLabel class="text-xs">Nutrition facts</FieldLabel>
                             <NutrientGrid :nutrients="totals" />
                         </div>
-                        <Button type="submit" :disabled="!nutritionEntries.length || form.processing"
-                            class="bg-green-500 hover:bg-green-400 dark:text-white cursor-pointer">
+                        <Button
+                            type="submit"
+                            :disabled="!nutritionEntries.length || form.processing"
+                            class="cursor-pointer bg-green-500 hover:bg-green-400 dark:text-white">
                             <Spinner v-if="form.processing" class="mr-2 h-4 w-4" />
                             Save
                         </Button>

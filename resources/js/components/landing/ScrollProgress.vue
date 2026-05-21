@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 
 const progress = ref<number>(0);
 
@@ -23,7 +23,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="fixed top-0 left-0 w-full h-px z-50 bg-transparent">
+    <div class="fixed top-0 left-0 z-50 h-px w-full bg-transparent">
         <div class="h-full bg-green-500 transition-all duration-150 ease-out" :style="{ width: `${progress}%` }" />
     </div>
 </template>

@@ -20,7 +20,7 @@ class FeedbackController extends Controller
 
         $feedback = Feedback::create($validated);
 
-        Mail::to(env('NOURISHR_EMAIL'))->send(new FeedbackReceived($feedback));
+        Mail::to(env('VITE_NOURISHR_EMAIL'))->send(new FeedbackReceived($feedback));
 
         return to_route('dashboard')->with('success', 'Thanks for reaching out! We really value your thoughts. 
                     If your feedback requires a follow-up, someone from our team will get back to you within 24 hours.');
