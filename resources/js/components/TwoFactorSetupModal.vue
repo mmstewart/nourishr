@@ -1,32 +1,19 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
-import { Form } from '@inertiajs/vue3';
 import { confirm } from '@/routes/two-factor';
+import { Form } from '@inertiajs/vue3';
 import { useClipboard } from '@vueuse/core';
-import { REGEXP_ONLY_DIGITS } from 'vue-input-otp'
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
+import { REGEXP_ONLY_DIGITS } from 'vue-input-otp';
 
-import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
 import AlertError from '@/components/AlertError.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import {
-    InputOTP,
-    InputOTPGroup,
-    InputOTPSlot,
-} from '@/components/ui/input-otp'
-import {
-    Field,
-    FieldSeparator,
-} from "@/components/ui/field";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Field, FieldSeparator } from '@/components/ui/field';
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import { Spinner } from '@/components/ui/spinner';
+import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
 import { Check, Copy, ScanLine } from 'lucide-vue-next';
 
 interface Props {
@@ -38,8 +25,7 @@ const props = defineProps<Props>();
 const isOpen = defineModel<boolean>('isOpen');
 
 const { copy, copied } = useClipboard();
-const { qrCodeSvg, manualSetupKey, clearSetupData, fetchSetupData, errors } =
-    useTwoFactorAuth();
+const { qrCodeSvg, manualSetupKey, clearSetupData, fetchSetupData, errors } = useTwoFactorAuth();
 
 const showVerificationStep = ref(false);
 const code = ref('');
@@ -97,7 +83,7 @@ const resetModalState = () => {
         clearSetupData();
     }
 
-    // Wrap this in a tiny timeout so the UI doesn't 
+    // Wrap this in a tiny timeout so the UI doesn't
     // snap back to the QR code during the close animation
     setTimeout(() => {
         showVerificationStep.value = false;
@@ -148,22 +134,25 @@ watch(isOpen, async (val) => {
                         <div class="relative mx-auto flex max-w-md items-center overflow-hidden">
                             <div
                                 class="relative mx-auto aspect-square w-64 overflow-hidden rounded-md border border-border">
-                                <div v-if="!qrCodeSvg"
+                                <div
+                                    v-if="!qrCodeSvg"
                                     class="absolute inset-0 z-10 flex aspect-square h-auto w-full animate-pulse items-center justify-center bg-background">
                                     <Spinner class="size-6" />
                                 </div>
                                 <div v-else class="relative z-10 overflow-hidden p-5">
-                                    <div v-html="qrCodeSvg"
+                                    <div
+                                        v-html="qrCodeSvg"
                                         class="aspect-square w-full justify-center rounded-md bg-white p-2 [&_svg]:size-full" />
                                 </div>
                             </div>
                         </div>
-                        <Button @click="handleModalNextStep"
-                            class="w-full bg-green-500 hover:bg-green-400 dark:text-white cursor-pointer">
+                        <Button
+                            @click="handleModalNextStep"
+                            class="w-full cursor-pointer bg-green-500 hover:bg-green-400 dark:text-white">
                             {{ modalConfig.buttonText }}
                         </Button>
                         <Field>
-                            <FieldSeparator class="bg-background my-1">Or enter the code manually</FieldSeparator>
+                            <FieldSeparator class="my-1 bg-background">Or enter the code manually</FieldSeparator>
                         </Field>
                         <div class="w-full">
                             <div v-if="!manualSetupKey">
@@ -178,7 +167,10 @@ watch(isOpen, async (val) => {
                                 <InputGroup>
                                     <InputGroupInput v-model="manualSetupKey" readonly />
                                     <InputGroupAddon align="inline-end">
-                                        <InputGroupButton aria-label="Copy" title="Copy" size="icon-xs"
+                                        <InputGroupButton
+                                            aria-label="Copy"
+                                            title="Copy"
+                                            size="icon-xs"
                                             @click="copy(manualSetupKey || '')">
                                             <Check v-if="copied" class="w-4 text-green-500" />
                                             <Copy v-else class="w-4 cursor-pointer" />
@@ -190,7 +182,11 @@ watch(isOpen, async (val) => {
                     </template>
                 </template>
                 <template v-else>
-                    <Form v-bind="confirm.form()" reset-on-error @finish="code = ''" @success="isOpen = false"
+                    <Form
+                        v-bind="confirm.form()"
+                        reset-on-error
+                        @finish="code = ''"
+                        @success="isOpen = false"
                         v-slot="{ errors, processing }">
                         <input type="hidden" name="code" :value="codeValue" />
                         <div ref="pinInputContainerRef" class="relative w-full space-y-3">
@@ -198,19 +194,28 @@ watch(isOpen, async (val) => {
                                 <InputOTP v-model="code" :maxlength="6" :pattern="REGEXP_ONLY_DIGITS" id="otp">
                                     <InputOTPGroup
                                         class="gap-2.5 *:data-[slot=input-otp-slot]:rounded-md *:data-[slot=input-otp-slot]:border">
-                                        <InputOTPSlot v-for="(id, index) in 6" :key="id" :index="index"
+                                        <InputOTPSlot
+                                            v-for="(id, index) in 6"
+                                            :key="id"
+                                            :index="index"
                                             :disabled="processing" />
                                     </InputOTPGroup>
                                 </InputOTP>
                                 <InputError :message="errors?.confirmTwoFactorAuthentication?.code" />
                             </div>
                             <div class="flex w-full items-center space-x-5">
-                                <Button @click="showVerificationStep = false" variant="outline" :disabled="processing"
-                                    type="button" class="w-auto flex-1 cursor-pointer">
+                                <Button
+                                    @click="showVerificationStep = false"
+                                    variant="outline"
+                                    :disabled="processing"
+                                    type="button"
+                                    class="w-auto flex-1 cursor-pointer">
                                     Back
                                 </Button>
-                                <Button :disabled="processing || codeValue.length < 6" type="submit"
-                                    class="w-auto flex-1 bg-green-500 hover:bg-green-400 dark:text-white cursor-pointer">
+                                <Button
+                                    :disabled="processing || codeValue.length < 6"
+                                    type="submit"
+                                    class="w-auto flex-1 cursor-pointer bg-green-500 hover:bg-green-400 dark:text-white">
                                     Confirm
                                 </Button>
                             </div>

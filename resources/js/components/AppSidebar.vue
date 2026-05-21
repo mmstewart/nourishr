@@ -14,7 +14,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { Send, Scale, House, Apple, Mail } from 'lucide-vue-next';
+import { Apple, House, Mail, Scale, Send } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -54,7 +54,9 @@ const footerNavItems: NavItem[] = [
         <SidebarHeader>
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton size="lg" class="flex items-center group-data-[collapsible=icon]:justify-center"
+                    <SidebarMenuButton
+                        size="lg"
+                        class="flex items-center group-data-[collapsible=icon]:justify-center"
                         as-child>
                         <Link :href="dashboard()">
                             <AppLogo />

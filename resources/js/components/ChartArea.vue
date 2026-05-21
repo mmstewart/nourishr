@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { Line } from 'vue-chartjs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-    type ChartOptions,
+    CategoryScale,
     type ChartData,
     Chart as ChartJS,
-    CategoryScale,
+    type ChartOptions,
+    Legend,
     LinearScale,
-    PointElement,
     LineElement,
+    PointElement,
     Title,
     Tooltip,
-    Legend
 } from 'chart.js';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { computed } from 'vue';
+import { Line } from 'vue-chartjs';
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -32,25 +32,27 @@ const chartColor = props.config[props.dataKey]?.color || '#2563eb';
 
 // Chart.js Data Object
 const chartData = computed<ChartData<'line'>>(() => ({
-    labels: props.data.map(d => d.date),
-    datasets: [{
-        label: ' ' + props.title + ' ' + props.abbreviation,
-        data: props.data.map(d => Number(d[props.dataKey])),
-        clip: false,
-        borderColor: chartColor,
-        backgroundColor: chartColor,
-        pointRadius: 4,
-        pointBackgroundColor: chartColor,
-        pointBorderColor: '#fff',
-        pointBorderWidth: 2,
-        pointHoverRadius: 6,
-        pointHoverBorderWidth: 3,
-    }]
+    labels: props.data.map((d) => d.date),
+    datasets: [
+        {
+            label: ' ' + props.title + ' ' + props.abbreviation,
+            data: props.data.map((d) => Number(d[props.dataKey])),
+            clip: false,
+            borderColor: chartColor,
+            backgroundColor: chartColor,
+            pointRadius: 4,
+            pointBackgroundColor: chartColor,
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointHoverRadius: 6,
+            pointHoverBorderWidth: 3,
+        },
+    ],
 }));
 
 // Chart.js Options
 const chartOptions = computed<ChartOptions<'line'>>(() => {
-    const values = props.data.map(d => Number(d[props.dataKey]));
+    const values = props.data.map((d) => Number(d[props.dataKey]));
     let yMin = 0;
     let yMax = 100;
 
@@ -93,7 +95,7 @@ const chartOptions = computed<ChartOptions<'line'>>(() => {
                     display: true,
                     align: 'center',
                     padding: 12,
-                }
+                },
             },
             y: {
                 display: true,
@@ -109,10 +111,10 @@ const chartOptions = computed<ChartOptions<'line'>>(() => {
                     padding: 12,
                     callback: function (value) {
                         return value.toLocaleString();
-                    }
-                }
-            }
-        }
+                    },
+                },
+            },
+        },
     };
 });
 </script>
@@ -126,7 +128,7 @@ const chartOptions = computed<ChartOptions<'line'>>(() => {
             </div>
             <slot />
         </CardHeader>
-        <CardContent class="p-6 h-75 w-full">
+        <CardContent class="h-75 w-full p-6">
             <Line :data="chartData" :options="chartOptions" />
         </CardContent>
     </Card>

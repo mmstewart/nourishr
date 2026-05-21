@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { ref, nextTick, watch, type HTMLAttributes } from 'vue'
-import { useForm } from '@inertiajs/vue3'
+import { useForm } from '@inertiajs/vue3';
+import { nextTick, ref, watch, type HTMLAttributes } from 'vue';
 
 import { Button } from '@/components/ui/button';
-import { FieldLabel } from '@/components/ui/field'
 import {
     Dialog,
     DialogClose,
@@ -14,51 +13,54 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import { FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 
 defineProps<{
-    class?: HTMLAttributes["class"]
-}>()
+    class?: HTMLAttributes['class'];
+}>();
 
-const open = ref(false)
-const isClosing = ref(false)
+const open = ref(false);
+const isClosing = ref(false);
 
 const form = useForm({
     password: '',
-})
+});
 
-const touchedPassword = ref(false)
+const touchedPassword = ref(false);
 
 watch(open, (newVal) => {
     if (!newVal) {
-        isClosing.value = true
+        isClosing.value = true;
 
-        touchedPassword.value = false
+        touchedPassword.value = false;
 
-        form.reset('password')
-        form.clearErrors()
+        form.reset('password');
+        form.clearErrors();
 
-        nextTick(() => { isClosing.value = false })
+        nextTick(() => {
+            isClosing.value = false;
+        });
     }
-})
+});
 
 function handleBlur() {
-    if (!isClosing.value) touchedPassword.value = true
+    if (!isClosing.value) touchedPassword.value = true;
 }
 
 function submit() {
-    touchedPassword.value = true
+    touchedPassword.value = true;
 
-    if (!form.password) return
+    if (!form.password) return;
 
-    form.delete('/settings/security')
+    form.delete('/settings/security');
 }
 </script>
 
 <template>
     <div class="space-y-6">
-        <div class="space-y-4 rounded-md border p-4 bg-linear-to-tl from-red-500/5 to-default">
+        <div class="to-default space-y-4 rounded-md border bg-linear-to-tl from-red-500/5 p-4">
             <div class="relative space-y-0.5 text-red-600 dark:text-red-100">
                 <p class="font-medium">Account</p>
                 <p class="text-sm">
@@ -84,24 +86,38 @@ function submit() {
                         </DialogHeader>
                         <div class="grid gap-2">
                             <FieldLabel for="password">Password</FieldLabel>
-                            <Input v-model="form.password" @blur="handleBlur" id="password" name="password"
+                            <Input
+                                v-model="form.password"
+                                @blur="handleBlur"
+                                id="password"
+                                name="password"
                                 type="password"
-                                :class="{ 'border-red-500': (!form.password && touchedPassword) || form.errors.password }"
+                                :class="{
+                                    'border-red-500': (!form.password && touchedPassword) || form.errors.password,
+                                }"
                                 autocomplete="new-password" />
-                            <div v-if="(!form.password && touchedPassword) || form.errors.password"
-                                class="text-red-500 text-sm">
+                            <div
+                                v-if="(!form.password && touchedPassword) || form.errors.password"
+                                class="text-sm text-red-500">
                                 {{ form.errors.password || 'Password is required.' }}
                             </div>
                         </div>
                         <DialogFooter class="gap-2">
                             <DialogClose as-child>
-                                <Button @mousedown="isClosing = true" @click="form.reset()" variant="secondary"
+                                <Button
+                                    @mousedown="isClosing = true"
+                                    @click="form.reset()"
+                                    variant="secondary"
                                     class="cursor-pointer">
                                     Cancel
                                 </Button>
                             </DialogClose>
-                            <Button :disabled="form.processing || !form.password" variant="destructive" type="submit"
-                                data-test="confirm-delete-user-button" class="cursor-pointer">
+                            <Button
+                                :disabled="form.processing || !form.password"
+                                variant="destructive"
+                                type="submit"
+                                data-test="confirm-delete-user-button"
+                                class="cursor-pointer">
                                 <Spinner v-if="form.processing" class="mr-2" />
                                 Delete account
                             </Button>

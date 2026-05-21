@@ -6,8 +6,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { urlIsActive } from '@/lib/utils';
-import { toUrl } from '@/lib/utils';
+import { toUrl, urlIsActive } from '@/lib/utils';
 import { type NavItem } from '@/types';
 import { usePage } from '@inertiajs/vue3';
 
