@@ -71,7 +71,7 @@ watch(
         loadingTimezones.value = true;
 
         try {
-            const response = await axios.get(`/api/countries/${countryCode}/timezones`);
+            const response = await axios.get(`/countries/${countryCode}/timezones`);
 
             timezones.value = response.data;
         } catch (error) {

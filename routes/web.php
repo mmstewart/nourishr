@@ -18,7 +18,7 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('api/countries/{country}/timezones', function ($country) {
+Route::get('countries/{country}/timezones', function ($country) {
     abort_if(!preg_match('/^[A-Z]{2}$/', $country), 422);
 
     return response()->json(LocationService::getTimezonesForCountry($country));
@@ -48,7 +48,7 @@ Route::middleware(['auth', 'setup.incomplete', 'verified'])->group(function () {
         try {
             if ($type === 'scan') {
                 $response = Http::withHeaders([
-                    'User-Agent' => 'Nourishr/1.0 (mmsstewart20@gmail.com)',
+                    'User-Agent' => 'Nourishr/1.0 (Nourishr)',
                 ])->get("https://world.openfoodfacts.org/api/v2/product/{$food_item}", [
                     'fields' => 'product_name,nutriments',
                 ]);
