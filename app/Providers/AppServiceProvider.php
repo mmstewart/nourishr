@@ -27,14 +27,6 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        Fortify::confirmPasswordsUsing(function ($user, $password) {
-            if (is_null($user->password)) {
-                return true; // auto-confirm for Google OAuth users
-            }
-
-            return app(\Illuminate\Contracts\Hashing\Hasher::class)->check($password, $user->password);
-        });
-
         // https://medium.com/@segunibidokun/difference-between-carbon-and-carbonimmutable-0c9689518773
         CarbonImmutable::macro('inUserTimezone', function () {
             return $this->tz(auth()->user()?->timezone ?? config('app.timezone_display'));

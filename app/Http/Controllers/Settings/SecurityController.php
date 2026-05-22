@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\SecurityRequest;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -15,9 +14,7 @@ class SecurityController extends Controller implements HasMiddleware
 {
     public static function middleware()
     {
-        return Features::optionEnabled(Features::twoFactorAuthentication(), 'confirmPassword')
-            ? [new Middleware('password.confirm', only: ['show'])]
-            : [];
+        return [];
     }
 
     public function show(SecurityRequest $request)
