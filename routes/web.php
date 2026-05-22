@@ -18,15 +18,6 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('/debug-url', function () {
-    return [
-        'app_url' => config('app.url'),
-        'asset_url' => config('app.asset_url'),
-        'current_url' => request()->fullUrl(),
-        'is_secure' => request()->isSecure(),
-    ];
-});
-
 Route::get('countries/{country}/timezones', function ($country) {
     abort_if(!preg_match('/^[A-Z]{2}$/', $country), 422);
 

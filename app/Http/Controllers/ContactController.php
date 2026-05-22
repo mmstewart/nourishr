@@ -12,8 +12,10 @@ class ContactController extends Controller
 {
     public function __invoke(StoreContactRequest $request)
     {
+        $message = 'Message received. Thanks for reaching out! We’ve got your details and someone from our team will get back to you within 24 hours.';
+
         if ($request->filled('company')) {
-            return to_route('home')->with('success', 'Message received. Thanks for reaching out! We’ve got your details and someone from our team will get back to you within 24 hours.');
+            return to_route('home')->with('success', $message);
         }
 
         $validated = $request->validated();
@@ -23,6 +25,8 @@ class ContactController extends Controller
         Mail::to($contact->email)->send(new ContactReceived($contact));
         Mail::to(env('VITE_NOURISHR_EMAIL'))->send(new ContactNotification($contact));
 
-        return to_route('home')->with('success', 'Message received. Thanks for reaching out! We’ve got your details and someone from our team will get back to you within 24 hours.');
+        return $request->user()
+            ? to_route('dashboard')->with('success', $message)
+            : to_route('home')->with('success', $message);
     }
 }
