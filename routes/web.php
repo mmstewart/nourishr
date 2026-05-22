@@ -11,8 +11,6 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
-use Illuminate\Support\Facades\Schema;
-
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canRegister' => Features::enabled(Features::registration()),
@@ -20,12 +18,10 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('/debug-schema', function () {
-    return [
-        'columns' => Schema::getColumnListing('users'),
-        'db_connection' => config('database.default'),
-        'db_host_set' => !empty(env('DB_HOST')),
-    ];
+Route::get('api/countries/{country}/timezones', function ($country) {
+    abort_if(!preg_match('/^[A-Z]{2}$/', $country), 422);
+
+    return response()->json(LocationService::getTimezonesForCountry($country));
 });
 
 Route::get('contact', function () {
@@ -38,22 +34,6 @@ Route::post('contact', ContactController::class)->middleware('throttle:6,1')->na
 Route::get('privacy-policy', fn() => Inertia::render('PrivacyPolicy'))->name('privacy-policy');
 
 Route::get('terms-of-use',   fn() => Inertia::render('TermsOfUse'))->name('terms-of-use');
-
-Route::middleware('auth')->group(function () {
-    Route::get('api/countries/{country}/timezones', function ($country) {
-        abort_if(!preg_match('/^[A-Z]{2}$/', $country), 422);
-
-        return response()->json(LocationService::getTimezonesForCountry($country));
-    });
-
-    Route::get('impersonate/{user}', function ($user) {
-        abort_unless(auth()->user()?->is_admin, 403);
-
-        auth()->loginUsingId($user);
-
-        return redirect()->route('dashboard');
-    })->name('impersonate');
-});
 
 Route::middleware(['auth', 'setup.incomplete', 'verified'])->group(function () {
     // todo: make work
@@ -103,6 +83,14 @@ Route::middleware(['auth', 'setup.incomplete', 'verified'])->group(function () {
 
     Route::resource('weight-entries', WeightEntryController::class);
 });
+
+Route::get('impersonate/{user}', function ($user) {
+    abort_unless(auth()->user()?->is_admin, 403);
+
+    auth()->loginUsingId($user);
+
+    return redirect()->route('dashboard');
+})->middleware('auth')->name('impersonate');
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

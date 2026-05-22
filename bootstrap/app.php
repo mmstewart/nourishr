@@ -4,6 +4,7 @@ use App\Http\Middleware\EnsureProfileIsSetup;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\RedirectIfSetupComplete;
+use App\Http\Middleware\RestrictToNorthAmerica;
 use App\Models\ErrorLog;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -32,6 +33,8 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
+
+        $middleware->append(RestrictToNorthAmerica::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // if (app()->isProduction()) {
