@@ -15,9 +15,15 @@ class SecurityController extends Controller implements HasMiddleware
 {
     public static function middleware()
     {
-        return Features::optionEnabled(Features::twoFactorAuthentication(), 'confirmPassword')
-            ? [new Middleware('password.confirm', only: ['show'])]
-            : [];
+        if (!Features::optionEnabled(Features::twoFactorAuthentication(), 'confirmPassword')) {
+            return [];
+        }
+
+        if (auth()->check() && is_null(auth()->user()->password)) {
+            return [];
+        }
+
+        return [new Middleware('password.confirm', only: ['show'])];
     }
 
     public function show(SecurityRequest $request)
@@ -27,6 +33,7 @@ class SecurityController extends Controller implements HasMiddleware
         return Inertia::render('settings/Security', [
             'twoFactorEnabled' => $request->user()->hasEnabledTwoFactorAuthentication(),
             'requiresConfirmation' => Features::optionEnabled(Features::twoFactorAuthentication(), 'confirm'),
+            'hasPassword' => !is_null($request->user()->password),
         ]);
     }
 
