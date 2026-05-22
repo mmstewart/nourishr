@@ -10,6 +10,6 @@ class GoogleAuthRedirectController extends Controller
     public function __invoke()
     {
         // Redirect the user to Google's OAuth consent screen
-        return Socialite::driver('google')->redirect();
+        return Socialite::driver('google')->stateless()->redirect();
     }
 }
