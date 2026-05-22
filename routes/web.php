@@ -18,6 +18,17 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+Route::get('/debug-mail', function () {
+    return [
+        'mailer' => config('mail.default'),
+        'host' => config('mail.mailers.smtp.host'),
+        'port' => config('mail.mailers.smtp.port'),
+        'username_set' => !empty(config('mail.mailers.smtp.username')),
+        'password_set' => !empty(config('mail.mailers.smtp.password')),
+        'from' => config('mail.from'),
+    ];
+});
+
 Route::get('countries/{country}/timezones', function ($country) {
     abort_if(!preg_match('/^[A-Z]{2}$/', $country), 422);
 
