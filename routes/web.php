@@ -8,7 +8,6 @@ use App\Http\Controllers\WeightEntryController;
 use App\Services\LocationService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
@@ -18,10 +17,6 @@ Route::get('/', function () {
         'isLoggedIn' => auth()->check(),
     ]);
 })->name('home');
-
-Route::get('/debug-schema', function () {
-    return Schema::getColumnListing('users');
-});
 
 Route::get('contact', function () {
     return Inertia::render('Contact', [
