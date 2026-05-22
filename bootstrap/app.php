@@ -35,6 +35,8 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->append(RestrictToNorthAmerica::class);
+
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         if (app()->isProduction()) {
