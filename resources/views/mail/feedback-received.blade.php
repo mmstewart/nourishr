@@ -1,5 +1,5 @@
 <x-mail::message>
-# Thanks for your feedback, {{ $feedback->name }}!
+# Thanks You for Your Feedback, {{ $feedback->name }}
 
 We've received your message and really appreciate you taking the time to share your thoughts with us. We read every piece of feedback and will be in touch if we have any follow-up questions.
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref, type HTMLAttributes } from 'vue';
 
 import { Button } from '@/components/ui/button';
@@ -22,9 +22,12 @@ defineProps<{
     class?: HTMLAttributes['class'];
 }>();
 
+const page = usePage();
+const user = page.props.auth.user;
+
 const form = useForm({
-    name: '',
-    email: '',
+    name: user?.name || '',
+    email: user?.email || '',
     message: '',
     company: '',
 });
@@ -110,6 +113,7 @@ function submit() {
                                         id="name"
                                         name="name"
                                         type="text"
+                                        :disabled="!!user?.name"
                                         :class="{ 'border-red-500': nameError || form.errors.name }" />
                                     <div v-if="nameError || form.errors.name" class="text-sm text-red-500">
                                         {{ nameError || form.errors.name }}
@@ -123,6 +127,7 @@ function submit() {
                                         id="email"
                                         name="email"
                                         type="email"
+                                        :disabled="!!user?.email"
                                         :class="{ 'border-red-500': emailError || form.errors.email }" />
                                     <div v-if="emailError || form.errors.email" class="text-sm text-red-500">
                                         {{ emailError || form.errors.email }}

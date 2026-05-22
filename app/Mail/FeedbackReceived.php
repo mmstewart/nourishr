@@ -20,7 +20,7 @@ class FeedbackReceived extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Thank you for your feedback!',
+            subject: 'Thank You for Your Feedback, ' . $this->feedback->name,
         );
     }
 

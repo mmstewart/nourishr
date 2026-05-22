@@ -20,7 +20,7 @@ class ContactReceived extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Thank you for contacting us!',
+            subject: 'Thank You for Contacting Us, ' . $this->contact->name,
         );
     }
 
