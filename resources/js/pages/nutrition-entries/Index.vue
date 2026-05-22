@@ -96,7 +96,13 @@ watch(timeRange, (newRange) => {
                 </Card>
                 <Card class="@container/card">
                     <CardHeader>
-                        <CardDescription>Average Daily Calories</CardDescription>
+                        <CardDescription>
+                            {{
+                                timeRange === 'all'
+                                    ? 'Average Daily Calories'
+                                    : `Average Daily Calories (${timeRangeOptions.find((o) => o.value === timeRange)?.label})`
+                            }}
+                        </CardDescription>
                         <CardTitle class="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
                             {{ avgCalories }} kcal
                         </CardTitle>

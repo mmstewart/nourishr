@@ -50,9 +50,8 @@ const totalLost = computed(() => {
     if (!currentWeight.value || !props.chartData.length) return 0;
 
     const startWeight = props.chartData[0].weight;
-    const diff = startWeight - currentWeight.value;
 
-    return diff.toFixed(2);
+    return startWeight - currentWeight.value;
 });
 
 watch(timeRange, (newRange) => {
@@ -93,9 +92,15 @@ watch(timeRange, (newRange) => {
                 </Card>
                 <Card class="@container/card">
                     <CardHeader>
-                        <CardDescription>Total Progress</CardDescription>
+                        <CardDescription>
+                            {{
+                                timeRange === 'all'
+                                    ? 'Total Progress'
+                                    : `Progress (${timeRangeOptions.find((o) => o.value === timeRange)?.label})`
+                            }}
+                        </CardDescription>
                         <CardTitle class="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                            {{ Number(totalLost) > 0 ? '-' : '+' }}{{ Math.abs(Number(totalLost)) }} lbs
+                            {{ Number(totalLost) > 0 ? '-' : '+' }}{{ Math.abs(totalLost).toFixed(2) }} lbs
                         </CardTitle>
                     </CardHeader>
                 </Card>

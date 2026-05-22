@@ -193,8 +193,11 @@ watch(
                             <div class="mb-2 flex justify-between"><span class="text-sm">Spacer</span></div>
                             <div class="h-2"></div>
                         </div>
-                        <div class="mb-2 text-end text-sm font-medium tabular-nums">
-                            {{ user.weight_goal.target_calories }} kcal
+                        <div class="mb-2 flex justify-between">
+                            <span class="text-sm text-muted-foreground">0 kcal</span>
+                            <span class="text-sm font-medium tabular-nums">
+                                {{ user.weight_goal.target_calories }} kcal
+                            </span>
                         </div>
                         <Progress
                             :model-value="calorieProgress"
@@ -222,7 +225,7 @@ watch(
                                 <div class="mb-2 flex justify-between">
                                     <span class="text-sm text-muted-foreground">Protein</span>
                                     <span class="text-sm font-medium tabular-nums">
-                                        {{ totalProtein }} / {{ user.weight_goal.protein_grams }}g
+                                        {{ totalProtein }}g / {{ user.weight_goal.protein_grams }}g
                                     </span>
                                 </div>
                                 <Progress
@@ -236,7 +239,7 @@ watch(
                                 <div class="mb-2 flex justify-between">
                                     <span class="text-sm text-muted-foreground">Carbohydrates</span>
                                     <span class="text-sm font-medium tabular-nums">
-                                        {{ totalCarbohydrates }} / {{ user.weight_goal.carb_grams }}g
+                                        {{ totalCarbohydrates }}g / {{ user.weight_goal.carb_grams }}g
                                     </span>
                                 </div>
                                 <Progress
@@ -250,7 +253,7 @@ watch(
                                 <div class="mb-2 flex justify-between">
                                     <span class="text-sm text-muted-foreground">Fat</span>
                                     <span class="text-sm font-medium tabular-nums">
-                                        {{ totalFats }} / {{ user.weight_goal.fat_grams }}g
+                                        {{ totalFats }}g / {{ user.weight_goal.fat_grams }}g
                                     </span>
                                 </div>
                                 <Progress
@@ -278,8 +281,9 @@ watch(
                             <div class="mb-2 flex justify-between"><span class="text-sm">Spacer</span></div>
                             <div class="h-2"></div>
                         </div>
-                        <div class="mb-2 text-end text-sm font-medium tabular-nums">
-                            {{ user.weight_goal.goal_weight }} lbs
+                        <div class="mb-2 flex justify-between">
+                            <span class="text-sm text-muted-foreground">{{ user.weight_goal.current_weight }} lbs</span>
+                            <span class="text-sm font-medium tabular-nums">{{ user.weight_goal.goal_weight }} lbs</span>
                         </div>
                         <Progress
                             :model-value="weightStats.progress"
