@@ -10,10 +10,10 @@ use App\Http\Controllers\Auth\SetupProfileController;
 use App\Http\Controllers\Auth\SetupWeightGoalController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('setup.complete')->group(function () {
-    Route::get('auth/google/callback', GoogleAuthCallbackController::class)->middleware('throttle:5,1')->name('google.callback');
-    Route::get('auth/google/redirect', GoogleAuthRedirectController::class)->middleware('throttle:5,1')->name('google.redirect');
+Route::get('auth/google/callback', GoogleAuthCallbackController::class)->middleware('throttle:5,1')->name('google.callback');
+Route::get('auth/google/redirect', GoogleAuthRedirectController::class)->middleware('throttle:5,1')->name('google.redirect');
 
+Route::middleware('setup.complete')->group(function () {
     Route::get('login', [LoginController::class, 'create'])->name('login');
     Route::post('login', [LoginController::class, 'store'])->middleware('throttle:login')->name('login.store');
 

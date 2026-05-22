@@ -11,26 +11,17 @@ class GoogleAuthCallbackController extends Controller
 {
     public function __invoke()
     {
-        try {
-            $googleUser = Socialite::driver('google')->stateless()->user();
+        $googleUser = Socialite::driver('google')->stateless()->user();
 
-            $user = User::updateOrCreate([
-                'google_id' => $googleUser->getId(),
-            ], [
-                'name' => $googleUser->getName(),
-                'email' => $googleUser->getEmail(),
-            ]);
+        $user = User::updateOrCreate([
+            'google_id' => $googleUser->getId(),
+        ], [
+            'name' => $googleUser->getName(),
+            'email' => $googleUser->getEmail(),
+        ]);
 
-            Auth::login($user);
+        Auth::login($user);
 
-            return redirect()->route('setup');
-        } catch (\Exception $e) {
-            dd([
-                'message' => $e->getMessage(),
-                'class' => get_class($e),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-            ]);
-        }
+        return redirect()->route('setup');
     }
 }
