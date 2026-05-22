@@ -8,9 +8,9 @@ use App\Http\Controllers\WeightEntryController;
 use App\Services\LocationService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
-use Laravel\Socialite\Facades\Socialite;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -19,16 +19,8 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('/test', function () {
-    try {
-        $user = Socialite::driver('google')->user();
-        dd($user);
-    } catch (\Exception $e) {
-        dd([
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
-        ]);
-    }
+Route::get('/debug-schema', function () {
+    return Schema::getColumnListing('users');
 });
 
 Route::get('contact', function () {
