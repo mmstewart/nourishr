@@ -19,7 +19,7 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('/auth/google/callback', function () {
+Route::get('/test', function () {
     try {
         $user = Socialite::driver('google')->user();
         dd($user);
