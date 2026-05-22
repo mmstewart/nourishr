@@ -18,14 +18,12 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('/debug-mail', function () {
+Route::get('/debug-url', function () {
     return [
-        'mailer' => config('mail.default'),
-        'host' => config('mail.mailers.smtp.host'),
-        'port' => config('mail.mailers.smtp.port'),
-        'username_set' => !empty(config('mail.mailers.smtp.username')),
-        'password_set' => !empty(config('mail.mailers.smtp.password')),
-        'from' => config('mail.from'),
+        'app_url' => config('app.url'),
+        'asset_url' => config('app.asset_url'),
+        'current_url' => request()->fullUrl(),
+        'is_secure' => request()->isSecure(),
     ];
 });
 
