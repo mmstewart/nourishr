@@ -18,6 +18,15 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+Route::get('/debug-env', function () {
+    return [
+        'client_id_set' => !empty(env('GOOGLE_CLIENT_ID')),
+        'client_secret_set' => !empty(env('GOOGLE_CLIENT_SECRET')),
+        'redirect_uri' => env('GOOGLE_REDIRECT_URI'),
+        'app_url' => env('APP_URL'),
+    ];
+});
+
 Route::get('contact', function () {
     return Inertia::render('Contact', [
         'isLoggedIn' => auth()->check(),
