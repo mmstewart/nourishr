@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+use Laravel\Socialite\Facades\Socialite;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -18,13 +19,16 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('/debug-env', function () {
-    return [
-        'client_id_set' => !empty(env('GOOGLE_CLIENT_ID')),
-        'client_secret_set' => !empty(env('GOOGLE_CLIENT_SECRET')),
-        'redirect_uri' => env('GOOGLE_REDIRECT_URI'),
-        'app_url' => env('APP_URL'),
-    ];
+Route::get('/auth/google/callback', function () {
+    try {
+        $user = Socialite::driver('google')->user();
+        dd($user);
+    } catch (\Exception $e) {
+        dd([
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ]);
+    }
 });
 
 Route::get('contact', function () {
