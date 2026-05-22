@@ -23,7 +23,8 @@ class UpdateProfileRequest extends FormRequest
             'height_inches' => ['required', 'integer'],
             'email' => [
                 'required',
-                'email',
+                'lowercase',
+                'email:rfc,dns',
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],

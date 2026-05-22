@@ -9,7 +9,7 @@ class StoreLoginRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => ['required', 'email', 'max:255'],
+            'email' => ['required', 'lowercase', 'email:rfc,dns', 'max:255'],
             'password' => ['required'],
         ];
     }

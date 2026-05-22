@@ -15,7 +15,8 @@ class StoreSetupAccountRequest extends FormRequest
             'name' => ['required', 'max:255', 'blasp_check'],
             'email' => [
                 'required',
-                'email',
+                'lowercase',
+                'email:rfc,dns',
                 'max:255',
                 Rule::unique(User::class, 'email'),
             ],

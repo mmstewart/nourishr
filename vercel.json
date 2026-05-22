@@ -9,13 +9,12 @@
         { "src": "/favicon.svg", "dest": "/public/favicon.svg" },
         { "src": "/(.*)\\.(jpg|jpeg|png|gif|svg)$", "dest": "/public/$1.$2" },
         { "src": "/build/(.*)", "dest": "/public/build/$1" },
-        { "src": "/api/(.*)", "dest": "/api/index.php" },
         { "src": "/(.*)", "dest": "/api/index.php" }
     ],
     "env": {
         "APP_NAME": "Nourishr",
         "APP_ENV": "production",
-        "APP_DEBUG": "true",
+        "APP_DEBUG": "false",
         "APP_URL": "https://nourishr-app.vercel.app",
         "VERCEL_DEMO_MODE": "true",
         "APP_CONFIG_CACHE": "/tmp/config.php",

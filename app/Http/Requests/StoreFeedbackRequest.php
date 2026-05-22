@@ -10,7 +10,7 @@ class StoreFeedbackRequest extends FormRequest
     {
         return [
             'name' => ['required', 'max:255', 'blasp_check'],
-            'email' => ['required', 'email', 'max:255',],
+            'email' => ['required', 'lowercase', 'email:rfc,dns', 'max:255'],
             'message' => ['required', 'min:10'],
         ];
     }
