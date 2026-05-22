@@ -11,12 +11,22 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
+use Illuminate\Support\Facades\Schema;
+
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canRegister' => Features::enabled(Features::registration()),
         'isLoggedIn' => auth()->check(),
     ]);
 })->name('home');
+
+Route::get('/debug-schema', function () {
+    return [
+        'columns' => Schema::getColumnListing('users'),
+        'db_connection' => config('database.default'),
+        'db_host_set' => !empty(env('DB_HOST')),
+    ];
+});
 
 Route::get('contact', function () {
     return Inertia::render('Contact', [
