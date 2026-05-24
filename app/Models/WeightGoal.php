@@ -2,31 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Appends;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+#[Fillable(['activity_level_id', 'current_weight', 'goal_weight', 'start_weight', 'start_date', 'user_id', 'weekly_goal_id'])]
+#[Appends(['bmr', 'carb_grams', 'fat_grams', 'maintenance_calories', 'protein_grams', 'target_calories'])]
 class WeightGoal extends Model
 {
     use HasFactory;
-
-    protected $appends = [
-        'bmr',
-        'carb_grams',
-        'fat_grams',
-        'maintenance_calories',
-        'protein_grams',
-        'target_calories',
-    ];
-
-    public $fillable = [
-        'activity_level_id',
-        'current_weight',
-        'goal_weight',
-        'start_weight',
-        'start_date',
-        'user_id',
-        'weekly_goal_id',
-    ];
 
     public function activityLevel()
     {

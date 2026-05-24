@@ -2,27 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
 
+#[Fillable(['calories', 'carbohydrates', 'date', 'fats', 'fdc_id', 'food_item', 'meal_type', 'protein', 'quantity', 'serving_size', 'user_id'])]
 class NutritionEntry extends Model
 {
     use HasFactory;
-
-    protected $fillable = [
-        'calories',
-        'carbohydrates',
-        'date',
-        'fats',
-        'fdc_id',
-        'food_item',
-        'meal_type',
-        'protein',
-        'quantity',
-        'serving_size',
-        'user_id',
-    ];
 
     public function casts()
     {

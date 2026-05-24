@@ -2,18 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-class ErrorLog extends Model
-{
-    protected $fillable = [
-        'user_id',
-        'url',
-        'method',
-        'exception',
-        'message',
-        'input',
-        'stack_trace',
-        'ip'
-    ];
-}
+#[Fillable(['user_id', 'url', 'method', 'exception', 'message', 'input', 'stack_trace', 'ip'])]
+class ErrorLog extends Model {}

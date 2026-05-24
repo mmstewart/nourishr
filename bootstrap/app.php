@@ -34,7 +34,8 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        $middleware->append(RestrictToNorthAmerica::class);
+        // todo: comment out on local
+        // $middleware->append(RestrictToNorthAmerica::class);
 
         $middleware->trustProxies(at: '*');
     })

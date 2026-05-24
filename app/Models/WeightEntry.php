@@ -2,18 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+#[Fillable(['date', 'user_id', 'weight'])]
 class WeightEntry extends Model
 {
     use HasFactory;
-
-    protected $fillable = [
-        'date',
-        'user_id',
-        'weight',
-    ];
 
     public function user()
     {

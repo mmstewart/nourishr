@@ -3,38 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Appends;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
+#[Fillable(['country_code', 'dob', 'email', 'email_verified_at', 'gender', 'google_id', 'height_inches', 'name', 'password', 'timezone'])]
+#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes'])]
+#[Appends(['has_password', 'has_weight_goal'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
-
-    protected $fillable = [
-        'country_code',
-        'dob',
-        'email',
-        'email_verified_at',
-        'gender',
-        'google_id',
-        'height_inches',
-        'name',
-        'password',
-        'timezone',
-    ];
-
-    protected $hidden = [
-        'password',
-        'two_factor_secret',
-        'two_factor_recovery_codes',
-    ];
-
-    protected $appends = [
-        'has_password',
-        'has_weight_goal',
-    ];
 
     public $rememberTokenName = false;
 

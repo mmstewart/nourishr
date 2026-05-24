@@ -2,12 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends Factory<User>
  */
 class UserFactory extends Factory
 {
@@ -70,7 +71,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'two_factor_secret' => encrypt('test-secret-key'),
-            'two_factor_recovery_codes' => encrypt('recovery-one, recovery-two'),
+            'two_factor_recovery_codes' => encrypt(json_encode(['recovery-code-1'])),
             'two_factor_confirmed_at' => now(),
         ]);
     }

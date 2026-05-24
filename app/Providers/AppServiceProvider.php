@@ -3,10 +3,9 @@
 namespace App\Providers;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
-use Laravel\Fortify\Contracts\LogoutResponse;
-use Laravel\Fortify\Fortify;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,9 +22,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if (app()->isProduction()) {
-            URL::forceScheme('https');
-        }
+        DB::prohibitDestructiveCommands(app()->isProduction());
+        URL::forceScheme('https');
 
         // https://medium.com/@segunibidokun/difference-between-carbon-and-carbonimmutable-0c9689518773
         CarbonImmutable::macro('inUserTimezone', function () {
