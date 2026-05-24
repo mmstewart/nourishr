@@ -3,11 +3,11 @@
 
 <p align=center>See <a href="https://nourishr-app.vercel.app">https://nourishr-app.vercel.app</a>. Made with Laravel and Vue. ❤️</p>
 
-<!-- <p align="center">
-  <a href="https://www.marcusstewart.me/">
-    <img alt="Website" src="https://img.shields.io/website?down_color=red&down_message=offline&up_color=green&up_message=online&url=https%3A%2F%2Fwww.marcusstewart.me%2F">
+<p align="center">
+  <a href="https://nourishr-app.vercel.app">
+    <img alt="Website" src="https://img.shields.io/website?url=https%3A%2F%2Fnourishr-app.vercel.app&up_message=online&up_color=green&down_message=offline&down_color=red">
   </a>
-</p> -->
+</p>
 
 ## 🤓 Author
 
