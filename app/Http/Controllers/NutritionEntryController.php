@@ -122,7 +122,7 @@ class NutritionEntryController extends Controller
             ])->toArray()
         );
 
-        return redirect()->route('nutrition-entries.index');
+        return redirect()->route('nutrition-entries.create');
     }
 
     public function show(NutritionEntry $nutritionEntry)
