@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreNutritionEntryRequest;
 use App\Http\Requests\UpdateNutritionEntryRequest;
 use App\Models\NutritionEntry;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class NutritionEntryController extends Controller
@@ -120,6 +121,8 @@ class NutritionEntryController extends Controller
         //         'updated_at' => $now,
         //     ])->toArray()
         // );
+
+        DB::select('SELECT 1');
 
         return response()->json(['success' => true]);
     }
