@@ -11,14 +11,6 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
-Route::get('/debug-db', function () {
-    return response()->json([
-        'db_host' => explode('.', env('DB_HOST'), 2)[1] ?? 'unknown', // shows domain without subdomain
-        'db_connection' => env('DB_CONNECTION'),
-        'db_port' => env('DB_PORT'),
-    ]);
-});
-
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canRegister' => Features::enabled(Features::registration()),
