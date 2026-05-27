@@ -58,10 +58,7 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? [
-                \Pdo\Mysql::ATTR_SSL_CA => base_path('storage/certs/ca.pem'),
-                \PDO::ATTR_TIMEOUT => 5,
-            ] : [],
+            'options' => [],
         ],
 
         'pgsql' => [
