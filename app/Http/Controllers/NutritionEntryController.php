@@ -122,7 +122,15 @@ class NutritionEntryController extends Controller
         //     ])->toArray()
         // );
 
-        DB::select('SELECT 1');
+        $validated = $request->validated();
+
+        $entry = $validated['entries'][0];
+
+        NutritionEntry::create([
+            ...$entry,
+            'date'    => $validated['date'],
+            'user_id' => $request->user()->id,
+        ]);
 
         return response()->json(['success' => true]);
     }
