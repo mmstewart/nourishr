@@ -106,23 +106,36 @@ class NutritionEntryController extends Controller
 
     public function store(StoreNutritionEntryRequest $request)
     {
-        $this->authorize('create', NutritionEntry::class);
+        // $this->authorize('create', NutritionEntry::class);
+
+        // $validated = $request->validated();
+
+        // $now = now();
+
+        // DB::table('nutrition_entries')->insert(
+        //     collect($validated['entries'])->map(fn($entry) => [
+        //         ...$entry,
+        //         'date'       => $validated['date'],
+        //         'user_id'    => $request->user()->id,
+        //         'created_at' => $now,
+        //         'updated_at' => $now,
+        //     ])->toArray()
+        // );
+
+        // return response()->json(['success' => true]);
 
         $validated = $request->validated();
-
         $now = now();
 
-        DB::table('nutrition_entries')->insert(
-            collect($validated['entries'])->map(fn($entry) => [
-                ...$entry,
-                'date'       => $validated['date'],
-                'user_id'    => $request->user()->id,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ])->toArray()
-        );
+        $rows = collect($validated['entries'])->map(fn($entry) => [
+            ...$entry,
+            'date'       => $validated['date'],
+            'user_id'    => $request->user()->id,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ])->toArray();
 
-        return response()->json(['success' => true]);
+        return response()->json($rows);
     }
 
     public function show(NutritionEntry $nutritionEntry)
