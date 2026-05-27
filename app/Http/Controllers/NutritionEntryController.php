@@ -125,7 +125,7 @@ class NutritionEntryController extends Controller
         // return response()->json(['success' => true]);
 
         $validated = $request->validated();
-        $now = now();
+        $now = now()->toDateTimeString();
 
         $rows = collect($validated['entries'])->map(fn($entry) => [
             ...$entry,
