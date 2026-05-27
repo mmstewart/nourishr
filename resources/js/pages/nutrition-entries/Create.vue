@@ -107,7 +107,7 @@ watch(
         isSearching.value = true;
 
         try {
-            const response = await axios.get('/api/foodfacts', {
+            const response = await axios.get('/foodfacts', {
                 params: { food_item: query, type: 'search' },
             });
 
@@ -180,7 +180,7 @@ async function lookupNutritionLabel(label: string) {
     scanError.value = '';
 
     try {
-        const response = await axios.get(`/api/foodfacts`, {
+        const response = await axios.get(`/foodfacts`, {
             params: { food_item: label, type: 'scan' },
         });
 
