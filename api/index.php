@@ -4,6 +4,6 @@
  * Here is the serverless function entry
  * for deployment with Vercel.
  */
-@unlink('/tmp/config.php');
+array_map('unlink', glob('/tmp/*.php'));
 
 require __DIR__ . '/../public/index.php';
