@@ -126,16 +126,25 @@ class NutritionEntryController extends Controller
 
         $validated = $request->validated();
         $now = now()->toDateTimeString();
+        $entry = $validated['entries'][0];
 
-        $rows = collect($validated['entries'])->map(fn($entry) => [
-            ...$entry,
-            'date'       => $validated['date'],
-            'user_id'    => $request->user()->id,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ])->toArray();
+        DB::table('nutrition_entries')->insert([
+            'fdc_id'        => $entry['fdc_id'],
+            'meal_type'     => $entry['meal_type'],
+            'food_item'     => $entry['food_item'],
+            'calories'      => $entry['calories'],
+            'protein'       => $entry['protein'],
+            'carbohydrates' => $entry['carbohydrates'],
+            'fats'          => $entry['fats'],
+            'serving_size'  => $entry['serving_size'] ?? null,
+            'quantity'      => $entry['quantity'],
+            'date'          => $validated['date'],
+            'user_id'       => $request->user()->id,
+            'created_at'    => $now,
+            'updated_at'    => $now,
+        ]);
 
-        return response()->json($rows);
+        return response()->json(['success' => true]);
     }
 
     public function show(NutritionEntry $nutritionEntry)
