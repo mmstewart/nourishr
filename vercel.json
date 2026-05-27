@@ -25,6 +25,6 @@
         "CACHE_DRIVER": "array",
         "LOG_CHANNEL": "stderr",
         "SESSION_DRIVER": "cookie",
-        "VIEW_COMPILED_PATH": "/tmp/views",
+        "VIEW_COMPILED_PATH": "/tmp/views"
     }
 }
