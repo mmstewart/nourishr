@@ -121,7 +121,7 @@ class NutritionEntryController extends Controller
             ])->toArray()
         );
 
-        return to_route('nutrition-entries.index');
+        return response()->json(['success' => true]);
     }
 
     public function show(NutritionEntry $nutritionEntry)
