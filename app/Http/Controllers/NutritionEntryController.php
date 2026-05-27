@@ -112,7 +112,7 @@ class NutritionEntryController extends Controller
 
         $now = now();
 
-        $request->user()->nutritionEntries()->insert(
+        DB::table('nutrition_entries')->insert(
             collect($validated['entries'])->map(fn($entry) => [
                 ...$entry,
                 'date'       => $validated['date'],
