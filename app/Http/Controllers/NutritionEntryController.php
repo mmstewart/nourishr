@@ -122,9 +122,21 @@ class NutritionEntryController extends Controller
         //     ])->toArray()
         // );
 
-        $validated = $request->validated();
+        DB::table('nutrition_entries')->insert([
+            'food_item'     => 'test',
+            'meal_type'     => 'lunch',
+            'calories'      => 100,
+            'protein'       => 10,
+            'carbohydrates' => 10,
+            'fats'          => 5,
+            'quantity'      => 1,
+            'date'          => now()->toDateString(),
+            'user_id'       => $request->user()->id,
+            'created_at'    => now(),
+            'updated_at'    => now(),
+        ]);
 
-        return response()->json($validated);
+        return response()->json(['success' => true]);
     }
 
     public function show(NutritionEntry $nutritionEntry)
