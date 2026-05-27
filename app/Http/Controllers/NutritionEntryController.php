@@ -106,45 +106,23 @@ class NutritionEntryController extends Controller
 
     public function store(StoreNutritionEntryRequest $request)
     {
-        // $this->authorize('create', NutritionEntry::class);
-
-        // $validated = $request->validated();
-
-        // $now = now();
-
-        // DB::table('nutrition_entries')->insert(
-        //     collect($validated['entries'])->map(fn($entry) => [
-        //         ...$entry,
-        //         'date'       => $validated['date'],
-        //         'user_id'    => $request->user()->id,
-        //         'created_at' => $now,
-        //         'updated_at' => $now,
-        //     ])->toArray()
-        // );
-
-        // return response()->json(['success' => true]);
+        $this->authorize('create', NutritionEntry::class);
 
         $validated = $request->validated();
-        $now = now()->toDateTimeString();
-        $entry = $validated['entries'][0];
 
-        DB::table('nutrition_entries')->insert([
-            'fdc_id'        => $entry['fdc_id'],
-            'meal_type'     => $entry['meal_type'],
-            'food_item'     => $entry['food_item'],
-            'calories'      => $entry['calories'],
-            'protein'       => $entry['protein'],
-            'carbohydrates' => $entry['carbohydrates'],
-            'fats'          => $entry['fats'],
-            'serving_size'  => $entry['serving_size'] ?? null,
-            'quantity'      => $entry['quantity'],
-            'date'          => $validated['date'],
-            'user_id'       => $request->user()->id,
-            'created_at'    => $now,
-            'updated_at'    => $now,
-        ]);
+        $now = now();
 
-        return response()->json(['success' => true]);
+        DB::table('nutrition_entries')->insert(
+            collect($validated['entries'])->map(fn($entry) => [
+                ...$entry,
+                'date'       => $validated['date'],
+                'user_id'    => $request->user()->id,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ])->toArray()
+        );
+
+        return to_route('nutrition-entries.index');
     }
 
     public function show(NutritionEntry $nutritionEntry)
