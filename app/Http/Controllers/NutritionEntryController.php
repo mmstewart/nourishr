@@ -106,37 +106,23 @@ class NutritionEntryController extends Controller
 
     public function store(StoreNutritionEntryRequest $request)
     {
-        // $this->authorize('create', NutritionEntry::class);
+        $this->authorize('create', NutritionEntry::class);
 
-        // $validated = $request->validated();
+        $validated = $request->validated();
 
-        // $now = now();
+        $now = now();
 
-        // $request->user()->nutritionEntries()->insert(
-        //     collect($validated['entries'])->map(fn($entry) => [
-        //         ...$entry,
-        //         'date'       => $validated['date'],
-        //         'user_id'    => $request->user()->id,
-        //         'created_at' => $now,
-        //         'updated_at' => $now,
-        //     ])->toArray()
-        // );
+        $request->user()->nutritionEntries()->insert(
+            collect($validated['entries'])->map(fn($entry) => [
+                ...$entry,
+                'date'       => $validated['date'],
+                'user_id'    => $request->user()->id,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ])->toArray()
+        );
 
-        DB::table('nutrition_entries')->insert([
-            'food_item'     => 'test',
-            'meal_type'     => 'lunch',
-            'calories'      => 100,
-            'protein'       => 10,
-            'carbohydrates' => 10,
-            'fats'          => 5,
-            'quantity'      => 1,
-            'date'          => now()->toDateString(),
-            'user_id'       => $request->user()->id,
-            'created_at'    => now(),
-            'updated_at'    => now(),
-        ]);
-
-        return response()->json(['success' => true]);
+        return redirect()->route('nutrition-entries.index');
     }
 
     public function show(NutritionEntry $nutritionEntry)
