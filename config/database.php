@@ -60,7 +60,7 @@ return [
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 \Pdo\Mysql::ATTR_SSL_CA => base_path('storage/certs/ca.pem'),
-                \Pdo\Mysql::ATTR_TIMEOUT => 5,
+                \PDO::ATTR_TIMEOUT => 5,
             ]) : [],
         ],
 
