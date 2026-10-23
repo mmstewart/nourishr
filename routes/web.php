@@ -6,7 +6,11 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\FoodFactsController;
 use App\Http\Controllers\NutritionEntryController;
 use App\Http\Controllers\WeightEntryController;
+use App\Models\User;
 use App\Services\LocationService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -43,13 +47,14 @@ Route::middleware(['auth', 'setup.incomplete', 'verified'])->group(function () {
     Route::resource('weight-entries', WeightEntryController::class);
 });
 
-Route::get('impersonate/{user}', function ($user) {
-    abort_unless(auth()->user()?->is_admin, 403);
+Route::post('impersonate/{user}', function (Request $request, User $user) {
+    Log::warning('Admin impersonation', ['admin_id' => $request->user()->id, 'target_id' => $user->id, 'ip' => $request->ip()]);
 
-    auth()->loginUsingId($user);
+    Auth::login($user);
+    $request->session()->regenerate();
 
-    return redirect()->route('dashboard');
-})->middleware('auth')->name('impersonate');
+    return to_route('dashboard');
+})->middleware(['auth', 'can:impersonate,user'])->name('impersonate');
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

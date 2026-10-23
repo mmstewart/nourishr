@@ -23,7 +23,7 @@ class ContactController extends Controller
         $contact = Contact::create($validated);
 
         Mail::to($contact->email)->send(new ContactReceived($contact));
-        Mail::to(env('VITE_NOURISHR_EMAIL'))->send(new ContactNotification($contact));
+        Mail::to(config('mail.contact_address'))->send(new ContactNotification($contact));
 
         return $request->user()
             ? to_route('dashboard')->with('success', $message)

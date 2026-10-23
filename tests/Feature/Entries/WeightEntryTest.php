@@ -1,9 +1,8 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Entries;
 
 use App\Models\User;
-use App\Models\WeightEntry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;

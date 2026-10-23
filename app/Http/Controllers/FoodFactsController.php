@@ -37,7 +37,7 @@ class FoodFactsController extends Controller
             $response = Http::get('https://api.nal.usda.gov/fdc/v1/foods/search', [
                 'query'    => $food_item,
                 'pageSize' => 20,
-                'api_key'  => env('USDA_API_SECRET'),
+                'api_key'  => config('services.usda.key'),
             ]);
 
             return response()->json($response->json());
