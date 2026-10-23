@@ -6,6 +6,7 @@ use App\Mail\ContactReceived;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class ContactTest extends TestCase
@@ -23,8 +24,9 @@ class ContactTest extends TestCase
     {
         $this->get(route('contact'))
             ->assertInertia(
-                fn($page) => $page
-                    ->where('isLoggedIn', false)
+                fn(Assert $page) => $page
+                    ->component('Contact')
+                    ->where('auth.user', null)
             );
 
         $user = User::factory()->create();
@@ -32,8 +34,9 @@ class ContactTest extends TestCase
         $this->actingAs($user)
             ->get(route('contact'))
             ->assertInertia(
-                fn($page) => $page
-                    ->where('isLoggedIn', true)
+                fn(Assert $page) => $page
+                    ->component('Contact')
+                    ->where('auth.user.id', $user->id)
             );
     }
 

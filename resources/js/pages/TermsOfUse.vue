@@ -17,7 +17,7 @@ const email = import.meta.env.VITE_NOURISHR_EMAIL;
                         class="inline-flex items-center rounded-full bg-white px-2 py-1 text-xs font-medium text-gray-400 inset-ring inset-ring-gray-400/20">
                         Legal
                     </span>
-                    <h1 class="mt-2 mb-3 text-[1.875rem] leading-[1.2] font-bold tracking-[-0.025em]">Terms of Use</h1>
+                    <h1 class="mt-2 mb-3 text-[1.875rem] leading-[1.2] font-bold tracking-tight">Terms of Use</h1>
                     <div class="flex items-center gap-1 text-sm text-muted-foreground">
                         Last revised:
                         <strong class="font-semibold text-foreground">May 22, 2026</strong>
@@ -87,117 +87,117 @@ const email = import.meta.env.VITE_NOURISHR_EMAIL;
                     <div class="mb-4 text-xs font-semibold tracking-[0.08em] text-muted-foreground uppercase">
                         Table of Contents
                     </div>
-                    <ol class="flex list-none flex-col gap-[0.375rem]">
+                    <ol class="flex list-none flex-col gap-1.5">
                         <li class="flex gap-3 text-sm">
-                            <span class="min-w-[1.5rem] text-muted-foreground tabular-nums">1.</span>
+                            <span class="min-w-6 text-muted-foreground tabular-nums">1.</span>
                             <a href="#infocollect" class="text-foreground transition hover:text-muted-foreground">
                                 Our Services
                             </a>
                         </li>
                         <li class="flex gap-3 text-sm">
-                            <span class="min-w-[1.5rem] text-muted-foreground tabular-nums">2.</span>
+                            <span class="min-w-6 text-muted-foreground tabular-nums">2.</span>
                             <a href="#ip" class="text-foreground transition hover:text-muted-foreground">
                                 Intellectual Property Rights
                             </a>
                         </li>
                         <li class="flex gap-3 text-sm">
-                            <span class="min-w-[1.5rem] text-muted-foreground tabular-nums">3.</span>
+                            <span class="min-w-6 text-muted-foreground tabular-nums">3.</span>
                             <a href="#userreps" class="text-foreground transition hover:text-muted-foreground">
                                 User Representations
                             </a>
                         </li>
                         <li class="flex gap-3 text-sm">
-                            <span class="min-w-[1.5rem] text-muted-foreground tabular-nums">4.</span>
+                            <span class="min-w-6 text-muted-foreground tabular-nums">4.</span>
                             <a href="#prohibited" class="text-foreground transition hover:text-muted-foreground">
                                 Prohibited Activities
                             </a>
                         </li>
                         <li class="flex gap-3 text-sm">
-                            <span class="min-w-[1.5rem] text-muted-foreground tabular-nums">5.</span>
+                            <span class="min-w-6 text-muted-foreground tabular-nums">5.</span>
                             <a href="#ugc" class="text-foreground transition hover:text-muted-foreground">
                                 User Generated Contributions
                             </a>
                         </li>
                         <li class="flex gap-3 text-sm">
-                            <span class="min-w-[1.5rem] text-muted-foreground tabular-nums">6.</span>
+                            <span class="min-w-6 text-muted-foreground tabular-nums">6.</span>
                             <a href="#license" class="text-foreground transition hover:text-muted-foreground">
                                 Contribution License
                             </a>
                         </li>
                         <li class="flex gap-3 text-sm">
-                            <span class="min-w-[1.5rem] text-muted-foreground tabular-nums">7.</span>
+                            <span class="min-w-6 text-muted-foreground tabular-nums">7.</span>
                             <a href="#sitemanage" class="text-foreground transition hover:text-muted-foreground">
                                 Services Management
                             </a>
                         </li>
                         <li class="flex gap-3 text-sm">
-                            <span class="min-w-[1.5rem] text-muted-foreground tabular-nums">8.</span>
+                            <span class="min-w-6 text-muted-foreground tabular-nums">8.</span>
                             <a href="#terms" class="text-foreground transition hover:text-muted-foreground">
                                 Term and Termination
                             </a>
                         </li>
                         <li class="flex gap-3 text-sm">
-                            <span class="min-w-[1.5rem] text-muted-foreground tabular-nums">9.</span>
+                            <span class="min-w-6 text-muted-foreground tabular-nums">9.</span>
                             <a href="#modifications" class="text-foreground transition hover:text-muted-foreground">
                                 Modifications and Interruptions
                             </a>
                         </li>
                         <li class="flex gap-3 text-sm">
-                            <span class="min-w-[1.5rem] text-muted-foreground tabular-nums">10.</span>
+                            <span class="min-w-6 text-muted-foreground tabular-nums">10.</span>
                             <a href="#law" class="text-foreground transition hover:text-muted-foreground">
                                 Governing Law
                             </a>
                         </li>
                         <li class="flex gap-3 text-sm">
-                            <span class="min-w-[1.5rem] text-muted-foreground tabular-nums">11.</span>
+                            <span class="min-w-6 text-muted-foreground tabular-nums">11.</span>
                             <a href="#disputes" class="text-foreground transition hover:text-muted-foreground">
                                 Dispute Resolution
                             </a>
                         </li>
                         <li class="flex gap-3 text-sm">
-                            <span class="min-w-[1.5rem] text-muted-foreground tabular-nums">12.</span>
+                            <span class="min-w-6 text-muted-foreground tabular-nums">12.</span>
                             <a href="#corrections" class="text-foreground transition hover:text-muted-foreground">
                                 Corrections
                             </a>
                         </li>
                         <li class="flex gap-3 text-sm">
-                            <span class="min-w-[1.5rem] text-muted-foreground tabular-nums">13.</span>
+                            <span class="min-w-6 text-muted-foreground tabular-nums">13.</span>
                             <a href="#disclaimer" class="text-foreground transition hover:text-muted-foreground">
                                 Disclaimer
                             </a>
                         </li>
                         <li class="flex gap-3 text-sm">
-                            <span class="min-w-[1.5rem] text-muted-foreground tabular-nums">14.</span>
+                            <span class="min-w-6 text-muted-foreground tabular-nums">14.</span>
                             <a href="#liability" class="text-foreground transition hover:text-muted-foreground">
                                 Limitations of Liability
                             </a>
                         </li>
                         <li class="flex gap-3 text-sm">
-                            <span class="min-w-[1.5rem] text-muted-foreground tabular-nums">15.</span>
+                            <span class="min-w-6 text-muted-foreground tabular-nums">15.</span>
                             <a href="#indemnification" class="text-foreground transition hover:text-muted-foreground">
                                 Indemnification
                             </a>
                         </li>
                         <li class="flex gap-3 text-sm">
-                            <span class="min-w-[1.5rem] text-muted-foreground tabular-nums">16.</span>
+                            <span class="min-w-6 text-muted-foreground tabular-nums">16.</span>
                             <a href="#userdata" class="text-foreground transition hover:text-muted-foreground">
                                 User Data
                             </a>
                         </li>
                         <li class="flex gap-3 text-sm">
-                            <span class="min-w-[1.5rem] text-muted-foreground tabular-nums">17.</span>
+                            <span class="min-w-6 text-muted-foreground tabular-nums">17.</span>
                             <a href="#electronic" class="text-foreground transition hover:text-muted-foreground">
                                 Electronic Communications, Transactions, and Signatures
                             </a>
                         </li>
                         <li class="flex gap-3 text-sm">
-                            <span class="min-w-[1.5rem] text-muted-foreground tabular-nums">18.</span>
+                            <span class="min-w-6 text-muted-foreground tabular-nums">18.</span>
                             <a href="#misc" class="text-foreground transition hover:text-muted-foreground">
                                 Miscellaneous
                             </a>
                         </li>
                         <li class="flex gap-3 text-sm">
-                            <span class="min-w-[1.5rem] text-muted-foreground tabular-nums">19.</span>
+                            <span class="min-w-6 text-muted-foreground tabular-nums">19.</span>
                             <a href="#contact" class="text-foreground transition hover:text-muted-foreground">
                                 Contact Us
                             </a>

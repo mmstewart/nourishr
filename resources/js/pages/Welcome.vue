@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { CircleCheck } from 'lucide-vue-next';
@@ -23,10 +23,11 @@ const images = {
 
 defineProps<{
     canRegister: boolean;
-    isLoggedIn: boolean;
 }>();
 
 const page = usePage();
+
+const isLoggedIn = computed(() => !!page.props.auth.user);
 
 const showSuccessMessage = ref(false);
 
@@ -50,7 +51,7 @@ watch(
         <div v-if="showSuccessMessage" class="fixed top-20 right-6 z-50 w-full max-w-md md:right-12">
             <Alert>
                 <CircleCheck class="stroke-green-500" />
-                <AlertTitle class="text-green-500">Thank you for the feedback!</AlertTitle>
+                <AlertTitle class="text-green-500">Message sent!</AlertTitle>
                 <AlertDescription>
                     {{ page.props.flash.success }}
                 </AlertDescription>

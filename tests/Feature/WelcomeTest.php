@@ -25,7 +25,7 @@ class WelcomeTest extends TestCase
         $response->assertInertia(
             fn(Assert $page) => $page
                 ->component('Welcome')
-                ->where('isLoggedIn', false)
+                ->where('auth.user', null)
                 ->where('canRegister', true)
         );
     }
@@ -39,7 +39,7 @@ class WelcomeTest extends TestCase
         $response->assertInertia(
             fn(Assert $page) => $page
                 ->component('Welcome')
-                ->where('isLoggedIn', true)
+                ->where('auth.user.id', $user->id)
         );
     }
 
@@ -50,7 +50,7 @@ class WelcomeTest extends TestCase
         $response->assertInertia(
             fn(Assert $page) => $page
                 ->component('Welcome')
-                ->where('isLoggedIn', false)
+                ->where('auth.user', null)
         );
     }
 
@@ -65,7 +65,7 @@ class WelcomeTest extends TestCase
         $response->assertInertia(
             fn(Assert $page) => $page
                 ->component('Welcome')
-                ->where('isLoggedIn', true)
+                ->where('auth.user.id', $user->id)
         );
     }
 }

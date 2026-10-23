@@ -15,12 +15,9 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canRegister' => Features::enabled(Features::registration()),
-        'isLoggedIn' => auth()->check(),
-    ]);
-})->name('home');
+Route::get('/', fn () => Inertia::render('Welcome', [
+    'canRegister' => Features::enabled(Features::registration()),
+]))->name('home');
 
 Route::get('countries/{country}/timezones', function ($country) {
     abort_if(!preg_match('/^[A-Z]{2}$/', $country), 422);
@@ -28,12 +25,7 @@ Route::get('countries/{country}/timezones', function ($country) {
     return response()->json(LocationService::getTimezonesForCountry($country));
 });
 
-Route::get('contact', function () {
-    return Inertia::render('Contact', [
-        'isLoggedIn' => auth()->check(),
-    ]);
-})->name('contact');
-
+Route::get('contact', fn () => Inertia::render('Contact'))->name('contact');
 Route::post('contact', ContactController::class)->middleware('throttle:6,1')->name('contact.store');
 Route::get('privacy-policy', fn() => Inertia::render('PrivacyPolicy'))->name('privacy-policy');
 Route::get('terms-of-use', fn() => Inertia::render('TermsOfUse'))->name('terms-of-use');
