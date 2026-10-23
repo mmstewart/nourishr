@@ -12,9 +12,14 @@ class RestrictToNorthAmerica
 
     public function handle(Request $request, Closure $next): Response
     {
+        // The country header only exists on Vercel, so skip the check in local and testing environments
+        if (! app()->isProduction()) {
+            return $next($request);
+        }
+
         $country = $request->header('x-vercel-ip-country');
 
-        if (!in_array($country, $this->allowed)) {
+        if (! in_array($country, $this->allowed)) {
             abort(403, 'This service is not available in your region.');
         }
 

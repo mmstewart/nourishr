@@ -5,6 +5,7 @@ namespace App\Http\Requests\Settings;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Email;
 
 class UpdateProfileRequest extends FormRequest
 {
@@ -24,7 +25,7 @@ class UpdateProfileRequest extends FormRequest
             'email' => [
                 'required',
                 'lowercase',
-                'email:rfc,dns',
+                Email::default(),
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],

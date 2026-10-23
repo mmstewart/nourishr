@@ -165,7 +165,7 @@ async function startScanner() {
             if (error) {
             }
         });
-    } catch (e) {
+    } catch {
         scanError.value = 'Could not access camera. Please check permissions.';
     }
 }
@@ -210,7 +210,7 @@ async function lookupNutritionLabel(label: string) {
                 if (mode.value === 'scan') startScanner();
             }, 2000);
         }
-    } catch (e) {
+    } catch {
         scanError.value = 'Failed to look up product.';
 
         setTimeout(() => {

@@ -71,7 +71,7 @@ class ContactTest extends TestCase
 
         $response->assertSessionHasNoErrors();
 
-        $response->assertRedirect(route('home'));
+        $response->assertRedirect(route('dashboard'));
         $response->assertSessionHas('success');
 
         Mail::assertSent(ContactReceived::class);

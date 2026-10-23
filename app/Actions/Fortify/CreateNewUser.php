@@ -5,6 +5,7 @@ namespace App\Actions\Fortify;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Email;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
 class CreateNewUser implements CreatesNewUsers
@@ -23,7 +24,7 @@ class CreateNewUser implements CreatesNewUsers
             'email' => [
                 'required',
                 'lowercase',
-                'email:rfc,dns',
+                Email::default(),
                 'max:255',
                 Rule::unique(User::class),
             ],

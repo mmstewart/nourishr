@@ -4,8 +4,9 @@ namespace App\Http\Requests\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Email;
+use Illuminate\Validation\Rules\Password;
 
 class StoreSetupAccountRequest extends FormRequest
 {
@@ -16,7 +17,7 @@ class StoreSetupAccountRequest extends FormRequest
             'email' => [
                 'required',
                 'lowercase',
-                'email:rfc,dns',
+                Email::default(),
                 'max:255',
                 Rule::unique(User::class, 'email'),
             ],

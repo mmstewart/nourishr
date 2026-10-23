@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Email;
 
 class StoreContactRequest extends FormRequest
 {
@@ -10,7 +11,7 @@ class StoreContactRequest extends FormRequest
     {
         return [
             'name' => ['required', 'max:255', 'blasp_check'],
-            'email' => ['required', 'lowercase', 'email:rfc,dns', 'max:255'],
+            'email' => ['required', 'lowercase', Email::default(), 'max:255'],
             'message' => ['required', 'min:10'],
         ];
     }
