@@ -67,7 +67,7 @@ defineProps<{
             class="absolute top-20 right-6 text-right md:right-12"
             :initial="{ opacity: 0 }"
             :while-in-view="{ opacity: 1 }"
-            :viewport="{ once: true }">
+            :in-view-options="{ once: true }">
             <span class="text-[10px] tracking-[0.4em] text-green-500 uppercase">02 — Gravity Suite</span>
         </motion.div>
         <div class="mx-auto max-w-7xl px-6 md:px-12">
@@ -76,7 +76,7 @@ defineProps<{
                     class="relative order-2 aspect-3/2 overflow-hidden rounded-md lg:order-1"
                     :initial="{ opacity: 0, scale: 0.95 }"
                     :while-in-view="{ opacity: 1, scale: 1 }"
-                    :viewport="{ once: true }"
+                    :in-view-options="{ once: true }"
                     :transition="{ duration: 0.8 }">
                     <img
                         :src="image"
@@ -125,7 +125,7 @@ defineProps<{
                     class="order-1 lg:order-2"
                     :initial="{ opacity: 0, x: 40 }"
                     :while-in-view="{ opacity: 1, x: 0 }"
-                    :viewport="{ once: true }"
+                    :in-view-options="{ once: true }"
                     :transition="{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }">
                     <h2 class="mb-6 text-4xl leading-[1.05] font-bold tracking-tight md:text-5xl lg:text-6xl">
                         Your weight,
