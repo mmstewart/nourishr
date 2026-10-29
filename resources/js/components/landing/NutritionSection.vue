@@ -46,7 +46,7 @@ const features: Feature[] = [
             class="absolute top-20 left-6 md:left-12"
             :initial="{ opacity: 0 }"
             :while-in-view="{ opacity: 1 }"
-            :viewport="{ once: true }">
+            :in-view-options="{ once: true }">
             <span class="text-[10px] tracking-[0.4em] text-green-500 uppercase">01 — Nutrition Engine</span>
         </motion.div>
         <div class="mx-auto max-w-7xl px-6 md:px-12">
@@ -54,7 +54,7 @@ const features: Feature[] = [
                 <motion.div
                     :initial="{ opacity: 0, x: -40 }"
                     :while-in-view="{ opacity: 1, x: 0 }"
-                    :viewport="{ once: true }"
+                    :in-view-options="{ once: true }"
                     :transition="{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }">
                     <h2 class="mb-6 text-4xl leading-[1.05] font-bold tracking-tight md:text-5xl lg:text-6xl">
                         Healthy eating,
@@ -69,7 +69,7 @@ const features: Feature[] = [
                     class="relative mx-auto aspect-square max-w-md overflow-hidden rounded-md lg:mx-0"
                     :initial="{ opacity: 0, scale: 0.95 }"
                     :while-in-view="{ opacity: 1, scale: 1 }"
-                    :viewport="{ once: true }"
+                    :in-view-options="{ once: true }"
                     :transition="{ duration: 0.8, delay: 0.2 }">
                     <img
                         :src="image"
