@@ -19,7 +19,10 @@ const avatarURL = import.meta.env.VITE_LARAVEL_AVATARS_URL;
 
 <template>
     <Avatar class="h-8 w-8 overflow-hidden rounded-md">
-        <img :src="avatarURL + '/' + user.id + '?vibe=stealth'" class="aspect-square size-full" />
+        <img
+            :src="avatarURL + '/' + user.id + '?vibe=stealth'"
+            :alt="`${user.name}'s avatar`"
+            class="aspect-square size-full" />
         <AvatarFallback class="rounded-md text-black dark:text-white">
             {{ getInitials(user.name) }}
         </AvatarFallback>

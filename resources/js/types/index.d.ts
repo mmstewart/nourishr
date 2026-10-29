@@ -69,7 +69,8 @@ export interface NutritionEntry {
     id: number;
     date: string;
     date_raw: string;
-    fdc_id: number;
+    fdc_id: number | null;
+    barcode: string | null;
     meal_type: string;
     food_item: string;
     calories: number;
