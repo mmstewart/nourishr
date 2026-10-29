@@ -1,11 +1,12 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/vue-starter-kit",
+    "name": "mmstewart/nourishr",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "Nourishr, a nutrition and weight tracking app built with Laravel and Vue.",
     "keywords": [
         "laravel",
-        "framework"
+        "vue",
+        "nutrition"
     ],
     "license": "MIT",
     "require": {

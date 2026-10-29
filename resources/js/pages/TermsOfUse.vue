@@ -90,7 +90,7 @@ const email = import.meta.env.VITE_NOURISHR_EMAIL;
                     <ol class="flex list-none flex-col gap-1.5">
                         <li class="flex gap-3 text-sm">
                             <span class="min-w-6 text-muted-foreground tabular-nums">1.</span>
-                            <a href="#infocollect" class="text-foreground transition hover:text-muted-foreground">
+                            <a href="#services" class="text-foreground transition hover:text-muted-foreground">
                                 Our Services
                             </a>
                         </li>

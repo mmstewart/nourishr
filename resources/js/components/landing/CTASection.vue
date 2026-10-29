@@ -15,7 +15,7 @@ withDefaults(
 <template>
     <section
         id="cta"
-        class="relative overflow-hidden bg-[linear-gradient(180deg,##f3f4f6_0%,#F5FFF7_100%)] py-32 md:py-48">
+        class="relative overflow-hidden bg-[linear-gradient(180deg,#f3f4f6_0%,#F5FFF7_100%)] py-32 md:py-48">
         <div class="pointer-events-none absolute inset-0" aria-hidden="true">
             <img
                 :src="images[0]"
@@ -30,7 +30,7 @@ withDefaults(
             <motion.div
                 :initial="{ opacity: 0, y: 30 }"
                 :while-in-view="{ opacity: 1, y: 0 }"
-                :viewport="{ once: true }"
+                :in-view-options="{ once: true }"
                 :transition="{ duration: 0.8 }">
                 <span class="mb-8 block text-[10px] tracking-[0.4em] text-green-500 uppercase">Ready to start?</span>
                 <h2 class="mb-6 text-4xl leading-[1.05] font-bold tracking-tight md:text-6xl">

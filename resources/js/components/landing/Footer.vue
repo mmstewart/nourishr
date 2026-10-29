@@ -33,7 +33,7 @@ const navigate = (href: string) => {
                 <motion.div
                     :initial="{ opacity: 0, y: 20 }"
                     :while-in-view="{ opacity: 1, y: 0 }"
-                    :viewport="{ once: true }"
+                    :in-view-options="{ once: true }"
                     :transition="{ duration: 0.6 }">
                     <Link
                         @click="navigate('#hero')"
@@ -49,7 +49,7 @@ const navigate = (href: string) => {
                     class="flex flex-col gap-6 md:items-end"
                     :initial="{ opacity: 0, y: 20 }"
                     :while-in-view="{ opacity: 1, y: 0 }"
-                    :viewport="{ once: true }"
+                    :in-view-options="{ once: true }"
                     :transition="{ duration: 0.6, delay: 0.1 }">
                     <nav class="flex gap-8">
                         <template v-for="link in footerLinks" :key="link.label">
