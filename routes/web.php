@@ -37,6 +37,7 @@ Route::middleware(['auth', 'setup.incomplete', 'verified'])->group(function () {
     Route::post('feedback', FeedbackController::class)->middleware('throttle:6,1')->name('feedback.store');
     Route::get('coach', [CoachController::class, 'index'])->name('coach');
     Route::post('coach', [CoachController::class, 'ask'])->middleware('throttle:10,1')->name('coach.ask');
+    Route::put('coach/data-access', [CoachController::class, 'updateDataAccess'])->name('coach.data-access');
     Route::get('foodfacts', FoodFactsController::class);
     Route::resource('nutrition-entries', NutritionEntryController::class);
     Route::resource('weight-entries', WeightEntryController::class);

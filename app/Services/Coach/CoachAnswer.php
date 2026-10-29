@@ -16,5 +16,7 @@ final readonly class CoachAnswer
         public ?int $outputTokens = null,
         public ?string $stopReason = null,
         public ?int $thinkingTokens = null,
+        /** @var list<string> names of the tools called, in order */
+        public array $toolCalls = [],
     ) {}
 }

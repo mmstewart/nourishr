@@ -13,6 +13,7 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
     protected $fillable = [
+        'coach_data_access',
         'country_code',
         'dob',
         'email',
@@ -41,6 +42,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected function casts()
     {
         return [
+            'coach_data_access' => 'boolean',
             'dob' => 'date:Y-m-d',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
