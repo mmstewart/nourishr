@@ -36,7 +36,7 @@ class WeeklyGoalSeeder extends Seeder
             ],
             [
                 'id' => 7,
-                'name' => 'Lose 1 lb per week',
+                'name' => 'Gain 1 lb per week',
             ],
         ];
 

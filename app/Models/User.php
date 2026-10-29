@@ -68,9 +68,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->dob?->age;
     }
 
+    public function isMinor(): bool
+    {
+        return $this->age !== null && $this->age < 18;
+    }
+
     public function getHasPasswordAttribute()
     {
-        return !is_null($this->password);
+        return ! is_null($this->password);
     }
 
     public function getHasWeightGoalAttribute()
@@ -86,7 +91,7 @@ class User extends Authenticatable implements MustVerifyEmail
             $this->country_code,
             $this->timezone,
             $this->gender,
-        ])->every(fn($value) => !empty($value));
+        ])->every(fn ($value) => ! empty($value));
     }
 
     public function hasCompletedSetup()
