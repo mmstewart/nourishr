@@ -24,6 +24,17 @@ class GeminiProvider implements CoachProvider
         return self::BASE_URL . '/' . rawurlencode($model) . ':generateContent';
     }
 
+    private function generationConfig(): array
+    {
+        $config = ['maxOutputTokens' => config('services.coach.max_tokens')];
+
+        if (filled($level = config('services.gemini.thinking_level'))) {
+            $config['thinkingConfig'] = ['thinkingLevel' => $level];
+        }
+
+        return $config;
+    }
+
     public function answer(string $systemPrompt, string $question): CoachAnswer
     {
         $key = config('services.gemini.key');
@@ -46,9 +57,7 @@ class GeminiProvider implements CoachProvider
                     'contents' => [
                         ['role' => 'user', 'parts' => [['text' => $question]]],
                     ],
-                    'generationConfig' => [
-                        'maxOutputTokens' => config('services.coach.max_tokens'),
-                    ],
+                    'generationConfig' => $this->generationConfig(),
                 ]);
         } catch (ConnectionException $e) {
             Log::warning('Coach (Gemini) failed to connect', ['error' => $e->getMessage()]);
@@ -94,6 +103,7 @@ class GeminiProvider implements CoachProvider
             inputTokens: $response->json('usageMetadata.promptTokenCount'),
             outputTokens: $response->json('usageMetadata.candidatesTokenCount'),
             stopReason: $finishReason,
+            thinkingTokens: $response->json('usageMetadata.thoughtsTokenCount'),
         );
     }
 }

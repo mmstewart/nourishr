@@ -59,6 +59,15 @@ class CoachService
         $answer = $this->provider()->answer($this->systemPromptFor($user), $question);
 
         if ($answer->text === '') {
+            // MAX_TOKENS here usually means thinking used up the whole output budget.
+            Log::warning('Coach returned an empty answer', [
+                'provider' => $answer->provider,
+                'model' => $answer->model,
+                'stop_reason' => $answer->stopReason,
+                'output_tokens' => $answer->outputTokens,
+                'thinking_tokens' => $answer->thinkingTokens,
+            ]);
+
             throw new CoachUnavailableException("{$answer->provider} returned no text (stop reason: {$answer->stopReason}).");
         }
 
@@ -75,6 +84,7 @@ class CoachService
             'model' => $answer->model,
             'input_tokens' => $answer->inputTokens,
             'output_tokens' => $answer->outputTokens,
+            'thinking_tokens' => $answer->thinkingTokens,
             'stop_reason' => $answer->stopReason,
         ]);
 
