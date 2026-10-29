@@ -145,7 +145,8 @@ class CoachTest extends TestCase
                 && ! str_contains($request->url(), 'key=')
                 && $request['systemInstruction']['parts'][0]['text'] === CoachService::SYSTEM_PROMPT
                 && $request['contents'] === [['role' => 'user', 'parts' => [['text' => 'How much water should I drink?']]]]
-                && $request['generationConfig']['maxOutputTokens'] === config('services.coach.max_tokens');
+                && $request['generationConfig']['maxOutputTokens'] === config('services.coach.max_tokens')
+                && $request['generationConfig']['thinkingConfig'] === ['thinkingLevel' => 'low'];
         });
     }
 

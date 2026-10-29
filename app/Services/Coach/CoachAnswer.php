@@ -15,5 +15,6 @@ final readonly class CoachAnswer
         public ?int $inputTokens = null,
         public ?int $outputTokens = null,
         public ?string $stopReason = null,
+        public ?int $thinkingTokens = null,
     ) {}
 }
