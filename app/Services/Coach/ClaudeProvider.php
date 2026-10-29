@@ -53,7 +53,9 @@ class ClaudeProvider implements CoachProvider
             $calls = collect($content)->where('type', 'tool_use')->values();
 
             if ($toolChoice === 'auto' && $stopReason === 'tool_use' && $calls->isNotEmpty()) {
-                $messages[] = ['role' => 'assistant', 'content' => $content];
+                // Decode from the raw body as objects: decoding to arrays turns
+                // "input": {} into [], which Claude rejects.
+                $messages[] = ['role' => 'assistant', 'content' => json_decode($response->body())->content];
                 $messages[] = [
                     'role' => 'user',
                     'content' => $calls->map(function (array $call) use ($tools, &$toolCalls) {
