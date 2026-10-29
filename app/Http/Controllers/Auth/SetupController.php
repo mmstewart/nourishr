@@ -16,11 +16,11 @@ class SetupController extends Controller
 
         if (auth()->guest()) {
             return Inertia::render('auth/Setup', [
-                'step' => 'account'
+                'step' => 'account',
             ]);
         }
 
-        if (!$user->hasCompletedProfile()) {
+        if (! $user->hasCompletedProfile()) {
             $countries = CountryList::all();
 
             return Inertia::render('auth/Setup', [
@@ -30,7 +30,7 @@ class SetupController extends Controller
         }
 
         if ($user->weightGoal()->doesntExist()) {
-            $weeklyGoals = WeeklyGoal::all();
+            $weeklyGoals = WeeklyGoal::availableFor($user)->get();
             $activityLevels = ActivityLevel::all();
 
             return Inertia::render('auth/Setup', [

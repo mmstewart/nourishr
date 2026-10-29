@@ -27,6 +27,8 @@ class WeightGoalTest extends TestCase
 
     public function test_weight_goals_can_be_updated()
     {
+        $this->seed();
+
         $user = User::factory()->create();
 
         $user->weightGoal()->create([
