@@ -10,6 +10,7 @@ use App\Services\CoachService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 class CoachTest extends TestCase
@@ -168,6 +169,24 @@ class CoachTest extends TestCase
         ]);
 
         $this->ask()->assertSessionHas('coach_answer', 'Eat more beans.');
+    }
+
+    public function test_gemini_error_message_is_logged_for_debugging()
+    {
+        Log::spy();
+        Http::fake([
+            $this->geminiUrl() => Http::response([
+                'error' => ['code' => 400, 'status' => 'INVALID_ARGUMENT', 'message' => 'Invalid value at contents[2]'],
+            ], 400),
+        ]);
+
+        $this->ask()->assertSessionHas('error');
+
+        Log::shouldHaveReceived('warning')
+            ->withArgs(fn ($message, $context) => $message === 'Coach (Gemini) returned an error'
+                && $context['status'] === 400
+                && $context['message'] === 'Invalid value at contents[2]')
+            ->once();
     }
 
     public function test_gemini_quota_error_shows_a_friendly_message()
