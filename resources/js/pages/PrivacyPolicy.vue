@@ -22,7 +22,7 @@ const email = import.meta.env.VITE_NOURISHR_EMAIL;
                     </h1>
                     <div class="flex items-center gap-1 text-sm text-muted-foreground">
                         Last revised:
-                        <strong class="font-semibold text-foreground">May 22, 2026</strong>
+                        <strong class="font-semibold text-foreground">October 29, 2026</strong>
                         <div class="size-0.5 rounded-full bg-gray-500"></div>
                         Questions?
                         <a
@@ -314,6 +314,18 @@ const email = import.meta.env.VITE_NOURISHR_EMAIL;
                             We may share or transfer your information in connection with, or during negotiations of, any
                             merger, sale of company assets, financing, or acquisition of all or a portion of our
                             business to another company.
+                        </li>
+                        <li>
+                            <strong class="font-semibold text-foreground">AI Coach Providers.</strong>
+                            When you ask the Nourishr Coach a question, we send the text of your question to the AI
+                            provider that answers it, currently Google (Gemini API) or Anthropic (Claude API). We also
+                            tell the provider whether you are under 18 so it can follow stricter safety rules. We do
+                            not send your name, email address, or date of birth. When we use Google's free Gemini API
+                            tier, Google may use your questions and the answers to improve its products, so please do
+                            not include sensitive personal or health information in your questions. We keep a record of
+                            how many questions you ask each day to enforce usage limits, but we do not store the text of
+                            your questions or the answers. The Coach provides general nutrition information, not medical
+                            advice.
                         </li>
                     </ul>
                 </div>
