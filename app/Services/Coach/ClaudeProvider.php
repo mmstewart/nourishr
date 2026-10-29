@@ -2,6 +2,7 @@
 
 namespace App\Services\Coach;
 
+use App\Exceptions\CoachRefusedException;
 use App\Exceptions\CoachUnavailableException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
@@ -58,6 +59,12 @@ class ClaudeProvider implements CoachProvider
             ->where('type', 'text')
             ->pluck('text')
             ->implode("\n");
+
+        if ($response->json('stop_reason') === 'refusal') {
+            Log::info('Coach (Claude) declined the question');
+
+            throw new CoachRefusedException('Claude declined the question.');
+        }
 
         return new CoachAnswer(
             text: trim($text),

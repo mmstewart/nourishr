@@ -50,6 +50,8 @@ return [
         'provider' => env('COACH_PROVIDER', 'gemini'),
         'max_tokens' => (int) env('COACH_MAX_TOKENS', 1024),
         'timeout' => (int) env('COACH_TIMEOUT', 30),
+        // Answered questions allowed per user per day (resets at the user's midnight).
+        'daily_limit' => (int) env('COACH_DAILY_LIMIT', 20),
     ],
 
     'gemini' => [

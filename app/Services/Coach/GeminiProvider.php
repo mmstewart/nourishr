@@ -2,6 +2,7 @@
 
 namespace App\Services\Coach;
 
+use App\Exceptions\CoachRefusedException;
 use App\Exceptions\CoachUnavailableException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
@@ -14,6 +15,9 @@ use Illuminate\Support\Facades\Log;
 class GeminiProvider implements CoachProvider
 {
     public const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
+
+    /** Finish reasons that mean Gemini stopped for safety or policy reasons. */
+    public const SAFETY_FINISH_REASONS = ['SAFETY', 'PROHIBITED_CONTENT', 'BLOCKLIST', 'SPII'];
 
     public static function urlFor(string $model): string
     {
@@ -65,8 +69,10 @@ class GeminiProvider implements CoachProvider
         if ($blockReason = $response->json('promptFeedback.blockReason')) {
             Log::info('Coach (Gemini) blocked the question', ['reason' => $blockReason]);
 
-            throw new CoachUnavailableException("Gemini blocked the question: {$blockReason}.");
+            throw new CoachRefusedException("Gemini blocked the question: {$blockReason}.");
         }
+
+        $finishReason = $response->json('candidates.0.finishReason');
 
         // Skip "thought" parts some models return alongside the answer.
         $text = collect($response->json('candidates.0.content.parts', []))
@@ -75,13 +81,19 @@ class GeminiProvider implements CoachProvider
             ->filter()
             ->implode("\n");
 
+        if (trim($text) === '' && in_array($finishReason, self::SAFETY_FINISH_REASONS, true)) {
+            Log::info('Coach (Gemini) withheld the answer', ['reason' => $finishReason]);
+
+            throw new CoachRefusedException("Gemini withheld the answer: {$finishReason}.");
+        }
+
         return new CoachAnswer(
             text: trim($text),
             provider: 'gemini',
             model: $response->json('modelVersion', $model),
             inputTokens: $response->json('usageMetadata.promptTokenCount'),
             outputTokens: $response->json('usageMetadata.candidatesTokenCount'),
-            stopReason: $response->json('candidates.0.finishReason'),
+            stopReason: $finishReason,
         );
     }
 }

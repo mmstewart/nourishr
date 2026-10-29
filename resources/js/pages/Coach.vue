@@ -13,7 +13,11 @@ import { type BreadcrumbItem } from '@/types';
 const props = defineProps<{
     question?: string | null;
     answer?: string | null;
+    remainingToday: number;
+    dailyLimit: number;
 }>();
+
+const outOfQuestions = computed(() => props.remainingToday <= 0);
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -40,7 +44,7 @@ const form = useForm({
 const remaining = computed(() => MAX_LENGTH - form.question.length);
 
 function submit() {
-    if (!form.question.trim()) return;
+    if (!form.question.trim() || outOfQuestions.value) return;
 
     form.post('/coach', {
         preserveScroll: true,
@@ -107,12 +111,15 @@ function useExample(example: string) {
 
                         <Field class="flex items-center gap-4">
                             <Button
-                                :disabled="form.processing || !form.question.trim()"
+                                :disabled="form.processing || !form.question.trim() || outOfQuestions"
                                 type="submit"
                                 class="inline-flex w-auto! cursor-pointer items-start self-start bg-green-500 hover:bg-green-400 dark:text-white">
                                 <Spinner v-if="form.processing" class="mr-2" />
                                 {{ form.processing ? 'Thinking...' : 'Ask' }}
                             </Button>
+                            <span class="text-xs text-muted-foreground">
+                                {{ props.remainingToday }} of {{ props.dailyLimit }} questions left today
+                            </span>
                         </Field>
                     </FieldGroup>
                 </form>

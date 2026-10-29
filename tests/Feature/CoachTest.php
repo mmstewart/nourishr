@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\CoachUsage;
 use App\Models\User;
 use App\Services\Coach\ClaudeProvider;
 use App\Services\Coach\GeminiProvider;
@@ -30,9 +31,9 @@ class CoachTest extends TestCase
         ]);
     }
 
-    private function completedUser(): User
+    private function completedUser(array $attributes = []): User
     {
-        $user = User::factory()->completed()->create();
+        $user = User::factory()->completed()->create($attributes);
 
         $user->weightGoal()->create([
             'weekly_goal_id' => 1,
@@ -183,7 +184,20 @@ class CoachTest extends TestCase
             $this->geminiUrl() => Http::response(['promptFeedback' => ['blockReason' => 'SAFETY']]),
         ]);
 
-        $this->ask()->assertSessionHas('error')->assertSessionMissing('coach_answer');
+        $this->ask()
+            ->assertSessionHas('error', "I can't help with that question. Try asking about food, nutrition, or fitness.")
+            ->assertSessionMissing('coach_answer');
+    }
+
+    public function test_gemini_safety_finish_with_no_text_shows_the_cant_help_message()
+    {
+        Http::fake([
+            $this->geminiUrl() => Http::response([
+                'candidates' => [['content' => ['parts' => []], 'finishReason' => 'SAFETY']],
+            ]),
+        ]);
+
+        $this->ask()->assertSessionHas('error', "I can't help with that question. Try asking about food, nutrition, or fitness.");
     }
 
     public function test_gemini_answer_cut_off_with_no_text_is_treated_as_unavailable()
@@ -195,16 +209,6 @@ class CoachTest extends TestCase
         ]);
 
         $this->ask()->assertSessionHas('error')->assertSessionMissing('coach_answer');
-    }
-
-    public function test_missing_gemini_key_does_not_call_the_api()
-    {
-        config(['services.gemini.key' => null]);
-        Http::fake();
-
-        $this->ask()->assertSessionHas('error');
-
-        Http::assertNothingSent();
     }
 
     // --- Claude (paid provider) -------------------------------------------
@@ -254,12 +258,12 @@ class CoachTest extends TestCase
         $this->ask()->assertSessionHas('error')->assertSessionMissing('coach_answer');
     }
 
-    public function test_unknown_provider_shows_a_friendly_message()
+    public function test_unknown_provider_turns_the_coach_off()
     {
         config(['services.coach.provider' => 'not-a-provider']);
         Http::fake();
 
-        $this->ask()->assertSessionHas('error');
+        $this->ask()->assertNotFound();
 
         Http::assertNothingSent();
     }
@@ -292,5 +296,126 @@ class CoachTest extends TestCase
         $this->actingAs($user)
             ->post(route('coach.ask'), ['question' => 'Is rice healthy?'])
             ->assertStatus(429);
+    }
+
+    // --- Daily cap -----------------------------------------------------------
+
+    public function test_answered_questions_are_recorded_without_their_text()
+    {
+        $this->fakeGeminiAnswer('Eat more beans.');
+        $user = $this->completedUser();
+
+        $this->actingAs($user)->post(route('coach.ask'), ['question' => 'How do I get more fiber?']);
+
+        $usage = CoachUsage::sole();
+        $this->assertSame($user->id, $usage->user_id);
+        $this->assertSame('gemini', $usage->provider);
+        $this->assertSame(120, $usage->input_tokens);
+        $this->assertSame(40, $usage->output_tokens);
+    }
+
+    public function test_failed_answers_do_not_use_up_the_daily_cap()
+    {
+        Http::fake([$this->geminiUrl() => Http::response([], 500)]);
+
+        $this->ask();
+
+        $this->assertSame(0, CoachUsage::count());
+    }
+
+    public function test_users_who_hit_the_daily_cap_cannot_ask_more()
+    {
+        config(['services.coach.daily_limit' => 2]);
+        Http::fake();
+        $user = $this->completedUser();
+        CoachUsage::factory()->count(2)->for($user)->create();
+
+        $this->actingAs($user)
+            ->post(route('coach.ask'), ['question' => 'Is rice healthy?'])
+            ->assertSessionHas('error', "You've used all 2 coach questions for today. Your questions reset at midnight.");
+
+        Http::assertNothingSent();
+    }
+
+    public function test_daily_cap_resets_at_the_users_midnight()
+    {
+        config(['services.coach.daily_limit' => 1]);
+        $this->fakeGeminiAnswer('Answer');
+        $user = $this->completedUser(['timezone' => 'America/Chicago']);
+
+        // 11:30 pm Chicago time yesterday is before the user's midnight.
+        $this->travelTo(now('America/Chicago')->setTime(12, 0));
+        CoachUsage::factory()->for($user)->create([
+            'created_at' => now('America/Chicago')->subDay()->setTime(23, 30)->utc(),
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('coach.ask'), ['question' => 'Is rice healthy?'])
+            ->assertSessionHas('coach_answer', 'Answer');
+    }
+
+    public function test_coach_page_shows_remaining_questions()
+    {
+        config(['services.coach.daily_limit' => 5]);
+        $user = $this->completedUser();
+        CoachUsage::factory()->count(2)->for($user)->create();
+
+        $this->actingAs($user)
+            ->get(route('coach'))
+            ->assertInertia(fn ($page) => $page->where('remainingToday', 3)->where('dailyLimit', 5));
+    }
+
+    // --- Safety rules ----------------------------------------------------------
+
+    public function test_prompt_includes_the_calorie_and_weight_loss_limits()
+    {
+        $this->assertStringContainsString('fewer than 1,200 calories', CoachService::SYSTEM_PROMPT);
+        $this->assertStringContainsString('more than 2 pounds a week', CoachService::SYSTEM_PROMPT);
+    }
+
+    public function test_users_under_18_get_the_teen_rules()
+    {
+        $this->fakeGeminiAnswer('Answer');
+        $teen = $this->completedUser(['dob' => now()->subYears(15)->format('Y-m-d')]);
+
+        $this->actingAs($teen)->post(route('coach.ask'), ['question' => 'How do I lose weight?']);
+
+        Http::assertSent(fn (Request $request) => $request['systemInstruction']['parts'][0]['text']
+            === CoachService::SYSTEM_PROMPT . CoachService::TEEN_PROMPT);
+    }
+
+    public function test_adults_do_not_get_the_teen_rules()
+    {
+        $this->fakeGeminiAnswer('Answer');
+        $adult = $this->completedUser(['dob' => now()->subYears(30)->format('Y-m-d')]);
+
+        $this->actingAs($adult)->post(route('coach.ask'), ['question' => 'How do I lose weight?']);
+
+        Http::assertSent(fn (Request $request) => ! str_contains(
+            $request['systemInstruction']['parts'][0]['text'],
+            'This user is under 18'
+        ));
+    }
+
+    // --- Coach turned off ------------------------------------------------------
+
+    public function test_coach_is_hidden_and_unreachable_without_an_api_key()
+    {
+        config(['services.gemini.key' => null]);
+        Http::fake();
+        $user = $this->completedUser();
+
+        $this->actingAs($user)->get(route('feedback'))
+            ->assertInertia(fn ($page) => $page->where('coachEnabled', false));
+        $this->actingAs($user)->get(route('coach'))->assertNotFound();
+        $this->actingAs($user)->post(route('coach.ask'), ['question' => 'Is rice healthy?'])->assertNotFound();
+
+        Http::assertNothingSent();
+    }
+
+    public function test_coach_link_is_shown_when_an_api_key_is_set()
+    {
+        $this->actingAs($this->completedUser())->get(route('feedback'))
+            ->assertInertia(fn ($page) => $page->where('coachEnabled', true));
     }
 }
