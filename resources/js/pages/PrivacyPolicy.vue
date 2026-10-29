@@ -319,10 +319,14 @@ const email = import.meta.env.VITE_NOURISHR_EMAIL;
                             <strong class="font-semibold text-foreground">AI Coach Providers.</strong>
                             When you ask the Nourishr Coach a question, we send the text of your question to the AI
                             provider that answers it, currently Google (Gemini API) or Anthropic (Claude API). We also
-                            tell the provider whether you are under 18 so it can follow stricter safety rules. We do
-                            not send your name, email address, or date of birth. When we use Google's free Gemini API
-                            tier, Google may use your questions and the answers to improve its products, so please do
-                            not include sensitive personal or health information in your questions. We keep a record of
+                            tell the provider whether you are under 18 so it can follow stricter safety rules. If you
+                            turn on "Let the coach read my meals, weights, and goals," we send the logged meals,
+                            weights, and goal and calorie targets the Coach looks up to answer your question. This
+                            setting is off unless you turn it on, and you can turn it off at any time. We do not send
+                            your name, email address, or date of birth. When we use Google's free Gemini API
+                            tier, Google may use your questions, the answers, and any data shared with the Coach to
+                            improve its products, so please do not include sensitive personal or health information in
+                            your questions. We keep a record of
                             how many questions you ask each day to enforce usage limits, but we do not store the text of
                             your questions or the answers. The Coach provides general nutrition information, not medical
                             advice.

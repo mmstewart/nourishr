@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { Head, useForm, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { Head, router, useForm, usePage } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,6 +16,7 @@ const props = defineProps<{
     answer?: string | null;
     remainingToday: number;
     dailyLimit: number;
+    dataAccess: boolean;
 }>();
 
 const outOfQuestions = computed(() => props.remainingToday <= 0);
@@ -28,11 +30,35 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const MAX_LENGTH = 500;
 
-const examples = [
+const generalExamples = [
     'What are some high-protein breakfasts under 400 calories?',
     'How much fiber should I aim for each day?',
     'What are healthy snacks I can bring to work?',
 ];
+
+const personalExamples = [
+    'How was my protein this week?',
+    'Am I on track for my calorie target?',
+    'How has my weight changed this month?',
+];
+
+const examples = computed(() => (props.dataAccess ? personalExamples : generalExamples));
+
+const updatingAccess = ref(false);
+
+// Saved right away, so the next question uses the new setting.
+function setDataAccess(enabled: boolean | 'indeterminate') {
+    updatingAccess.value = true;
+
+    router.put(
+        '/coach/data-access',
+        { enabled: enabled === true },
+        {
+            preserveScroll: true,
+            onFinish: () => (updatingAccess.value = false),
+        },
+    );
+}
 
 const page = usePage();
 const errorMessage = computed(() => page.props.flash.error);
@@ -76,6 +102,29 @@ function useExample(example: string) {
                                 Ask a question about food, nutrition, or your goals. The coach gives general
                                 information, not medical advice.
                             </FieldDescription>
+                        </div>
+
+                        <div class="flex items-start gap-3 rounded-md border p-3">
+                            <Checkbox
+                                id="data-access"
+                                :model-value="props.dataAccess"
+                                :disabled="updatingAccess"
+                                aria-describedby="data-access-help"
+                                class="mt-0.5"
+                                @update:model-value="setDataAccess" />
+                            <div class="space-y-1">
+                                <label for="data-access" class="cursor-pointer text-sm font-medium">
+                                    Let the coach read my meals, weights, and goals
+                                </label>
+                                <p id="data-access-help" class="text-xs text-muted-foreground">
+                                    The coach can then answer questions about your own progress. When it does, the data
+                                    it needs is sent to the AI provider along with your question. See the
+                                    <a href="/privacy-policy#whoshare" class="underline underline-offset-2">
+                                        Privacy Policy
+                                    </a>
+                                    . You can turn this off at any time.
+                                </p>
+                            </div>
                         </div>
 
                         <Field>

@@ -49,7 +49,11 @@ return [
     'coach' => [
         'provider' => env('COACH_PROVIDER', 'gemini'),
         'max_tokens' => (int) env('COACH_MAX_TOKENS', 2048),
+        // Seconds for one model call, and for all calls in one question combined.
         'timeout' => (int) env('COACH_TIMEOUT', 30),
+        'total_timeout' => (int) env('COACH_TOTAL_TIMEOUT', 50),
+        // Rounds of tool calls before the model must answer with what it has.
+        'max_tool_rounds' => (int) env('COACH_MAX_TOOL_ROUNDS', 4),
         // Answered questions allowed per user per day (resets at the user's midnight).
         'daily_limit' => (int) env('COACH_DAILY_LIMIT', 20),
     ],

@@ -7,6 +7,7 @@ use App\Models\CoachUsage;
 use App\Models\User;
 use App\Services\Coach\ClaudeProvider;
 use App\Services\Coach\CoachProvider;
+use App\Services\Coach\CoachTools;
 use App\Services\Coach\GeminiProvider;
 use Illuminate\Support\Facades\Log;
 
@@ -14,8 +15,11 @@ use Illuminate\Support\Facades\Log;
  * Answers a user's nutrition question through whichever model API
  * COACH_PROVIDER selects (gemini or anthropic).
  *
- * Phase 1: plain question in, plain answer out. Tool calling (Phase 2) and
- * retrieval over nutrition guidelines (Phase 3) build on this class.
+ * Users who turn on data access let the coach call read-only tools over
+ * their own meals, weights, and goals (see CoachTools). Without it, the
+ * coach answers general nutrition questions only.
+ *
+ * Retrieval over nutrition guidelines (Phase 3) builds on this class.
  */
 class CoachService
 {
@@ -47,6 +51,19 @@ class CoachService
         - Politely decline questions unrelated to nutrition, food, or fitness.
         PROMPT;
 
+    /** Added when the user has turned on data access. %s is today's date. */
+    public const DATA_PROMPT = <<<'PROMPT'
+
+        You can call tools to read this user's own Nourishr data: their meal log, weight history, goals and
+        daily targets, and a USDA food search. Today is %s in the user's timezone.
+        - Use the tools when a question is about the user's own eating, weight, progress, or targets. Don't
+          call them for general questions.
+        - Base statements about the user only on tool results. If there's no data for a period, say so
+          instead of guessing.
+        - Keep numbers specific (e.g. "you averaged 92 g of protein, 28 g under your 120 g target").
+        - The safety rules above still apply to everything, including the user's own targets.
+        PROMPT;
+
     public const TEEN_PROMPT = <<<'PROMPT'
 
         This user is under 18. Do not give weight-loss advice, calorie targets, calorie deficits, or diet
@@ -56,7 +73,9 @@ class CoachService
 
     public function ask(User $user, string $question): string
     {
-        $answer = $this->provider()->answer($this->systemPromptFor($user), $question);
+        $tools = $user->coach_data_access ? new CoachTools($user) : null;
+
+        $answer = $this->provider()->answer($this->systemPromptFor($user, $tools), $question, $tools);
 
         if ($answer->text === '') {
             // MAX_TOKENS here usually means thinking used up the whole output budget.
@@ -86,16 +105,24 @@ class CoachService
             'output_tokens' => $answer->outputTokens,
             'thinking_tokens' => $answer->thinkingTokens,
             'stop_reason' => $answer->stopReason,
+            // Tool names only, never the data they returned.
+            'tool_calls' => $answer->toolCalls,
         ]);
 
         return $answer->text;
     }
 
-    public function systemPromptFor(User $user): string
+    public function systemPromptFor(User $user, ?CoachTools $tools = null): string
     {
+        $prompt = self::SYSTEM_PROMPT;
+
+        if ($tools) {
+            $prompt .= sprintf(self::DATA_PROMPT, $tools->today()->format('l, F j, Y'));
+        }
+
         $isTeen = $user->age !== null && $user->age < 18;
 
-        return $isTeen ? self::SYSTEM_PROMPT . self::TEEN_PROMPT : self::SYSTEM_PROMPT;
+        return $isTeen ? $prompt.self::TEEN_PROMPT : $prompt;
     }
 
     /**

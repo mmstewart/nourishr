@@ -22,7 +22,22 @@ class CoachController extends Controller
             'answer' => $request->session()->get('coach_answer'),
             'remainingToday' => $this->coach->remainingToday($request->user()),
             'dailyLimit' => $this->coach->dailyLimit(),
+            'dataAccess' => (bool) $request->user()->coach_data_access,
         ]);
+    }
+
+    /**
+     * Turn the coach's access to the user's own meals, weights, and goals on or off.
+     */
+    public function updateDataAccess(Request $request)
+    {
+        abort_unless($this->coach->isEnabled(), 404);
+
+        $validated = $request->validate(['enabled' => ['required', 'boolean']]);
+
+        $request->user()->update(['coach_data_access' => $validated['enabled']]);
+
+        return to_route('coach');
     }
 
     public function ask(AskCoachRequest $request)
