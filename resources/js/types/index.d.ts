@@ -24,6 +24,7 @@ export type AppPageProps<
     auth: Auth;
     sidebarOpen: boolean;
     flash: { success: string, error: string };
+    coachEnabled: boolean;
 };
 
 export interface User {

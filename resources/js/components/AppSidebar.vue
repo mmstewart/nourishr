@@ -13,11 +13,14 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
-import { Apple, House, Mail, Scale, Send } from 'lucide-vue-next';
+import { Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import { Apple, House, Mail, Scale, Send, Sparkles } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
-const mainNavItems: NavItem[] = [
+const page = usePage();
+
+const allMainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
@@ -33,7 +36,17 @@ const mainNavItems: NavItem[] = [
         href: '/nutrition-entries',
         icon: Apple,
     },
+    {
+        title: 'Coach',
+        href: '/coach',
+        icon: Sparkles,
+    },
 ];
+
+// Hide the Coach link when no AI provider key is configured.
+const mainNavItems = computed(() =>
+    allMainNavItems.filter((item) => item.href !== '/coach' || page.props.coachEnabled),
+);
 
 const footerNavItems: NavItem[] = [
     {
