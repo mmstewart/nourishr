@@ -24,7 +24,7 @@ const feedItems: FeedItem[] = [
             class="absolute top-20 left-6 md:left-12"
             :initial="{ opacity: 0 }"
             :while-in-view="{ opacity: 1 }"
-            :viewport="{ once: true }">
+            :in-view-options="{ once: true }">
             <span class="text-[10px] tracking-[0.4em] text-green-500 uppercase">03 — Biometric Feed</span>
         </motion.div>
         <div class="mx-auto max-w-4xl px-6 md:px-12">
@@ -32,7 +32,7 @@ const feedItems: FeedItem[] = [
                 class="relative mb-16 pl-12 md:pl-20"
                 :initial="{ opacity: 0, y: 30 }"
                 :while-in-view="{ opacity: 1, y: 0 }"
-                :viewport="{ once: true }"
+                :in-view-options="{ once: true }"
                 :transition="{ duration: 0.8 }">
                 <h2 class="mb-4 text-center text-4xl leading-tight font-bold tracking-tight md:text-5xl">
                     Your daily
@@ -52,7 +52,7 @@ const feedItems: FeedItem[] = [
                         class="relative pl-12 md:pl-20"
                         :initial="{ opacity: 0, x: -20 }"
                         :while-in-view="{ opacity: 1, x: 0 }"
-                        :viewport="{ once: true, margin: '-30px' }"
+                        :in-view-options="{ once: true, margin: '-30px' }"
                         :transition="{ duration: 0.5, delay: i * 0.08 }">
                         <div
                             class="absolute top-10 left-[13.5px] h-1.75 w-1.75 rounded-full bg-green-500 md:left-[29.5px]" />

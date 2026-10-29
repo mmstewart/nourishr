@@ -14,7 +14,7 @@ defineProps<{
         class="group relative rounded-md border bg-white/70 p-8 backdrop-blur-sm transition-all duration-500 hover:border-green-500"
         :initial="{ opacity: 0, y: 40 }"
         :while-in-view="{ opacity: 1, y: 0 }"
-        :viewport="{ once: true, margin: '-50px' }"
+        :in-view-options="{ once: true, margin: '-50px' }"
         :transition="{
             duration: 0.45,
             delay: index * 0.1,
