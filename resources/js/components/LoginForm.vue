@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { request } from '@/routes/password';
-import { useForm } from '@inertiajs/vue3';
+import { useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref, type HTMLAttributes } from 'vue';
 
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
@@ -21,6 +21,10 @@ const form = useForm({
     email: '',
     password: '',
 });
+
+// Set by the Google sign-in callback when it redirects back here.
+const page = usePage();
+const googleError = computed(() => (page.props.errors as Record<string, string> | undefined)?.google ?? '');
 
 // Touch tracking so we don't show errors before the user interacts
 const touchedEmail = ref(false);
@@ -122,6 +126,9 @@ function submit() {
                         Continue with Google
                     </a>
                 </Button>
+                <div v-if="googleError" class="text-center text-sm text-red-500" role="alert">
+                    {{ googleError }}
+                </div>
             </FieldGroup>
         </form>
         <FieldDescription class="flex justify-center space-x-4 text-center">
