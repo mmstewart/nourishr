@@ -45,11 +45,21 @@ return [
         'key' => env('USDA_API_SECRET'),
     ],
 
+    // AI nutrition coach. COACH_PROVIDER picks which model API answers questions.
+    'coach' => [
+        'provider' => env('COACH_PROVIDER', 'gemini'),
+        'max_tokens' => (int) env('COACH_MAX_TOKENS', 1024),
+        'timeout' => (int) env('COACH_TIMEOUT', 30),
+    ],
+
+    'gemini' => [
+        'key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL', 'gemini-3.8-flash'),
+    ],
+
     'anthropic' => [
         'key' => env('ANTHROPIC_API_KEY'),
         'model' => env('ANTHROPIC_MODEL', 'claude-sonnet-5-5'),
-        'max_tokens' => (int) env('ANTHROPIC_MAX_TOKENS', 1024),
-        'timeout' => (int) env('ANTHROPIC_TIMEOUT', 30),
     ],
 
 ];

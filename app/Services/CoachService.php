@@ -3,86 +3,64 @@
 namespace App\Services;
 
 use App\Exceptions\CoachUnavailableException;
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Support\Facades\Http;
+use App\Services\Coach\ClaudeProvider;
+use App\Services\Coach\CoachProvider;
+use App\Services\Coach\GeminiProvider;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Sends a user's question to the Claude Messages API and returns the answer text.
+ * Answers a user's nutrition question through whichever model API
+ * COACH_PROVIDER selects (gemini or anthropic).
  *
  * Phase 1: plain question in, plain answer out. Tool calling (Phase 2) and
  * retrieval over nutrition guidelines (Phase 3) build on this class.
  */
 class CoachService
 {
-    public const API_URL = 'https://api.anthropic.com/v1/messages';
-
-    public const API_VERSION = '2023-06-01';
+    public const PROVIDERS = [
+        'gemini' => GeminiProvider::class,
+        'anthropic' => ClaudeProvider::class,
+    ];
 
     public const SYSTEM_PROMPT = <<<'PROMPT'
         You are the Nourishr nutrition coach. Nourishr is an app where people log their meals, calories,
         protein, carbohydrates, fats, and weight while working toward a weight goal.
 
         Answer nutrition and healthy-eating questions clearly and briefly (under 200 words), with practical,
-        specific suggestions. Reply in plain text without Markdown; use short lines starting with "- " for lists. You give general nutrition information, not medical advice: if a question involves
-        a medical condition, medication, pregnancy, or an eating disorder, recommend talking with a doctor or
-        registered dietitian. Politely decline questions unrelated to nutrition, food, or fitness.
+        specific suggestions. Reply in plain text without Markdown; use short lines starting with "- " for lists.
+        You give general nutrition information, not medical advice: if a question involves a medical condition,
+        medication, pregnancy, or an eating disorder, recommend talking with a doctor or registered dietitian.
+        Politely decline questions unrelated to nutrition, food, or fitness.
         PROMPT;
 
     public function ask(string $question): string
     {
-        $key = config('services.anthropic.key');
+        $answer = $this->provider()->answer(self::SYSTEM_PROMPT, $question);
 
-        if (blank($key)) {
-            throw new CoachUnavailableException('ANTHROPIC_API_KEY is not set.');
-        }
-
-        try {
-            $response = Http::withHeaders([
-                'x-api-key' => $key,
-                'anthropic-version' => self::API_VERSION,
-            ])
-                ->acceptJson()
-                ->timeout(config('services.anthropic.timeout'))
-                ->post(self::API_URL, [
-                    'model' => config('services.anthropic.model'),
-                    'max_tokens' => config('services.anthropic.max_tokens'),
-                    'system' => self::SYSTEM_PROMPT,
-                    'messages' => [
-                        ['role' => 'user', 'content' => $question],
-                    ],
-                ]);
-        } catch (ConnectionException $e) {
-            Log::warning('Coach request failed to connect', ['error' => $e->getMessage()]);
-
-            throw new CoachUnavailableException('Could not reach the Claude API.', previous: $e);
-        }
-
-        if ($response->failed()) {
-            Log::warning('Coach request returned an error', [
-                'status' => $response->status(),
-                'type' => $response->json('error.type'),
-            ]);
-
-            throw new CoachUnavailableException("Claude API returned HTTP {$response->status()}.");
-        }
-
-        $answer = collect($response->json('content', []))
-            ->where('type', 'text')
-            ->pluck('text')
-            ->implode("\n");
-
-        if (trim($answer) === '') {
-            throw new CoachUnavailableException('Claude API returned no text.');
+        if ($answer->text === '') {
+            throw new CoachUnavailableException("{$answer->provider} returned no text (stop reason: {$answer->stopReason}).");
         }
 
         Log::info('Coach answered', [
-            'model' => $response->json('model'),
-            'input_tokens' => $response->json('usage.input_tokens'),
-            'output_tokens' => $response->json('usage.output_tokens'),
-            'stop_reason' => $response->json('stop_reason'),
+            'provider' => $answer->provider,
+            'model' => $answer->model,
+            'input_tokens' => $answer->inputTokens,
+            'output_tokens' => $answer->outputTokens,
+            'stop_reason' => $answer->stopReason,
         ]);
 
-        return trim($answer);
+        return $answer->text;
+    }
+
+    public function provider(): CoachProvider
+    {
+        $name = config('services.coach.provider');
+        $class = self::PROVIDERS[$name] ?? null;
+
+        if ($class === null) {
+            throw new CoachUnavailableException("Unknown COACH_PROVIDER \"{$name}\".");
+        }
+
+        return app($class);
     }
 }
