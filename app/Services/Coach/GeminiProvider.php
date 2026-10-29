@@ -66,7 +66,9 @@ class GeminiProvider implements CoachProvider
             if ($toolMode === 'AUTO' && $calls->isNotEmpty()) {
                 // Send the model's turn back exactly as received: Gemini 3 rejects
                 // the next request if its thoughtSignature is missing or changed.
-                $contents[] = $content;
+                // Decode from the raw body as objects: decoding to arrays turns
+                // "args": {} into [], which Gemini rejects as a list.
+                $contents[] = json_decode($response->body())->candidates[0]->content;
                 $contents[] = [
                     'role' => 'user',
                     'parts' => $calls->map(function (array $call) use ($tools, &$toolCalls) {

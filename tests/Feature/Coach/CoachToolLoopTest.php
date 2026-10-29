@@ -207,6 +207,40 @@ class CoachToolLoopTest extends TestCase
         $this->assertEquals(160, json_decode($followUp[2]['content'][0]['content'], true)['goal_weight_lbs']);
     }
 
+    public function test_gemini_tool_call_with_no_arguments_is_sent_back_as_an_object()
+    {
+        // Raw JSON, as Gemini sends it: an empty object, not an empty list.
+        $toolCall = '{"candidates":[{"content":{"role":"model","parts":[{"functionCall":{"name":"get_goals","args":{},"id":"call-1"},"thoughtSignature":"sig"}]},"finishReason":"STOP"}]}';
+
+        Http::fake([GeminiProvider::urlFor(self::MODEL) => Http::sequence()
+            ->push($toolCall)
+            ->push($this->geminiText('Your goal is 160 lbs.')),
+        ]);
+
+        $this->ask($this->user(), 'What is my goal?')->assertSessionHas('coach_answer', 'Your goal is 160 lbs.');
+
+        $followUp = Http::recorded()->map(fn ($pair) => $pair[0])[1]->body();
+        $this->assertStringContainsString('"args":{}', $followUp);
+        $this->assertStringNotContainsString('"args":[]', $followUp);
+    }
+
+    public function test_claude_tool_call_with_no_input_is_sent_back_as_an_object()
+    {
+        config(['services.coach.provider' => 'anthropic']);
+        $toolUse = '{"content":[{"type":"tool_use","id":"toolu_1","name":"get_goals","input":{}}],"stop_reason":"tool_use","usage":{"input_tokens":10,"output_tokens":5}}';
+
+        Http::fake([ClaudeProvider::API_URL => Http::sequence()
+            ->push($toolUse)
+            ->push(['content' => [['type' => 'text', 'text' => 'Done.']], 'stop_reason' => 'end_turn', 'usage' => ['input_tokens' => 1, 'output_tokens' => 1]]),
+        ]);
+
+        $this->ask($this->user(), 'What is my goal?')->assertSessionHas('coach_answer', 'Done.');
+
+        $followUp = Http::recorded()->map(fn ($pair) => $pair[0])[1]->body();
+        $this->assertStringContainsString('"input":{}', $followUp);
+        $this->assertStringNotContainsString('"input":[]', $followUp);
+    }
+
     public function test_users_can_turn_data_access_on_and_off()
     {
         $user = $this->user(dataAccess: false);
