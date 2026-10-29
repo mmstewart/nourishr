@@ -45,4 +45,11 @@ return [
         'key' => env('USDA_API_SECRET'),
     ],
 
+    'anthropic' => [
+        'key' => env('ANTHROPIC_API_KEY'),
+        'model' => env('ANTHROPIC_MODEL', 'claude-sonnet-5-5'),
+        'max_tokens' => (int) env('ANTHROPIC_MAX_TOKENS', 1024),
+        'timeout' => (int) env('ANTHROPIC_TIMEOUT', 30),
+    ],
+
 ];

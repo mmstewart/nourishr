@@ -14,7 +14,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { Apple, House, Mail, Scale, Send } from 'lucide-vue-next';
+import { Apple, House, Mail, Scale, Send, Sparkles } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -32,6 +32,11 @@ const mainNavItems: NavItem[] = [
         title: 'Nutrition Entries',
         href: '/nutrition-entries',
         icon: Apple,
+    },
+    {
+        title: 'Coach',
+        href: '/coach',
+        icon: Sparkles,
     },
 ];
 
