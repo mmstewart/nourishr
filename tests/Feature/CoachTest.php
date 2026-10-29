@@ -18,6 +18,8 @@ class CoachTest extends TestCase
 
     private const GEMINI_MODEL = 'gemini-test-model';
 
+    private const GEMINI_FALLBACK_MODEL = 'gemini-fallback-model';
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -26,6 +28,7 @@ class CoachTest extends TestCase
             'services.coach.provider' => 'gemini',
             'services.gemini.key' => 'gemini-test-key',
             'services.gemini.model' => self::GEMINI_MODEL,
+            'services.gemini.fallback_model' => self::GEMINI_FALLBACK_MODEL,
             'services.anthropic.key' => 'claude-test-key',
             'services.anthropic.model' => 'claude-test-model',
         ]);
@@ -177,6 +180,68 @@ class CoachTest extends TestCase
             ->assertRedirect(route('coach'))
             ->assertSessionHas('error')
             ->assertSessionMissing('coach_answer');
+    }
+
+    private function geminiResponse(string $text, string $model): array
+    {
+        return [
+            'candidates' => [['content' => ['parts' => [['text' => $text]]], 'finishReason' => 'STOP']],
+            'usageMetadata' => ['promptTokenCount' => 100, 'candidatesTokenCount' => 30],
+            'modelVersion' => $model,
+        ];
+    }
+
+    public function test_overloaded_model_falls_back_to_the_lighter_model()
+    {
+        Http::fake([
+            $this->geminiUrl() => Http::response(['error' => ['code' => 503, 'status' => 'UNAVAILABLE']], 503),
+            GeminiProvider::urlFor(self::GEMINI_FALLBACK_MODEL) => Http::response(
+                $this->geminiResponse('Fallback answer', self::GEMINI_FALLBACK_MODEL)
+            ),
+        ]);
+
+        $this->ask()->assertSessionHas('coach_answer', 'Fallback answer');
+
+        Http::assertSentCount(2);
+        $this->assertSame(self::GEMINI_FALLBACK_MODEL, CoachUsage::sole()->model);
+    }
+
+    public function test_coach_is_unavailable_when_both_models_are_overloaded()
+    {
+        Http::fake([
+            $this->geminiUrl() => Http::response(['error' => ['status' => 'UNAVAILABLE']], 503),
+            GeminiProvider::urlFor(self::GEMINI_FALLBACK_MODEL) => Http::response(['error' => ['status' => 'UNAVAILABLE']], 503),
+        ]);
+
+        $this->ask()
+            ->assertSessionHas('error', 'The coach is unavailable right now. Please try again in a minute.')
+            ->assertSessionMissing('coach_answer');
+
+        Http::assertSentCount(2);
+        $this->assertSame(0, CoachUsage::count());
+    }
+
+    public function test_quota_errors_do_not_try_the_fallback_model()
+    {
+        Http::fake([
+            $this->geminiUrl() => Http::response(['error' => ['status' => 'RESOURCE_EXHAUSTED']], 429),
+        ]);
+
+        $this->ask()->assertSessionHas('error');
+
+        Http::assertSentCount(1);
+    }
+
+    public function test_fallback_can_be_turned_off()
+    {
+        config(['services.gemini.fallback_model' => null]);
+        Http::fake([
+            $this->geminiUrl() => Http::response(['error' => ['status' => 'UNAVAILABLE']], 503),
+        ]);
+
+        $this->ask()->assertSessionHas('error');
+
+        Http::assertSentCount(1);
     }
 
     public function test_gemini_blocked_question_shows_a_friendly_message()
@@ -382,7 +447,7 @@ class CoachTest extends TestCase
         $this->actingAs($teen)->post(route('coach.ask'), ['question' => 'How do I lose weight?']);
 
         Http::assertSent(fn (Request $request) => $request['systemInstruction']['parts'][0]['text']
-            === CoachService::SYSTEM_PROMPT . CoachService::TEEN_PROMPT);
+            === CoachService::SYSTEM_PROMPT.CoachService::TEEN_PROMPT);
     }
 
     public function test_adults_do_not_get_the_teen_rules()
