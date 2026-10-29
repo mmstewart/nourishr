@@ -34,7 +34,7 @@
     "dependencies": {
         "@inertiajs/vue3": "^2.1.0",
         "@vueuse/core": "^12.8.2",
-        "@zxing/library": "^0.23.0",
+        "barcode-detector": "^3.2.3",
         "chart.js": "^4.5.1",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
@@ -46,7 +46,8 @@
         "tailwindcss": "^4.1.1",
         "vue": "^3.5.13",
         "vue-chartjs": "^5.3.3",
-        "vue-input-otp": "^0.3.2"
+        "vue-input-otp": "^0.3.2",
+        "zxing-wasm": "^3.1.6"
     },
     "optionalDependencies": {
         "@rollup/rollup-linux-x64-gnu": "4.9.5",

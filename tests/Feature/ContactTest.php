@@ -64,7 +64,7 @@ class ContactTest extends TestCase
         Mail::fake();
 
         $this->seed();
-        $user = User::factory()->completed()->create();
+        $user = User::factory()->completed()->create(['name' => 'Jane Doe']);
 
         $response = $this->actingAs($user)->post(route('contact.store'), [
             'name' => $user->name,
@@ -95,7 +95,7 @@ class ContactTest extends TestCase
 
     public function test_contact_form_rejects_spam_bots_as_user()
     {
-        $user = User::factory()->completed()->create();
+        $user = User::factory()->completed()->create(['name' => 'Jane Doe']);
 
         $response = $this->actingAs($user)->post(route('contact.store'), [
             'name' => $user->name,
@@ -127,7 +127,7 @@ class ContactTest extends TestCase
 
     public function test_contact_form_throttles_users()
     {
-        $user = User::factory()->completed()->create();
+        $user = User::factory()->completed()->create(['name' => 'Jane Doe']);
 
         for ($i = 0; $i < 6; $i++) {
             $this->actingAs($user)->post(route('contact.store'), [

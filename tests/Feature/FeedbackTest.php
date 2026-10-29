@@ -14,7 +14,7 @@ class FeedbackTest extends TestCase
 
     public function test_feedback_screen_can_be_rendered()
     {
-        $user = User::factory()->completed()->create();
+        $user = User::factory()->completed()->create(['name' => 'Jane Doe']);
 
         $user->weightGoal()->create([
             'weekly_goal_id' => 1,
@@ -32,7 +32,7 @@ class FeedbackTest extends TestCase
 
     public function test_feedback_page_has_authenticated_user()
     {
-        $user = User::factory()->completed()->create();
+        $user = User::factory()->completed()->create(['name' => 'Jane Doe']);
 
         $user->weightGoal()->create([
             'weekly_goal_id' => 1,
@@ -58,7 +58,7 @@ class FeedbackTest extends TestCase
 
         $this->seed();
 
-        $user = User::factory()->completed()->create();
+        $user = User::factory()->completed()->create(['name' => 'Jane Doe']);
 
         $user->weightGoal()->create([
             'weekly_goal_id' => 1,
@@ -95,7 +95,7 @@ class FeedbackTest extends TestCase
 
     public function test_feedback_form_rejects_spam_bots()
     {
-        $user = User::factory()->completed()->create();
+        $user = User::factory()->completed()->create(['name' => 'Jane Doe']);
 
         $user->weightGoal()->create([
             'weekly_goal_id' => 1,
@@ -122,7 +122,7 @@ class FeedbackTest extends TestCase
 
     public function test_feedback_form_throttles_excessive_requests()
     {
-        $user = User::factory()->completed()->create();
+        $user = User::factory()->completed()->create(['name' => 'Jane Doe']);
 
         $user->weightGoal()->create([
             'weekly_goal_id' => 1,

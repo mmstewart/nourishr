@@ -12,8 +12,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Spinner } from '@/components/ui/spinner';
 import { getLocalTimeZone, today, type DateValue } from '@internationalized/date';
 import { useDebounceFn } from '@vueuse/core';
-import { BarcodeFormat, BrowserMultiFormatReader, DecodeHintType } from '@zxing/library';
+import { BarcodeDetector, prepareZXingModule } from 'barcode-detector/ponyfill';
 import { CalendarIcon } from 'lucide-vue-next';
+import zxingWasmUrl from 'zxing-wasm/reader/zxing_reader.wasm?url';
 
 import NutrientGrid from '@/components/NutrientGrid.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -72,7 +73,22 @@ const pendingQuantity = ref('1');
 const videoEl = ref<HTMLVideoElement | null>(null);
 const scanError = ref('');
 const scanSuccess = ref('');
-let codeReader: BrowserMultiFormatReader | null = null;
+
+// Serve the ZXing-C++ WebAssembly engine from this site instead of a CDN.
+prepareZXingModule({
+    overrides: {
+        locateFile: (path: string, prefix: string) => (path.endsWith('.wasm') ? zxingWasmUrl : prefix + path),
+    },
+});
+
+// Grocery barcode formats only: fewer formats means faster, more accurate reads.
+const GROCERY_FORMATS = ['ean_13', 'ean_8', 'upc_a', 'upc_e'] as const;
+const SCAN_INTERVAL_MS = 150;
+
+let detector: BarcodeDetector | null = null;
+let cameraStream: MediaStream | null = null;
+let scanTimer: ReturnType<typeof setTimeout> | null = null;
+let scanning = false;
 
 function extractNutrient(product: any, standardName: string, factor: number): number {
     const rawVal = product?.foodNutrients?.find((n: any) => n.nutrientName === standardName)?.value ?? 0;
@@ -126,54 +142,82 @@ async function startScanner() {
     scanError.value = '';
     scanSuccess.value = '';
 
-    if (!codeReader) {
-        const hints = new Map();
-
-        hints.set(DecodeHintType.TRY_HARDER, true);
-
-        hints.set(DecodeHintType.POSSIBLE_FORMATS, [
-            BarcodeFormat.UPC_A,
-            BarcodeFormat.UPC_E,
-            BarcodeFormat.EAN_13,
-            BarcodeFormat.EAN_8,
-        ]);
-
-        codeReader = new BrowserMultiFormatReader(hints);
+    if (!videoEl.value) {
+        scanError.value = 'Camera display not found.';
+        return;
     }
 
-    codeReader = new BrowserMultiFormatReader();
+    stopScanner();
 
     try {
-        if (!videoEl.value) {
-            scanError.value = 'Camera display not found.';
-            return;
-        }
-
-        const constraints: MediaStreamConstraints = {
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
             video: {
                 facingMode: { ideal: 'environment' },
-                width: { min: 640, ideal: 1280 },
-                height: { min: 480, ideal: 720 },
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
             },
-        };
-
-        await codeReader.decodeFromConstraints(constraints, videoEl.value, async (result, error) => {
-            if (result) {
-                codeReader?.reset();
-                await lookupNutritionLabel(result.getText());
-            }
-
-            if (error) {
-            }
         });
     } catch {
         scanError.value = 'Could not access camera. Please check permissions.';
+        return;
+    }
+
+    videoEl.value.srcObject = cameraStream;
+    videoEl.value.setAttribute('playsinline', 'true'); // keeps iOS from opening fullscreen video
+    videoEl.value.muted = true;
+
+    try {
+        await videoEl.value.play();
+    } catch {
+        scanError.value = 'Could not start the camera preview.';
+        stopScanner();
+        return;
+    }
+
+    detector ??= new BarcodeDetector({ formats: [...GROCERY_FORMATS] });
+    scanning = true;
+    scanFrame();
+}
+
+async function scanFrame() {
+    if (!scanning || !detector || !videoEl.value) return;
+
+    // Wait until the video has a frame to read.
+    if (videoEl.value.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+        try {
+            const [barcode] = await detector.detect(videoEl.value);
+
+            if (barcode?.rawValue && scanning) {
+                stopScanner();
+                await lookupNutritionLabel(barcode.rawValue);
+                return;
+            }
+        } catch (error) {
+            // A failed frame (e.g. while the engine is still loading) shouldn't stop scanning.
+            console.debug('Barcode detection failed for this frame', error);
+        }
+    }
+
+    if (scanning) {
+        scanTimer = setTimeout(scanFrame, SCAN_INTERVAL_MS);
     }
 }
 
 function stopScanner() {
-    codeReader?.reset();
-    codeReader = null;
+    scanning = false;
+
+    if (scanTimer) {
+        clearTimeout(scanTimer);
+        scanTimer = null;
+    }
+
+    cameraStream?.getTracks().forEach((track) => track.stop());
+    cameraStream = null;
+
+    if (videoEl.value) {
+        videoEl.value.srcObject = null;
+    }
 }
 
 async function lookupNutritionLabel(label: string) {
@@ -496,7 +540,7 @@ function submit() {
             <div v-if="mode === 'scan'" class="space-y-4">
                 <div
                     class="relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-md border border-input dark:bg-input/30">
-                    <video ref="videoEl" class="h-full w-full object-cover"></video>
+                    <video ref="videoEl" class="h-full w-full object-cover" playsinline muted></video>
                     <div v-if="isSearching" class="absolute inset-0 flex items-center justify-center bg-background/50">
                         <Spinner />
                     </div>
