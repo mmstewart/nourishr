@@ -52,6 +52,7 @@ const nutritionEntries = ref<
     Pick<
         NutritionEntry,
         | 'fdc_id'
+        | 'barcode'
         | 'food_item'
         | 'calories'
         | 'protein'
@@ -189,7 +190,8 @@ async function lookupNutritionLabel(label: string) {
             const nutriments = product.nutriments ?? {};
 
             nutritionEntries.value.push({
-                fdc_id: product.fdcId,
+                fdc_id: null,
+                barcode: label,
                 food_item: product.product_name,
                 calories: nutriments['energy-kcal_100g'] ?? 0,
                 protein: nutriments.proteins_100g ?? 0,
@@ -277,6 +279,7 @@ function addNutritionEntry() {
 
     nutritionEntries.value.push({
         fdc_id: pendingProduct.value.fdcId,
+        barcode: null,
         food_item: pendingProduct.value.description,
         calories: Math.round(extractNutrient(prod, 'Energy', factor)),
         protein: parseFloat(extractNutrient(prod, 'Protein', factor).toFixed(2)),
@@ -321,6 +324,7 @@ function submit() {
         date: entryDate.value.toString(),
         entries: nutritionEntries.value.map((entry) => ({
             fdc_id: entry.fdc_id,
+            barcode: entry.barcode,
             food_item: entry.food_item,
             calories: Math.round(entry.calories * entry.quantity),
             protein: parseFloat((entry.protein * entry.quantity).toFixed(2)),

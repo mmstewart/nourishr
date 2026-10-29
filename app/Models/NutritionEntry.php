@@ -11,6 +11,7 @@ class NutritionEntry extends Model
     use HasFactory;
 
     protected $fillable = [
+        'barcode',
         'calories',
         'carbohydrates',
         'date',
@@ -43,7 +44,7 @@ class NutritionEntry extends Model
 
         return [
             ['label' => '100g', 'gramWeight' => 100],
-            ...($product['serving_size'] ? [[
+            ...(! empty($product['serving_size']) ? [[
                 'label' => $product['serving_size'],
                 'gramWeight' => $product['serving_quantity'] ?? 100,
             ]] : []),
@@ -84,8 +85,15 @@ class NutritionEntry extends Model
 
     public function getServingOptions()
     {
-        return $this->fdc_id
-            ? $this->getUSDAServingOptions($this->fdc_id)
-            : $this->getOpenFoodFactsServingOptions($this->barcode);
+        if ($this->fdc_id) {
+            return $this->getUSDAServingOptions((string) $this->fdc_id);
+        }
+
+        if ($this->barcode) {
+            return $this->getOpenFoodFactsServingOptions($this->barcode);
+        }
+
+        // Entries saved before fdc_id/barcode existed have no source to look up.
+        return [['label' => '100g', 'gramWeight' => 100]];
     }
 }

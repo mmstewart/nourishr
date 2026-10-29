@@ -12,6 +12,7 @@ class StoreNutritionEntryRequest extends FormRequest
             'date' => ['required', 'date', 'before_or_equal:today'],
             'entries' => ['required', 'array', 'min:1'],
             'entries.*.fdc_id' => ['nullable', 'integer'],
+            'entries.*.barcode' => ['nullable', 'string', 'regex:/^[0-9]{6,32}$/'],
             'entries.*.meal_type' => ['required', 'in:breakfast,lunch,dinner,snack'],
             'entries.*.food_item' => ['required', 'max:255'],
             'entries.*.calories' => ['required', 'integer', 'min:0'],

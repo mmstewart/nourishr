@@ -15,7 +15,7 @@ withDefaults(
 <template>
     <section
         id="cta"
-        class="relative overflow-hidden bg-[linear-gradient(180deg,##f3f4f6_0%,#F5FFF7_100%)] py-32 md:py-48">
+        class="relative overflow-hidden bg-[linear-gradient(180deg,#f3f4f6_0%,#F5FFF7_100%)] py-32 md:py-48">
         <div class="pointer-events-none absolute inset-0" aria-hidden="true">
             <img
                 :src="images[0]"
