@@ -192,6 +192,9 @@ class GeminiProvider implements CoachProvider
                 'model' => $model,
                 'status' => $response->status(),
                 'type' => $response->json('error.status'),
+                // Gemini's explanation, e.g. which request field it rejected. Truncated; it never
+                // contains the user's data, only details about the request format.
+                'message' => mb_substr((string) $response->json('error.message'), 0, 500),
             ]);
 
             throw new CoachUnavailableException("Gemini API returned HTTP {$response->status()}.");

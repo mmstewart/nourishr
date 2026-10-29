@@ -128,6 +128,7 @@ class ClaudeProvider implements CoachProvider
             Log::warning('Coach (Claude) returned an error', [
                 'status' => $response->status(),
                 'type' => $response->json('error.type'),
+                'message' => mb_substr((string) $response->json('error.message'), 0, 500),
             ]);
 
             throw new CoachUnavailableException("Claude API returned HTTP {$response->status()}.");
