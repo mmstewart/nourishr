@@ -60,14 +60,16 @@ return [
 
     'gemini' => [
         'key' => env('GEMINI_API_KEY'),
-        'model' => env('GEMINI_MODEL', 'gemini-3.8-flash'),
+        // Flash-Lite is fast enough for tool questions to finish well within
+        // the time budget; gemini-3.8-flash timed out on them in production.
+        'model' => env('GEMINI_MODEL', 'gemini-3.5-flash-lite'),
         // Gemini 3 Flash thinks at "high" by default, and thinking shares the
         // output token budget. "low" keeps room for the answer. Set it empty
         // to use the model's default.
         'thinking_level' => env('GEMINI_THINKING_LEVEL', 'low'),
         // Tried once when the main model is overloaded (HTTP 500/503). Leave
         // empty to turn the fallback off.
-        'fallback_model' => env('GEMINI_FALLBACK_MODEL', 'gemini-3.5-flash-lite'),
+        'fallback_model' => env('GEMINI_FALLBACK_MODEL', 'gemini-3.8-flash'),
     ],
 
     'anthropic' => [
